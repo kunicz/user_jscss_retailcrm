@@ -1,6 +1,22 @@
 console.log('User Javascript Enabled');
 
 var today = new Date();
+var noFlowers = [
+	'Транспортировочное', 'Упаковка', 'Декор', 'Оазис', 'Основа', 'Поддон', 'Яйцо', 'Свеча', 'Секатор', 'Игрушка', // разное
+	'Ящик', 'Сердце', 'Кастрюля', 'Корзина', 'Горшок', 'Коробка' //ёмкости
+];
+
+/* улучшаем страницы */
+setInterval(function () {
+	if ($('#main.modified').length) return;
+	$('#main').addClass('modified');
+	orderPage();
+	ordersPage();
+	productPage();
+	courierPage();
+}, 50);
+leftMenu();
+hiddenFinance();
 
 /* игнорировать страницы, для которых еще не написан custom JS */
 function pageHasCustomJs(page = null) {
@@ -25,48 +41,6 @@ function pageHasCustomJs(page = null) {
 	function testPage(p) {
 		return (new RegExp(p)).test(window.location.pathname);
 	}
-}
-
-/* при изменении в адресной строке перезагружать страницу */
-alwaysReloadOnHrefChange();
-function alwaysReloadOnHrefChange() {
-	var href = window.location.href;
-	setInterval(function () {
-		if (href == window.location.href) return;
-		href = window.location.href;
-		if (!pageHasCustomJs()) return;
-		customRetailCrmFunctions();
-	}, 50);
-}
-
-/* скрыть финансовую информацию */
-hiddenFinance();
-function hiddenFinance() {
-	$('html').addClass('hiddenFinance');
-	$(window).on('keypress', function (e) {
-		/* shift+space */
-		if (e.shiftKey && e.which == 32) {
-			e.preventDefault();
-			$('html').toggleClass('hiddenFinance');
-		}
-	});
-}
-
-/* торговые предложение не из группы "срезка" */
-var noFlowers = [
-	...['Транспортировочное', 'Упаковка', 'Декор', 'Оазис', 'Основа', 'Поддон', 'Яйцо', 'Свеча', 'Секатор', 'Игрушка'], // разное
-	...['Ящик', 'Сердце', 'Кастрюля', 'Корзина', 'Горшок', 'Коробка'] //ёмкости
-];
-console.log(noFlowers);
-
-/* улучшаем страницы */
-customRetailCrmFunctions();
-function customRetailCrmFunctions() {
-	orderPage();
-	ordersPage();
-	productPage();
-	courierPage();
-	leftMenu();
 }
 
 /********************
@@ -109,7 +83,6 @@ function orderPage() {
 		orderCustomFieldsToRight();
 		orderFloristField();
 		orderFlowersRashod();
-		orderReloadOnSave();
 
 		setInterval(function () {
 			tovars = getTovars();
@@ -607,13 +580,6 @@ function orderPage() {
 			if (noflowersRashodFieldOldValue != noflowersPrice) noflowersRashodField.val(noflowersPrice);
 		}
 	}
-	/* перезагрузить страницу, если сохраняем и не выхоидим */
-	function orderReloadOnSave() {
-		$('body').on('click', 'button[name="save"],button[name="set_status_button"]', function () {
-			smartReload();
-		});
-	}
-
 	/* HELPERS */
 	function getTovars() {
 		return tovarsTable.find('tbody.product-group');
@@ -724,13 +690,11 @@ function ordersPage() {
 		table = $('.js-order-list');
 		if (!table.length) return;
 		trs = getTrs();
-		if (!trs.length) return;
 		ths = getThs();
 
 		ordersTdIndexes();
 		ordersHideHiddenCols();
 		ordersNewOrderAppear();
-		ordersReloadPage();
 		ordersColoredRows();
 		ordersComments();
 		ordersOnanim();
@@ -745,7 +709,6 @@ function ordersPage() {
 		ordersCopySostav();
 		ordersCopyCustomText();
 		ordersNotifyPoluchatel();
-		ordersOrderByCreationDate();
 		ordersFilterDelivery();
 		ordersFilterZakazDate();
 		ordersFilterSpisanie();
@@ -782,12 +745,6 @@ function ordersPage() {
 			ordersHideHiddenCols();
 			oldVal = trs.length;
 		}, 1000);
-	}
-	/* обновляем страницу, если было изменение по клику на что-то */
-	function ordersReloadPage() {
-		$('body').on('click', 'button[type="submit"],#multiple-status-change-button,#multiple-courier-change a,a.filterDate', function () {
-			smartReload();
-		});
 	}
 	/* подкрашиваем строки */
 	function ordersColoredRows() {
@@ -1183,11 +1140,6 @@ function ordersPage() {
 			}
 		});
 	}
-	/* по умолчанию сортировка по дате создания заказа */
-	function ordersOrderByCreationDate() {
-		if (window.location.search) return;
-		window.location.search = '?filter%5Bsort%5D=created_at&filter%5Bdirection%5D=desc';
-	}
 	/* фильтр: доставка (сегодня/завтра) */
 	function ordersFilterDelivery() {
 		$('.default-form-filter .filter-group').each(function () {
@@ -1386,7 +1338,6 @@ function ordersPage() {
 		});
 		$('#list-total-count').before('<span id="list-total-flowersRashod">Расход на закуп (цветок/упак): ' + flowersSummary + ' ₽ / ' + neflowersSummary + ' ₽ </span>');
 	}
-
 	/* HELPERS */
 	function getTrs() {
 		return table.find('tr[data-url*="orders"]');
@@ -1412,7 +1363,6 @@ function productPage() {
 	} else {
 		productEditablePage();
 	}
-
 	function productNotEditablePage() { }
 	function productEditablePage() {
 		var blocks;
@@ -1615,7 +1565,6 @@ function courierPage() {
 
 		clearInterval(int);
 	}, 50);
-
 	/* перезагрузка после сохранения */
 	function courierReloadOnSave() {
 		$('body').on('click', 'button[name="submit"]', function () {
@@ -1682,28 +1631,25 @@ function leftMenu() {
 		a.insertAfter(a.siblings(':last'));
 	}
 }
-
+/*******************
+СКРЫТЬ ОТ ПОСТОРОННИХ
+************************/
+function hiddenFinance() {
+	$('html').addClass('hiddenFinance');
+	$(window).on('keypress', function (e) {
+		/* shift+space */
+		if (e.shiftKey && e.which == 32) {
+			e.preventDefault();
+			$('html').toggleClass('hiddenFinance');
+		}
+	});
+}
 
 
 /*******************
 HELPERS
 ************************/
 
-/* перезагружать страницу только после того, как crm загрузит все формы на сервер (появится и пропадет прелоадер)
-на очень быстром интернете не успевает срабатывать */
-readyToReload = false;
-function smartReload() {
-	//перезагружаем только после того, как стандартный лоадер отработает и пропадет
-	var int = setInterval(function () {
-		var loader = $('.black-red-loader'); //class: stat-box-popup-bg overpage bg-light o-bg black-red-loader
-		if (!loader.length && !readyToReload) return;
-		readyToReload = true;
-		if (loader.length && readyToReload) return;
-		readyToReload = false;
-		clearInterval(int);
-		customRetailCrmFunctions();
-	}, 50);
-}
 /* кнопка для копирования */
 function ctrlCbtn() {
 	return $('<a style="position:absolute;top:2px;right:5px">❐</a>');
