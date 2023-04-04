@@ -237,25 +237,14 @@ function orderPage() {
 	}
 	/* товары по алфавиту */
 	function orderTovarsASC() {
-		var widths, tovarsLength;
+		var tovarsLength;
 		tovarsLength = tovars.length;
-		getRowsWidths();
-		tableCSS();
 		sortRows();
 		setInterval(function () {
 			if (tovars.length == tovarsLength) return;
 			tovarsLength = tovars.length;
 			sortRows();
-		}, 2000);
-		/* добавляем стили для таблицы товаров */
-		function tableCSS() {
-			var styles = [
-				'#order-products-table{display:flex;flex-direction:column;flex-wrap:nowrap;}',
-				'#order-products-table thead,#order-products-table tbody,#order-products-table tr{width:100%;display:table}',
-				'#order-products-table th{border-left:0 none;border-right:0 none}'
-			];
-			tovarsTable.after('<style>' + styles.join('') + '</style>');
-		}
+		}, 50);
 		/* меняем порядок товаров по алфавиту */
 		function sortRows() {
 			tovars.sort(function (a, b) {
@@ -277,24 +266,7 @@ function orderPage() {
 			});
 			tovars.each(function (i, row) {
 				if (isBuket($(row))) return true;
-				$(row).css('order', (i + 100));
-			});
-			if (!widths.length) getRowsWidths();
-			setRowsWidths();
-		}
-		/* устанавливаем ширины стобцов таблицы товаров */
-		function setRowsWidths() {
-			tovarsTable.find('tr').each(function () {
-				$(this).children('td,th').each(function (i) {
-					$(this).width(widths[i] + 'px');
-				});
-			});
-		}
-		/* собираем ширины столбцов таблицы товаров */
-		function getRowsWidths() {
-			widths = [];
-			tovars.eq(0).find('td').each(function () {
-				widths.push($(this).width());
+				$(row).appendTo($(row).parent());
 			});
 		}
 	}
