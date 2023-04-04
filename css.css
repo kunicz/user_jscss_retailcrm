@@ -1,0 +1,287 @@
+/* ORDERS */
+	.modern-table-container{overflow-x:visible;}
+	/* tovars rows */
+		/* td,th */
+		.js-order-list th,.js-order-list td,.js-order-list tr td:first-child{position:relative;padding-left:8px}
+		.js-order-list tr:nth-child(n+3) td{padding-top:8px;padding-bottom:8px;}
+		/* выебри карточку */
+		.orderComment:after{display:block;font-size:.8em;margin-top:3px;opacity:.5}
+		.orderComment.withCustomText:after{content:'+ свой текст'}
+		.orderComment.zakazchikOnanim:after{content:'аноним'}
+		/* покупатель */	
+		.important-flag.vip{position:absolute;top:5px;right:5px}
+		/* статус */
+		.js-order-list .bill{font-size:inherit;}
+	/*импорт*/
+	a[href="/orders/import"]{display:none}
+	/*фильтр*/
+	.m-filter .filter-save__btn{display:none}
+	/* poluchtelDop */
+	.poluchatelDop{width:15px;text-align:center}
+	.poluchatelDop > *{display:block;margin-bottom:5px}
+
+/* ORDER */
+	/*данные заказчика*/
+		#intaro_crmbundle_ordertype_customFields_messenger_zakazchika{margin-right:3px}
+		[data-order-section="customer"] .messengerIcon{cursor:pointer;display:inline-block;margin-left:7px;line-height:26px}
+		[data-order-section="customer"] .messengerIcon svg{vertical-align:middle}
+	/*отгрузка и доставка*/
+		/*время*/
+			#time-group .form-element-hint{display:none}
+		/*склад*/
+			[data-order-section="shipment"]{display:none}
+		/*адрес*/
+			#address-notes,#index-text{display:none!important}
+			.adresCopyBtn{margin-left:10px;font-weight:300;font-size:13px;line-height:1.2;}
+	/*коммуникации*/
+		#order-communications{display:none}
+	/* товары в таблице заказа */
+		.modern-order-table tr .last-cell.price{margin-bottom:0}
+		.modern-order-table .info-btn-group{margin:0}
+		.modern-table.order-products tr td,
+		.modern-order-table tr td.subtotal.align-to-input{padding:10px!important}
+		.dropdown_vat,
+		.modern-table .acc-tovar{display:none}
+		.modern-order-table .subtotal .value.patch-target{margin-bottom:0}
+		.modern-order-table .add-property{margin-top:0}
+		.product-group td:last-child > div{display:inline-block}
+		.product-bonuses{margin:0}
+		.modern-order-table .subtotal .info-btn-group,
+		.modern-order-table .subtotal .info-btn-group .info-btn,
+		.modern-order-table .subtotal .info-btn-group .info-btn__switch_trash{width:16px;height:16px;margin:0;min-width:auto;position:static;bottom:auto;right:auto;}
+		.modern-order-table .subtotal .info-btn-group{margin-left:10px}
+	/* кастомные поля справа */
+		#order-custom-fields.toRight{width:100%}
+		#order-custom-fields.toRight .input-group{min-width:unset}
+		#order-custom-fields.toRight .input-group > label,#order-custom-fields.toRight .input-group > div{display:block;width:100%}
+		#order-custom-fields.toRight .input-group input[type="text"],
+		#order-custom-fields.toRight .input-group textarea{width:100%;min-width:unset}
+		#order-custom-fields.toRight .field-for-group > div:first-child{padding-top:10px}
+	/* ostatki popup */
+		.popupTitle small{opacity:.5;font-size:.7em}
+
+/* PRODUCT (non editable) */
+	#product-offers + div,#product-offers + div + div.m-box /*аналоги*/,
+	#product-offers + div + div.m-box + div,#product-offers + div + div.m-box + div + div.m-box/*с этим товаром покупают*/{display:none}
+
+/* PRODUCT (editable) */
+	/*background*/
+	#content-wrapper[data-module-name="warehouse"] .bg{background:#fff}
+	/*box-shadow*/
+	.UiCollapseBox_box_active_3eKB2, .UiCollapseBox_box_XPylv:not(.UiCollapseBox_box_disabled_3qUML):hover,
+	.UiCollapseBox_box_bordered_1M3dt:not(.UiCollapseBox_box_active_3eKB2):not(.UiCollapseBox_box_disabled_3qUML):hover{box-shadow:none!important}
+	
+	/* blocks menu */
+	.UiTabs_tabs__controls_2RzE1{display:none}
+	/* blocks */
+	.ostatki .warehouse-product__col_sm{max-width:unset}
+	.ostatki .UiCollapseBox_box_shadows_3NVfA,
+	.ostatki .UiCollapseBox_box_shadows_3NVfA > div,
+	.ostatki .UiCollapseBox_box_shadows_3NVfA > div > div,
+	.ostatki .UiCollapseBox_box_shadows_3NVfA > div > div > div{border:0 none;box-shadow:none!important;border-radius:unset;transition:none}
+	
+	/* торговые предложения */
+		/* название товара в таблице */
+		.ostatki .caption{font-weight:500;font-size:18px;line-height:1.5;vertical-align:middle;margin-right:10px}
+		.ostatki .table[multiple] .caption{display:none}
+		
+		/* .priceData */
+		.ostatki .priceData > div{margin:0;background:0 none;height:36px}
+		.ostatki .priceData .UiCollapseBox_box__inner-wrap_1VedQ{line-height:36px}
+		.ostatki .priceData .prices-table{margin:0}
+		.ostatki .priceData .prices-table td{padding:0;width:auto}
+		.ostatki .priceData .setting-box > div{display:inline-block;margin:0 10px 0 0;vertical-align:middle}
+		.ostatki .priceData .warehouse-product__purchase .warehouse-product__tooltip{width:auto}
+		.ostatki .priceData .warehouse-product__purchase,.ostatki .prices-table .UiInput_ui-input_3K9rK,
+		.ostatki .priceData .product-offers__property{width:100px;}
+		.ostatki .priceData .UiField_field-row_2D3qI,/*заголовок "закупочная цена"*/
+		.ostatki .priceData .prices-table thead,/*заголовок "цена"*/
+		.ostatki .priceData .product-offers__currency,.ostatki .warehouse-product__purchase-currency,/*рубли 1*/
+		.ostatki .priceData .prices-table .prices-table__cell_currency,/*рубли 2*/
+		.ostatki .priceData .prices-table + div
+		{display:none}
+		
+		/* priceData.manyPrices */
+			.ostatki .table:not([multiple]) .priceData.manyPrices{display:none}
+			/*закрытый*/
+				.ostatki .priceData.manyPrices .UiCollapseBox_box_XPylv,.ostatki .variant .UiCollapseBox_box__inner-wrap_1VedQ{border-radius:unset;border:0 none}
+				.ostatki .priceData.manyPrices .UiCollapseBox_box__row_head_2ZWiJ,
+				.ostatki .priceData.manyPrices .UiCollapseBox_box__head_1aV0s
+				{width:100%;padding:0}
+				.ostatki .priceData.manyPrices .product-content-box__content > div{margin:0}
+				.ostatki .priceData.manyPrices .product-offers__title__status,/*статус "активно"*/
+				.ostatki .priceData.manyPrices .UiCollapseBox_box__col_XOadK,/*иконка*/
+				.ostatki .priceData.manyPrices .setting-box:nth-child(2),/*свойства*/
+				.ostatki .priceData.manyPrices .UiCollapseBox_box__action_2AvHs/*свернуть/развернуть*/
+				{display:none!important}
+			/*открытый*/
+				.ostatki .priceData.manyPrices .UiCollapseBox_box__inner-wrap_1VedQ{border:0 none}
+				.ostatki .priceData.manyPrices .setting-box:nth-child(2),/*свойства*/
+				.ostatki .priceData.manyPrices .setting-title/*заголовок "цена"*/
+				{display:none}
+				.ostatki .priceData.manyPrices .UiCollapseBox_pointer_1g2yb{display:inline-block;width:auto}
+				.ostatki .priceData.manyPrices .approxPrice{opacity:.5;font-weight:400;font-size:.8em;margin-left:5px}
+				.ostatki .priceData.manyPrices .setting-box{display:inline-block;vertical-align:middle}
+				.ostatki .priceData.manyPrices .setting-box:first-child{padding:0;border:0 none;margin-right:10px}
+				.ostatki .priceData.manyPrices .UiSwitch_switch_2hvMr{vertical-align:middle}
+				.ostatki .priceData.manyPrices .setting-box:nth-child(4){margin:0}
+				.ostatki .priceData.manyPrices .UiCollapseBox_box__inner-wrap_1VedQ > div,
+				.ostatki .priceData.manyPrices .UiCollapse_content_1bm3K,
+				.ostatki .priceData.manyPrices .UiCollapseBox_box__row_2U_2D,
+				.ostatki .priceData.manyPrices .UiCollapseBox_box__footer_2iHeh{display:inline-block;vertical-align:middle;padding:0}
+				.ostatki .priceData.manyPrices .UiCollapse_content_1bm3K > div{min-height:unset!important}
+				.ostatki .priceData.manyPrices .UiCollapseBox_box__row_body_3IRaY{width:auto}
+				.ostatki .priceData.manyPrices .UiCollapseBox_box__inner_15Car{margin:0;max-width:unset}
+				.ostatki .priceData.manyPrices .setting-box,
+				.ostatki .priceData.manyPrices .setting-box > div{display:inline-block;margin:0;padding:0;vertical-align:middle}
+				.ostatki .priceData.manyPrices .setting-box:nth-child(4) > div > div:last-child,
+				.ostatki .priceData.manyPrices .setting-box:nth-child(4) > div:after
+				{display:inline-block;vertical-align:middle}
+				.ostatki .priceData.manyPrices .setting-box:nth-child(4) > div:after{content:' ₽ ';font-size:16px;margin:0 10px 0 5px}
+				.ostatki .priceData.manyPrices .UiSwitch_switch__text_21bAo,/*активно*/
+				.ostatki .priceData.manyPrices .setting-box .setting-title/*заголовок "цена"*/
+				{display:none}
+				/*заголовок*/
+				.ostatki .priceData.manyPrices .UiCollapseBox_box__head_1aV0s{padding:0;margin-right:10px}
+				/*тумблер активности*/
+				.ostatki .priceData.manyPrices .setting-box_delimetr{border:0 none;}
+				/*цены*/
+				/*кнопки "закрыть/удалить"*/
+				.ostatki .priceData.manyPrices .UiCollapseBox_box__footer_2iHeh{min-height:unset;background:none}
+			
+		/* priceData.onePrice */
+			.ostatki .table[multiple] .priceData.onePrice{display:none}
+			.ostatki .priceData.onePrice{display:inline-block;vertical-align:middle}
+			.ostatki .priceData.onePrice > div{background:none}
+			.ostatki .priceData.onePrice .UiCollapseBox_box__row_body_3IRaY{padding:0 0 0 10px}
+			.ostatki .priceData.onePrice .UiCollapseBox_box__title-wrap_39VYf,/*заголовок*/
+			.ostatki .priceData.onePrice .UiCollapseBox_pointer_1g2yb,/*названия разделов*/
+			.ostatki .priceData.onePrice .setting-box > div:first-child,/*ндс*/
+			.ostatki .priceData.onePrice .UiCollapseBox_box__footer_2iHeh button:last-child/*кнопка "закрыть"*/
+			{display:none}
+			.ostatki .priceData.onePrice .setting-box > div > .warehouse-product__purchase,
+			.ostatki .priceData.onePrice .setting-box > div > table,
+			.ostatki .priceData.onePrice .setting-box > div:after
+			{display:inline-block;vertical-align:middle}
+			.ostatki .priceData.onePrice .setting-box > div:after{content:' ₽ ';font-size:16px}
+			.ostatki .priceData.onePrice .UiCollapseBox_box__row_body_3IRaY,
+			.ostatki .priceData.onePrice .UiCollapseBox_box__footer_2iHeh{display:inline-block;vertical-align:middle;padding:0;width:auto;min-height:unset}
+			.ostatki .priceData.onePrice .UiCollapse_content_1bm3K{display:block!important}
+			.ostatki .priceData.onePrice .UiCollapseBox_box__inner_15Car{margin:0}
+	
+	/* main */
+		/*header*/
+		.ostatki[main] .UiCollapseBox_box__row_head_2ZWiJ{display:none}
+		/*content*/
+		.ostatki[main] .UiCollapse_content_1bm3K{display:block!important}
+		.ostatki[main] .UiCollapse_content_1bm3K > div > div{padding:0;display:inline-block;width:auto;vertical-align:bottom;min-height:unset;background:none}
+		/*кнопка "закрыть"*/
+		.ostatki[main] .UiCollapseBox_box__footer_2iHeh button:last-child{display:none}
+		/* главная информация */
+			.ostatki[main] .UiCollapseBox_box__inner_md_jLi2V{max-width:unset}
+			.ostatki[main] .UiCollapseBox_box__inner_15Car{margin:0}
+			/* скрываем ненжное */
+			.ostatki[main] .UiCollapseBox_box_XPylv:nth-child(1) .setting-box > div{display:inline-block;margin:0 10px 0 0;vertical-align:middle}
+			.ostatki[main] .UiCollapseBox_box_XPylv:nth-child(1) .setting-box > div:nth-child(2), /*описание*/
+			.ostatki[main] .UiCollapseBox_box_XPylv:nth-child(1) .setting-box > div:nth-child(3), /*производитель*/
+			.ostatki[main] .UiCollapseBox_box_XPylv:nth-child(1) .setting-box > div:nth-child(4), /*магазин*/
+			.ostatki[main] .UiCollapseBox_box_XPylv:nth-child(1) .setting-box > div:nth-child(5), /*ссылка на товар*/
+			.ostatki[main] .UiCollapseBox_box_XPylv:nth-child(1) .setting-box:nth-child(2) /*метки*/
+			{display:none}
+			.ostatki[main] .UiCollapseBox_box_XPylv:nth-child(1) .setting-box > div:nth-child(6) .UiSelect_select_2qa8C > div{display:inline-block;margin:0 10px 0 0} /*товарная группа*/
+			.ostatki[main] .UiCollapseBox_box_XPylv:nth-child(1) .setting-box > div:nth-child(6) .UiSelect_tag-item_1HFM5{margin-bottom:0}
+			.ostatki[main] .UiCollapseBox_box_XPylv:nth-child(1) .UiField_field-row__subtitle_3V0k-{display:none}
+		/* изображение */
+			.ostatki[main] .UiCollapseBox_box_XPylv:nth-child(2){display:none}
+		/* цены */
+	/* properties */
+		.ostatki[properties]:before{content:'сними галочки, если вариант товара только один';display:block;padding:24px 30px 10px 0px;opacity:.5}
+		/*header*/
+		.ostatki[properties]{padding-top:40px}
+		.ostatki[properties] .table-toolbar{display:none}
+		/*table*/
+		.ostatki[properties] .table-wrap{border:0 none;box-shadow:none}
+		.ostatki[properties] .table{display:block;margin-top:10px}
+		.ostatki[properties] .table thead{display:none}
+		.ostatki[properties] .table tbody tr{display:none;border:0 none;background:none}
+		.ostatki[properties] .table tbody td{padding:0;width:auto;display:none;padding:0 5px 10px 0}
+		/*цена и закупочная цена*/
+		.ostatki[properties] .table tbody tr:nth-child(2),.ostatki[properties] .table tbody tr:nth-child(4){display:inline-block}
+		.ostatki[properties] .table tbody tr:nth-child(2) td:nth-child(1),
+		.ostatki[properties] .table tbody tr:nth-child(4) td:nth-child(1),	/*названия*/
+		.ostatki[properties] .table tbody tr:nth-child(2) td:nth-child(3),
+		.ostatki[properties] .table tbody tr:nth-child(4) td:nth-child(3)	/*галочки*/
+		{display:inline-block}
+		.ostatki[properties] .table tbody tr:nth-child(2) td:nth-child(3),
+		.ostatki[properties] .table tbody tr:nth-child(4) td:nth-child(3){padding-right:20px}
+	/* variants */
+		.ostatki[variants] .product-content-box{padding:0;border-radius:unset;border:0 none;box-shadow:none}
+		/*опции*/
+		.ostatki[variants] .product-content-box:first-child{display:none}
+		/*торговые предложения*/
+			/*header*/
+			.ostatki[variants] .product-content-box:nth-child(2) .product-content-box__header{display:none}
+			/*кнопка "создать"*/
+			.ostatki[variants] .product-content-box:nth-child(2) .product-content-box__content > button{margin:0}
+			/* торговое предлжение */
+			.ostatki[variants] .setting-box{border:0 none;padding-bottom:0}
+			.ostatki[variants] .setting-box:nth-child(2){display:none} /*свойства*/
+			/* цены */
+				.ostatki[variants] .UiCollapseBox_box__inner-wrap_1VedQ:before{content:'не забудь изменить название: нужно добавить цену (например: роза 350)';display:block;padding:24px 30px 10px 78px;opacity:.5}
+				.ostatki[variants] .setting-box:nth-child(4) .setting-title,/*заголовок*/
+				.ostatki[variants] .UiCollapseBox_box__col_XOadK,/*иконка*/
+				.ostatki[variants] .UiCollapseBox_box__action_2AvHs{display:none}/*иконка "свернуть"*/
+				.ostatki[variants] .product-offers__title__status,/*статус*/
+				.ostatki[variants] .UiCollapseBox_pointer_1g2yb{padding-left:78px;padding-top:0} /*название товара*/
+				.ostatki[variants] .setting-box:nth-child(4) > div{display:inline-block;vertical-align:middle;width:auto;margin:0 10px 0 0}
+				.ostatki[variants] .setting-box:nth-child(4) > div:nth-child(3) .UiField_field-row_2D3qI,
+				.ostatki[variants] .setting-box:nth-child(4) > div:nth-child(4) thead,
+				.ostatki[variants] .setting-box:nth-child(4) > div:nth-child(4) .setting-box__row_sm{display:none}
+				.ostatki[variants] .setting-box:nth-child(4) > div:nth-child(4) table{margin:0}
+				.ostatki[variants] .setting-box:nth-child(4) > div:nth-child(4) td{width:auto;padding:0}
+				.ostatki[variants] .setting-box:nth-child(4) > div:nth-child(4) td.prices-table__cell_currency{padding-left:8px}
+				.ostatki[variants] .setting-box:nth-child(4) > div:nth-child(3) .UiInput_ui-input_3K9rK{width:100px}
+	/* ostatki */
+		/*header*/
+		.ostatki[amount] .table-title{display:none}
+		/*table*/
+		.ostatki[amount] .table-wrap{margin-bottom:10px;overflow-y: hidden;}
+		.ostatki[amount] td:first-child,.ostatki[amount] th:first-child{width:70%}
+		.ostatki[amount] td:last-child,.ostatki[amount] th:last-child{width:30%}
+			/*thead*/
+			.ostatki[amount] .table__header{border-top:0 none}
+			.ostatki[amount] .table__header td{padding:10px 20px;text-transform:none}
+			.ostatki[amount] .table__header td:last-child{padding-left:10px}
+			/*tbody*/
+			.ostatki[amount] .table__offers_big{padding:10px 20px}
+				/*левый столбей*/
+				/*правый столбец*/
+					.ostatki[amount] .table__warehouse-data{display:block;width:100%}
+					/*plusMinus*/
+					.ostatki[amount] .table__warehouse-data .UiInput_input_3imQE + .plusMinusChangedInfo{display:none;}
+					.ostatki[amount] .table__warehouse-data .UiInput_input_3imQE.UiInput_input_focus_398gr + .plusMinusChangedInfo{display:inline-block}
+					/*продано за все время*/
+					.ostatki[amount] .table__warehouse-value{display:none}
+					.ostatki[amount] .table__warehouse-cell .UiInput_ui-input_default_2XTSW{width:auto}
+					.ostatki[amount] .table__warehouse-cell .UiInput_ui-input_default_2XTSW > div:first-child{width:100px;margin-right:10px;transition:unset} /*количество остатков*/
+					.ostatki[amount] .table__warehouse-cell .UiInput_ui-input_default_2XTSW > div{display:inline-block;vertical-align:middle}
+	
+	/* зеленые кнопки "сохранить" */
+	.ostatki .save-box{position:static;}
+	.ostatki .save-box .wrapper{padding:0;min-height:unset;border:0 none}
+	
+/* CUSTOMER */
+	[data-in-work-container]{display:none}
+	#main .m-box-wrapper > div > div > div:nth-child(2):not(.btn__block){display:none} /* программа лояльности */
+	
+/*hiddenFinance*/
+#nav-bar .bar__col:last-child:after{content:'admin';color:#fff;opacity:.5;font-size:10px;text-align:center;display:block;width:100%;padding:5px}
+.hiddenFinance #nav-bar .bar__col:last-child:after{display:none}
+.hiddenFinance #list-total-wrapper,/*сводка под таблицей заказов*/
+.hiddenFinance .nav-btn_analytics,/*меню : аналитика*/
+.hiddenFinance .nav-btn_sites,/*меню : сайты*/
+.hiddenFinance .nav-btn_admin,/*меню : настройки*/
+.hiddenFinance .sub-item[data-name="Менеджеры"],
+.hiddenFinance #ui-sidebar-5 .profile-sidebar__footer,/*настройки профился,разлогиниться*/
+.hiddenFinance [href='#export']
+{display:none}

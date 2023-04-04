@@ -60,676 +60,660 @@ function noFlowers() {
 }
 
 /********************
-	ORDER
-	страница заказа
+ORDER
+страница заказа
 *********************/
 orderPage();
 function orderPage() {
 	if (!pageHasCustomJs('order') && !pageHasCustomJs('order_new')) return;
 
+	var tovarsTable;
+	var tovars;
+	var magazin;
+	var site;
+
 	var int = setInterval(function () {
-		var tovarsTable = $('#order-products-table');
+		tovarsTable = $('#order-products-table');
 		if (!tovarsTable.length) return;
 
-		var tovars = getTovars();
-		var magazin = getMagazin();
-		var site = getSite();
+		tovars = getTovars();
+		magazin = getMagazin();
+		site = getSite();
+
+		orderCommentFieldsRename();
+		orderDeliveryIntervalEditable();
+		orderRemoveZipcode();
+		orderYadres();
+		orderCourierPriceLabel();
+		orderMagazinLogoInHeader();
+		orderCardAndBuketCustomFields();
+		orderTovarsASC();
+		orderIgnoreDiscont();
+		orderZakazchikPoluchatel();
+		orderMessengerIcons();
+		orderShopPopup();
+		orderTovarPercsPopup();
+		orderOstatkiOrderPriceASC();
+		orderAdresDescription();
+		orderAddTransport();
+		orderPayedVSTovars();
+		orderCustomFieldsToRight();
+		orderFloristField();
+		orderFlowersRashod();
+		orderReloadOnSave();
 
 		setInterval(function () {
 			tovars = getTovars();
 		}, 2000);
 
-		/* комментари клиенту и флористу */
-		orderCommentFieldsRename();
-		function orderCommentFieldsRename() {
-			//заголовки
-			$('#order-customer-comment .collapse-section__title').text('Комментарий для курьера');
-			$('#order-manager-comment .collapse-section__title').text('Комментарий для флориста');
-			//поля
-			var courier = $('#intaro_crmbundle_ordertype_customerComment');
-			if (!courier.val().includes('***курьер***')) return;
-			var florist = $('#intaro_crmbundle_ordertype_managerComment');
-			var text = courier.val().split(/\*{3}.+\*{3}/);
-			$.each(text, function (i) {
-				text[i] = text[i].replace(/^\n/, '').replace(/\n$/, '');
-			});
-			courier.val(text[1]);
-			florist.val(text[2]);
-		}
-
-		/* интервал времени делаем редактируемым */
-		orderDeliveryIntervalEditable();
-		function orderDeliveryIntervalEditable() {
-			setInterval(function () {
-				var inputs = $('#intaro_crmbundle_ordertype_deliveryTime_from,#intaro_crmbundle_ordertype_deliveryTime_to');
-				if (!inputs.length) return;
-				inputs.removeAttr('readonly');
-			}, 1000);
-		}
-
-		/* удалить индекс */
-		orderRemoveZipcode();
-		function orderRemoveZipcode() {
-			var int = setInterval(function () {
-				var input = $('#intaro_crmbundle_ordertype_deliveryAddress_index');
-				if (!input.val()) return;
-				input.val('');
-				clearInterval(int);
-			}, 2000);
-		}
-
-		/* скопировать адрес для яндекса */
-		orderYadres();
-		function orderYadres() {
-			var id = '#intaro_crmbundle_ordertype_deliveryAddress_';
-			var a = {
-				city: $(id + 'city').val() ? 'г. ' + $(id + 'city').val().replace(/^г\.\s/, '') + ', ' : '',
-				street: $(id + 'street').val() ? $(id + 'street').val() : '',
-				dom: $(id + 'building').val() ? ', д. ' + $(id + 'building').val() : '',
-				corp: $(id + 'housing').val() ? ', корп. ' + $(id + 'housing').val() : '',
-				str: $(id + 'house').val() ? ', стр. ' + $(id + 'house').val() : '',
-				kv: $(id + 'flat').val() ? ', кв./офис ' + $(id + 'flat').val() : '',
-				podezd: $(id + 'block').val() ? ', подъезд ' + $(id + 'block').val() : '',
-				etag: $(id + 'floor').val() ? ', этаж ' + $(id + 'floor').val() : ''
-			}
-			if (a['city'] == 'г. Москва') a['city'] = '';
-			if (!a['street'] || !a['dom']) return;
-			appendAdresBtn('адрес целиком', '', Object.values(a).join(''));
-			appendAdresBtn('улица/дом', 'yadres', a['city'] + a['street'] + a['dom'] + a['corp'] + a['str']);
-
-			function appendAdresBtn(title, className, adres) {
-				var btn = $('<a class="adresCopyBtn ' + className + '">❐ ' + title + '</a>');
-				btn.on('click', function (e) {
-					e.preventDefault();
-					e.stopPropagation();
-					ctrlC(adres);
-				});
-				$('#order-delivery .collapse-section__title').append(btn);
-			}
-		}
-
-		/* себестоимость доставки переименовать в "Стоимость для курьера" */
-		orderCourierPriceLabel();
-		function orderCourierPriceLabel() {
-			$('label[for="intaro_crmbundle_ordertype_deliveryNetCost"]').text('Стоимость для курьера');
-		}
-
-		/* лого магазина в шапке */
-		orderMagazinLogoInHeader();
-		function orderMagazinLogoInHeader() {
-			var size = 38;
-			var icon = getMagazinIcon(magazin);
-			var logo = $('<div class="head__col" style="padding-right:5px;border-right:0 none"><img src="' + icon + '" width="' + size + '" height="' + size + '"></div>');
-			$('.status.head__col').before(logo);
-		}
-
-		/* букет и карточка */
-		orderCardAndBuketCustomFields();
-		function orderCardAndBuketCustomFields() {
-			var buckets = [];
-			var cards = [];
-			tovars.each(function () {
-				var tr = $(this);
-				if (!isBuket(tr)) return true;
-				var title = tr.find('.title .tr-link').text();
-				if (site == '2STEBLYA') {
-					var descr = [];
-					var format = '';
-					var props = tr.find('.order-product-properties > span');
-					$(props.get().reverse()).each(function () {
-						var p = $(this).attr('title').split(': ');
-						switch (p[0]) {
-							case 'цена':
-							case 'артикул':
-								break;
-							case 'выебри карточку':
-								cards.push(p[1]);
-								break;
-							case 'фор мат':
-								/* должен быть последним всегда, так как из тильды "фор мат" всегда улетает первым,
-								а ранее мы сделали reverse() для props */
-								format = p[1];
-								break;
-							default:
-								if (p[0].startsWith('накинуть')) break;
-								descr.push(p[0] + ': ' + p[1]);
-								break;
-						}
-					});
-					title = title.replace(/\s-\s.+/, '') + ' ';
-					title += descr.length ? '(' + descr.join(', ') + ') ' : '';
-					title += format ? '- ' + format + ' ' : '';
-				} else {
-					title += ' ';
-				}
-				var amount = tr.find('.quantity input').val();
-				amount = parseInt(amount, 10);
-				buckets.push(title + '(' + amount + ' шт)');
-			});
-			//таймаут нужен, чтоб сначала страница успела загрузиться
-			setTimeout(function () {
-				var fieldBucket = $('#intaro_crmbundle_ordertype_customFields_bukety_v_zakaze');
-				var fieldCard = $('#intaro_crmbundle_ordertype_customFields_card');
-				if (fieldBucket.val() != buckets.join(', ')) fieldBucket.val(buckets.join(', '));
-				if (fieldCard.val() != cards.join(', ')) fieldCard.val(cards.join(', '));
-				/*
-				fieldBucket.prop('disabled',true);
-				fieldCard.prop('disabled',true);
-				*/
-			}, 2000);
-		}
-
-		/* товары по алфавиту */
-		orderTovarsASC();
-		function orderTovarsASC() {
-			var widths, tovarsLength;
-			tovarsLength = tovars.length;
-			getRowsWidths();
-			tableCSS();
-			sortRows();
-			setInterval(function () {
-				if (tovars.length == tovarsLength) return;
-				tovarsLength = tovars.length;
-				sortRows();
-			}, 2000);
-			/* добавляем стили для таблицы товаров */
-			function tableCSS() {
-				var styles = [
-					'#order-products-table{display:flex;flex-direction:column;flex-wrap:nowrap;}',
-					'#order-products-table thead,#order-products-table tbody,#order-products-table tr{width:100%;display:table}',
-					'#order-products-table th{border-left:0 none;border-right:0 none}'
-				];
-				tovarsTable.after('<style>' + styles.join('') + '</style>');
-			}
-			/* меняем порядок товаров по алфавиту */
-			function sortRows() {
-				tovars.sort(function (a, b) {
-					var keyA = $(a).find('.title a').text();
-					var keyB = $(b).find('.title a').text();
-					//товары с числителями
-					var keyAtitle = keyA.replace(/\s\d+/, '');
-					var keyAnum = keyA.replace(/[^\d]+/, '');
-					var keyBtitle = keyB.replace(/\s\d+/, '');
-					var keyBnum = keyB.replace(/[^\d]+/, '');
-					if (keyAnum && keyBnum && keyAtitle == keyBtitle) {
-						if (parseInt(keyAnum) < parseInt(keyBnum)) return -1;
-						if (parseInt(keyAnum) > parseInt(keyBnum)) return 1;
-					}
-					//прочие товары
-					if (keyA < keyB) return -1;
-					if (keyA > keyB) return 1;
-					return 0;
-				});
-				tovars.each(function (i, row) {
-					if (isBuket($(row))) return true;
-					$(row).css('order', (i + 100));
-				});
-				if (!widths.length) getRowsWidths();
-				setRowsWidths();
-			}
-			/* устанавливаем ширины стобцов таблицы товаров */
-			function setRowsWidths() {
-				tovarsTable.find('tr').each(function () {
-					$(this).children('td,th').each(function (i) {
-						$(this).width(widths[i] + 'px');
-					});
-				});
-			}
-			/* собираем ширины столбцов таблицы товаров */
-			function getRowsWidths() {
-				widths = [];
-				tovars.eq(0).find('td').each(function () {
-					widths.push($(this).width());
-				});
-			}
-		}
-
-		/* чекбокс игнорировать триггер скидки */
-		orderIgnoreDiscont();
-		function orderIgnoreDiscont() {
-			var inputMain = $('#intaro_crmbundle_ordertype_customFields_discount_trigger_ignore');
-			var inputClone = $('<input type="checkbox" class="input-field" />');
-			var inputCloneBlock = $('<div class="order-row__top" style="margin-top:8px"><span style="margin-right:10px">Игнорировать триггер скидки</span></div>');
-			inputCloneBlock.insertBefore('#patch-order-discount-errors').append(inputClone);
-			inputClone.prop('checked', inputMain.prop('checked'));
-			inputClone.on('change', function () {
-				inputMain.prop('checked', inputClone.prop('checked'));
-			});
-			inputMain.parent().hide();
-		}
-
-		/* заказчик-получатель */
-		orderZakazchikPoluchatel();
-		function orderZakazchikPoluchatel() {
-			var input = $('#intaro_crmbundle_ordertype_customFields_zakazchil_poluchatel');
-			var name = $('#intaro_crmbundle_ordertype_customFields_name_poluchatelya');
-			var phone = $('#intaro_crmbundle_ordertype_customFields_phone_poluchatelya');
-			input.on('change', function () {
-				switch (input.prop('checked')) {
-					case true:
-						name.val($('#intaro_crmbundle_ordertype_firstName').val());
-						phone.val($('#intaro_crmbundle_ordertype_phone').val());
-						break;
-					case false:
-						name.val('');
-						phone.val('');
-						break;
-				}
-			});
-		}
-
-		/* мессенджер заказчика */
-		orderMessengerIcons();
-		function orderMessengerIcons() {
-			var field = $('#intaro_crmbundle_ordertype_customFields_messenger_zakazchika');
-			var iconSize = 18;
-			var icons = getMessengerIcons(iconSize);
-			$.each(icons, function (i, e) {
-				var btn = $('<div class="messengerIcon">' + icons[i] + '</a>');
-				if (field.val().startsWith('@')) return;
-				btn.insertAfter(field);
-				btn.on('click', function () {
-					field.val(i);
-				});
-			});
-		}
-
-		/* окно набора товаров в заказ */
-		orderShopPopup();
-		function orderShopPopup() {
-			$('#add-order-product-btn').on('click', function () {
-				$('#CRMBundle_AddOrderProductPopupFilter_Type_site').val(4).change(); //магазин "остатки"
-				$('#CRMBundle_AddOrderProductPopupFilter_Type_mixNameProduct').nextAll('button[name="search"]').trigger('click');
-				buketsZeroPrice();
-				popupTitle();
-			});
-			/* обнуляем стоимость букетов */
-			function buketsZeroPrice() {
-				tovars.each(function () {
-					if (!isBuket($(this))) return true;
-					var inputs = $(this).find('input[id$="initialPrice"],[id$="order-price-dropdown"] .order-price__main input');
-					inputs.val(0).change();
-				});
-			}
-			/* добавляем в заголовок данные о деньгах */
-			function popupTitle(tovars) {
-				var title = $('<span class="popupTitle"></span>');
-				var initialTitleText = 'Добавление товаров';
-				var h2 = $('.popup-with-item-list h2');
-				h2.get(0).childNodes[0].remove();
-				h2.prepend(title);
-				var int = setInterval(function () {
-					title.html('Счет' + popupTitleConstructor());
-				}, 1000);
-				//очищаем заголовок
-				$('body').on('click', '#order-product-popup .close, .popup-closer-overlay', function () {
-					title.html(initialTitleText);
-					clearInterval(int);
-				});
-			}
-			/* строим строку для заголовка */
-			function popupTitleConstructor() {
-				var text = '';
-				var money = getMoney();
-				text += money['tovars'];
-				if (money['total']) text += ' <small>из</small> ' + (money['total'] - money['delivery']);
-				if (money['delivery']) text += ' + <small>доставка:</small> ' + money['delivery'];
-				if (money['delivery']) {
-					text += ' = ' + (money['tovars'] + money['delivery']);
-					if (money['total']) text += ' <small>из</small> ' + money['total'];
-				}
-				if (text) text = ': ' + text + ' ₽';
-				if (money['payed']) text += ' <small>(оплачено)</small>';
-				text += ' (<b>' + (money['total'] - money['current'] == 0 ? 'ok' : (money['total'] - money['current']) + ' ₽') + '</b>)';
-				return text;
-			}
-		}
-
-		/* окно добавления свойств в товар */
-		orderTovarPercsPopup();
-		function orderTovarPercsPopup() {
-			var popup, field, name, value, selects, nameSelect, valueSelect;
-			var names = {
-				'фор мат': ['букетусик', 'букетик', 'букет', 'букетище', 'коробка', 'сердечко', 'сердце', 'кастрюлька', 'кастрюля', 'кастрюлища', 'корзинка', 'корзина', 'корзинища', 'горшочек', 'горшок'],
-				'выебри карточку': ['с нашей карточкой', 'со своим текстом', 'без карточки', 'без айдентики'],
-				'цена': [5000, 6000, 10000, 15000, 20000, 25000, 35000, 50000]
-			};
-			var codes = {
-				'фор мат': 'for-mat',
-				'выебри карточку': 'viebri-kartochku',
-				'цена': 'tsena'
-			};
-			nameSelect = $('<select style="margin-left:10px"><option></option></select>');
-			valueSelect = nameSelect.clone();
-			$.each(names, function (i) {
-				nameSelect.append('<option value="' + i + '">' + i + '</option>');
-			});
-			selects = $('<div style="position:absolute;top:5px;right:5px">Быстрый выбор: </div>');
-			selects.append(nameSelect).append(valueSelect);
-			function appendOptionsToValueSelect(value) {
-				valueSelect.empty();
-				valueSelect.append('<option></option>');
-				$.each(names[nameSelect.val()], function (i, j) {
-					valueSelect.append('<option value="' + j + '">' + j + '</option>');
-				});
-			}
-			var fieldSelected = null;
-			var int = setInterval(function () {
-				popup = $('#order-product-properties');
-				if (!popup.length) return;
-				if (!popup.is(':visible')) return;
-				field = popup.find('.field-settings:visible');
-				if (!field.length) return;
-				if (fieldSelected == field.data('index')) return;
-				fieldSelected = field.data('index');
-				field.append(selects);
-				//code
-				var code = field.find('.property-field-code');
-				code = code.length ? code.children('span').text().trim() : 'new';
-				//name
-				name = field.find('.property-field-name input');
-				nameSelect.val(name.val());
-				nameSelect.prop('disabled', codes[name.val()] == code);
-				nameSelect.on('change', function () {
-					name.val(nameSelect.val());
-					appendOptionsToValueSelect();
-					value.val('');
-					name.change();
-					value.change();
-				});
-				//value
-				value = field.find('.property-field-value input');
-				appendOptionsToValueSelect();
-				valueSelect.val(value.val());
-				valueSelect.on('change', function () {
-					value.val(valueSelect.val());
-					value.change();
-				});
-			}, 1000);
-			$('body').on('click', '#order-product-properties .close, #order-product-properties .save-button, .popup-closer-overlay', function () {
-				clearInterval(int);
-				fieldSelected = null;
-			});
-		}
-
-		/* торговые предложения по порядку по цене */
-		orderOstatkiOrderPriceASC();
-		function orderOstatkiOrderPriceASC() {
-			$('body').on('click', '#order-list #order-product-popup tr.has-children', function () {
-				var tr = $(this);
-				var productId = tr.data('product-id');
-				var int = setInterval(function () {
-					var children = tr.siblings('.is-child[data-product-id="' + productId + '"][data-price]').get();
-					if (!children.length) return;
-					children.sort(function (a, b) {
-						var keyA = parseInt($(a).data('price').replace(/\.\d+/, ''));
-						var keyB = parseInt($(b).data('price').replace(/\.\d+/, ''));
-						if (keyA < keyB) return 1;
-						if (keyA > keyB) return -1;
-						return 0;
-					});
-					$.each(children, function (i, row) {
-						tr.next().after(row);
-					});
-					clearInterval(int);
-				}, 50);
-
-			});
-		}
-
-		/* описание для дефолтного адреса */
-		orderAdresDescription();
-		function orderAdresDescription() {
-			$('label[for="intaro_crmbundle_ordertype_deliveryAddress_text"]').html('Адрес<br><span style="font-size:.8em;line-height:.6em">это поле используется только для определения станции метро. Для того, чтобы адрес доставки отображался в общей таблице и был доступен для отправки курьерам, используй поле "Адрес доставки" ниже</span>');
-		}
-
-		/* добавляем транспортировочное автоматически */
-		orderAddTransport();
-		function orderAddTransport() {
-			$('#intaro_crmbundle_ordertype_site').on('change', function () {
-				magazin = getMagazin();
-				searchTransport();
-			});
-			searchTransport();
-			/* проверяем магазин и наличие транспортировочного */
-			function searchTransport() {
-				if (magazin != '2STEBLYA') return;
-				var exist = false;
-				tovars.each(function () {
-					if ($(this).find('.title .tr-link').text() != 'Транспортировочное') return;
-					exist = true;
-					return false;
-				});
-				if (!exist) addTransport();
-			}
-			/* добавляем транспортировочное */
-			function addTransport() {
-				$('#add-order-product-btn').trigger('click');
-				var exist = false;
-				var int = setInterval(function () {
-					var popup = $('#order-product-popup');
-					if (!popup.length) return;
-					popup.hide();
-					$('#CRMBundle_AddOrderProductPopupFilter_Type_site').val(4).change(); //магазин "остатки"
-					$('#CRMBundle_AddOrderProductPopupFilter_Type_mixNameProduct').nextAll('button[name="search"]').trigger('click');
-					setTimeout(function () {
-						var rows = popup.find('.modern-table_product tr');
-						if (!rows.length) return;
-						rows.each(function () {
-							if ($(this).children('td').eq(1).text().trim() == 'Транспортировочное') {
-								exist = true;
-								$(this).trigger('click');
-								popup.find('.close').trigger('click');
-								return false;
-							}
-						});
-						if (!exist) {
-							rows.last().find('a').trigger('click');
-							return;
-						}
-						decriseTovarPrice();
-						//transportHalf();
-						delivery500();
-						clearInterval(int);
-					}, 1000);
-				}, 50);
-			}
-			/* уменьшаем стоимость букеа на стоимость транспортировочного */
-			function decriseTovarPrice() {
-				tovars.each(function () {
-					if (!isBuket($(this))) return true;
-					var inputTd = $(this).find('td.price');
-					var input = inputTd.find('.order-price__main .order-value-input');
-					var price = parseInt($(this).find('.order-product-properties span[title^="цена"]').text().replace(/[^\d]/g, ''));
-					var transportPrice = 1000;
-					inputTd.find('.order-price__value').trigger('click');
-					input.val(price - transportPrice);
-					inputTd.find('.order-price__button_submit').trigger('click');
-					return false;
-				});
-			}
-			/* только половина транспортировочного */
-			function transportHalf() {
-				tovars.each(function () {
-					if ($(this).find('.title .tr-link').text() != 'Транспортировочное') return;
-					var input = $(this).find('[id^="intaro_crmbundle_ordertype_orderProducts"][id$=quantity]');
-					if (!input.length) return;
-					input.val(.5);
-				});
-			}
-			/* стоимость доставки */
-			function delivery500() {
-				var price = 500;
-				$('#delivery-cost').val(price);
-				$('.order-delivery-cost__value-static').eq(0).html(' ' + price + '<span class="currency-symbol rub">₽</span>');
-			}
-		}
-
-		/* оплачено рядом с ценой */
-		orderPayedVSTovars();
-		function orderPayedVSTovars() {
-			var payed = getPayedMoney();
-			if (!payed) return;
-			$('#order-total-summ').after('<span title="оплачено"> / ' + payed.toString().replace(/(.{3})$/, ' $1') + ' <span class="currency-symbol rub">₽</span></span>');
-		}
-
-		/* переносим кастомные поля вправо */
-		orderCustomFieldsToRight();
-		function orderCustomFieldsToRight() {
-			$('#order-custom-fields').addClass('toRight').removeClass('ft-lt m-box__left-side').insertAfter($('.m-box__right-side > div:last')).wrap('<div />');
-		}
-
-		/* флорист в основное */
-		orderFloristField();
-		function orderFloristField() {
-			var florist = $('#intaro_crmbundle_ordertype_customFields_florist');
-			var floristParent = florist.parent();
-			var manager = $('#intaro_crmbundle_ordertype_manager').parent();
-			florist.insertAfter(floristParent);
-			manager.hide().after(floristParent);
-		}
-
-		/* расходы на закуп цветка */
-		orderFlowersRashod();
-		function orderFlowersRashod() {
-			var flowersRashodBlock = $('<li class="order-table-footer__list-item"><p class="order-table-footer__text order-table-footer__text_muted order-table-footer__text_full">Стоимость закупа (цветок / упак)</p><p class="order-table-footer__text order-table-footer__text_price"><span id="flowersRashodValue"></span>&nbsp;<span class="currency-symbol rub">₽</span> / <span id="noflowersRashodValue"></span>&nbsp;<span class="currency-symbol rub">₽</span></p></li>');
-			flowersRashodBlock.prependTo('#order-list .order-table-footer__list');
-			var flowersRashodField = $('#intaro_crmbundle_ordertype_customFields_flower_rashod');
-			var flowersRashodFieldOldValue = flowersRashodField.val();
-			var noflowersRashodField = $('#intaro_crmbundle_ordertype_customFields_noflower_rashod');
-			var noflowersRashodFieldOldValue = noflowersRashodField.val();
-			flowersRashodField.parent().hide();
-			noflowersRashodField.parent().hide();
-			rashodCalc();
-			/* пересчитываем стоимость, если менялись данные полей */
-			$("#order-products-table input").on('change', function () {
-				rashodCalc();
-			});
-			/* пересчитываем стоимость, если меняется количество товаров */
-			var tovarsAmountOld = 0;
-			setInterval(function () {
-				var tovarsAmountNew = tovars.length;
-				if (tovarsAmountOld == tovarsAmountNew) return;
-				tovarsAmountOld = tovarsAmountNew;
-				rashodCalc();
-			}, 1000);
-			function rashodCalc() {
-				var flowersPrice = 0;
-				var noflowersPrice = 0;
-				tovars.each(function () {
-					var tovar = $(this);
-					if (isBuket(tovar)) return;
-					var amount = parseFloat(tovar.find('.quantity input').val().replace(',', '.'));
-					var title = tovar.find('.title .tr-link').text().replace(/\s\d+/, '');
-					/* считаем цены */
-					var price = parseFloat(tovar.find('.wholesale-price__value').text().replace(/\s/, '').replace('₽', ''));
-					if (noFlowers().includes(title)) {
-						noflowersPrice += price * amount;
-					} else {
-						flowersPrice += price * amount;
-					}
-				});
-				flowersPrice = flowersPrice.toFixed(0);
-				noflowersPrice = noflowersPrice.toFixed(0);
-				flowersRashodBlock.find('#flowersRashodValue').text(flowersPrice);
-				flowersRashodBlock.find('#noflowersRashodValue').text(noflowersPrice);
-				if (flowersRashodFieldOldValue != flowersPrice) flowersRashodField.val(flowersPrice);
-				if (noflowersRashodFieldOldValue != noflowersPrice) noflowersRashodField.val(noflowersPrice);
-			}
-		}
-
 		clearInterval(int);
-
-		/* HELPERS */
-		function getTovars() {
-			return tovarsTable.find('tbody.product-group');
-		}
-		function getMagazin() {
-			var block = $('#intaro_crmbundle_ordertype_site_chosen span');
-			if (!block.length) return false;
-			return block.text().trim();
-		}
-		function getSite() {
-			var block = $('#intaro_crmbundle_ordertype_site_chosen .chosen-single span');
-			if (!block.length) return false;
-			return block.text().trim();
-		}
-		function isBuket(tovar) {
-			if ($(tovar).find('.image img').length) return true;
-			return false;
-		}
-		function getCurrentMoney() {
-			return parseFloat($('#order-total-summ').text().replace(/[^\d,]/g, '').replace(',', '.'));
-		}
-		function getPayedMoney() {
-			payed = 0;
-			var pays = $('[id$="amount_text"][id^="intaro_crmbundle_ordertype_payments"]');
-			pays.each(function () {
-				var status = $(this).parents('.payment__content-wrapper').children('.input-group').eq(0).find('[id$="status_chosen"] a span').text();
-				if (status != 'Оплачен') return;
-				var pay = $(this).text().replace(/[^\d]/g, '');
-				payed += parseInt(pay);
-			});
-			return payed;
-		}
-		function getDeliveryMoney() {
-			return parseInt($('#delivery-cost').val().replace(/,.*/, ''));
-		}
-		function getTotalMoney() {
-			var totalPrice = 0;
-			/* если есть оплаты, пробуем оттолкнуться от них */
-			totalPrice = getPayedMoney();
-			/* если нет оплат, пробуем поискать поле "цена" у товара */
-			if (!totalPrice) {
-				if (tovars.length) {
-					tovars.each(function () {
-						if (!isBuket($(this))) return true;
-						var props = $(this).find('.order-product-properties span.additional');
-						if (!props) return;
-						props.each(function (i, e) {
-							var prop = $(this).attr('title').split(': ');
-							if (prop[0] != 'цена') return;
-							totalPrice += parseInt(parseInt(prop[1]));
-						});
-					});
-				}
-			}
-			return totalPrice;
-		}
-		function getTovarsMoney() {
-			return getCurrentMoney() - getDeliveryMoney();
-		}
-		function getMoney() {
-			return {
-				current: getCurrentMoney(),
-				payed: getPayedMoney(),
-				delivery: getDeliveryMoney(),
-				tovars: getTovarsMoney(),
-				total: getTotalMoney()
-			};
-		}
 	}, 50);
 
+	/* комментари клиенту и флористу */
+	function orderCommentFieldsRename() {
+		//заголовки
+		$('#order-customer-comment .collapse-section__title').text('Комментарий для курьера');
+		$('#order-manager-comment .collapse-section__title').text('Комментарий для флориста');
+		//поля
+		var courier = $('#intaro_crmbundle_ordertype_customerComment');
+		if (!courier.val().includes('***курьер***')) return;
+		var florist = $('#intaro_crmbundle_ordertype_managerComment');
+		var text = courier.val().split(/\*{3}.+\*{3}/);
+		$.each(text, function (i) {
+			text[i] = text[i].replace(/^\n/, '').replace(/\n$/, '');
+		});
+		courier.val(text[1]);
+		florist.val(text[2]);
+	}
+	/* интервал времени делаем редактируемым */
+	function orderDeliveryIntervalEditable() {
+		setInterval(function () {
+			var inputs = $('#intaro_crmbundle_ordertype_deliveryTime_from,#intaro_crmbundle_ordertype_deliveryTime_to');
+			if (!inputs.length) return;
+			inputs.removeAttr('readonly');
+		}, 1000);
+	}
+	/* удалить индекс */
+	function orderRemoveZipcode() {
+		var int = setInterval(function () {
+			var input = $('#intaro_crmbundle_ordertype_deliveryAddress_index');
+			if (!input.val()) return;
+			input.val('');
+			clearInterval(int);
+		}, 2000);
+	}
+	/* скопировать адрес для яндекса */
+	function orderYadres() {
+		var id = '#intaro_crmbundle_ordertype_deliveryAddress_';
+		var a = {
+			city: $(id + 'city').val() ? 'г. ' + $(id + 'city').val().replace(/^г\.\s/, '') + ', ' : '',
+			street: $(id + 'street').val() ? $(id + 'street').val() : '',
+			dom: $(id + 'building').val() ? ', д. ' + $(id + 'building').val() : '',
+			corp: $(id + 'housing').val() ? ', корп. ' + $(id + 'housing').val() : '',
+			str: $(id + 'house').val() ? ', стр. ' + $(id + 'house').val() : '',
+			kv: $(id + 'flat').val() ? ', кв./офис ' + $(id + 'flat').val() : '',
+			podezd: $(id + 'block').val() ? ', подъезд ' + $(id + 'block').val() : '',
+			etag: $(id + 'floor').val() ? ', этаж ' + $(id + 'floor').val() : ''
+		}
+		if (a['city'] == 'г. Москва') a['city'] = '';
+		if (!a['street'] || !a['dom']) return;
+		appendAdresBtn('адрес целиком', '', Object.values(a).join(''));
+		appendAdresBtn('улица/дом', 'yadres', a['city'] + a['street'] + a['dom'] + a['corp'] + a['str']);
+
+		function appendAdresBtn(title, className, adres) {
+			var btn = $('<a class="adresCopyBtn ' + className + '">❐ ' + title + '</a>');
+			btn.on('click', function (e) {
+				e.preventDefault();
+				e.stopPropagation();
+				ctrlC(adres);
+			});
+			$('#order-delivery .collapse-section__title').append(btn);
+		}
+	}
+	/* себестоимость доставки переименовать в "Стоимость для курьера" */
+	function orderCourierPriceLabel() {
+		$('label[for="intaro_crmbundle_ordertype_deliveryNetCost"]').text('Стоимость для курьера');
+	}
+	/* лого магазина в шапке */
+	function orderMagazinLogoInHeader() {
+		var size = 38;
+		var icon = getMagazinIcon(magazin);
+		var logo = $('<div class="head__col" style="padding-right:5px;border-right:0 none"><img src="' + icon + '" width="' + size + '" height="' + size + '"></div>');
+		$('.status.head__col').before(logo);
+	}
+	/* букет и карточка */
+	function orderCardAndBuketCustomFields() {
+		var buckets = [];
+		var cards = [];
+		tovars.each(function () {
+			var tr = $(this);
+			if (!isBuket(tr)) return true;
+			var title = tr.find('.title .tr-link').text();
+			if (site == '2STEBLYA') {
+				var descr = [];
+				var format = '';
+				var props = tr.find('.order-product-properties > span');
+				$(props.get().reverse()).each(function () {
+					var p = $(this).attr('title').split(': ');
+					switch (p[0]) {
+						case 'цена':
+						case 'артикул':
+							break;
+						case 'выебри карточку':
+							cards.push(p[1]);
+							break;
+						case 'фор мат':
+							/* должен быть последним всегда, так как из тильды "фор мат" всегда улетает первым,
+							а ранее мы сделали reverse() для props */
+							format = p[1];
+							break;
+						default:
+							if (p[0].startsWith('накинуть')) break;
+							descr.push(p[0] + ': ' + p[1]);
+							break;
+					}
+				});
+				title = title.replace(/\s-\s.+/, '') + ' ';
+				title += descr.length ? '(' + descr.join(', ') + ') ' : '';
+				title += format ? '- ' + format + ' ' : '';
+			} else {
+				title += ' ';
+			}
+			var amount = tr.find('.quantity input').val();
+			amount = parseInt(amount, 10);
+			buckets.push(title + '(' + amount + ' шт)');
+		});
+		//таймаут нужен, чтоб сначала страница успела загрузиться
+		setTimeout(function () {
+			var fieldBucket = $('#intaro_crmbundle_ordertype_customFields_bukety_v_zakaze');
+			var fieldCard = $('#intaro_crmbundle_ordertype_customFields_card');
+			if (fieldBucket.val() != buckets.join(', ')) fieldBucket.val(buckets.join(', '));
+			if (fieldCard.val() != cards.join(', ')) fieldCard.val(cards.join(', '));
+			/*
+			fieldBucket.prop('disabled',true);
+			fieldCard.prop('disabled',true);
+			*/
+		}, 2000);
+	}
+	/* товары по алфавиту */
+	function orderTovarsASC() {
+		var widths, tovarsLength;
+		tovarsLength = tovars.length;
+		getRowsWidths();
+		tableCSS();
+		sortRows();
+		setInterval(function () {
+			if (tovars.length == tovarsLength) return;
+			tovarsLength = tovars.length;
+			sortRows();
+		}, 2000);
+		/* добавляем стили для таблицы товаров */
+		function tableCSS() {
+			var styles = [
+				'#order-products-table{display:flex;flex-direction:column;flex-wrap:nowrap;}',
+				'#order-products-table thead,#order-products-table tbody,#order-products-table tr{width:100%;display:table}',
+				'#order-products-table th{border-left:0 none;border-right:0 none}'
+			];
+			tovarsTable.after('<style>' + styles.join('') + '</style>');
+		}
+		/* меняем порядок товаров по алфавиту */
+		function sortRows() {
+			tovars.sort(function (a, b) {
+				var keyA = $(a).find('.title a').text();
+				var keyB = $(b).find('.title a').text();
+				//товары с числителями
+				var keyAtitle = keyA.replace(/\s\d+/, '');
+				var keyAnum = keyA.replace(/[^\d]+/, '');
+				var keyBtitle = keyB.replace(/\s\d+/, '');
+				var keyBnum = keyB.replace(/[^\d]+/, '');
+				if (keyAnum && keyBnum && keyAtitle == keyBtitle) {
+					if (parseInt(keyAnum) < parseInt(keyBnum)) return -1;
+					if (parseInt(keyAnum) > parseInt(keyBnum)) return 1;
+				}
+				//прочие товары
+				if (keyA < keyB) return -1;
+				if (keyA > keyB) return 1;
+				return 0;
+			});
+			tovars.each(function (i, row) {
+				if (isBuket($(row))) return true;
+				$(row).css('order', (i + 100));
+			});
+			if (!widths.length) getRowsWidths();
+			setRowsWidths();
+		}
+		/* устанавливаем ширины стобцов таблицы товаров */
+		function setRowsWidths() {
+			tovarsTable.find('tr').each(function () {
+				$(this).children('td,th').each(function (i) {
+					$(this).width(widths[i] + 'px');
+				});
+			});
+		}
+		/* собираем ширины столбцов таблицы товаров */
+		function getRowsWidths() {
+			widths = [];
+			tovars.eq(0).find('td').each(function () {
+				widths.push($(this).width());
+			});
+		}
+	}
+	/* чекбокс игнорировать триггер скидки */
+	function orderIgnoreDiscont() {
+		var inputMain = $('#intaro_crmbundle_ordertype_customFields_discount_trigger_ignore');
+		var inputClone = $('<input type="checkbox" class="input-field" />');
+		var inputCloneBlock = $('<div class="order-row__top" style="margin-top:8px"><span style="margin-right:10px">Игнорировать триггер скидки</span></div>');
+		inputCloneBlock.insertBefore('#patch-order-discount-errors').append(inputClone);
+		inputClone.prop('checked', inputMain.prop('checked'));
+		inputClone.on('change', function () {
+			inputMain.prop('checked', inputClone.prop('checked'));
+		});
+		inputMain.parent().hide();
+	}
+	/* заказчик-получатель */
+	function orderZakazchikPoluchatel() {
+		var input = $('#intaro_crmbundle_ordertype_customFields_zakazchil_poluchatel');
+		var name = $('#intaro_crmbundle_ordertype_customFields_name_poluchatelya');
+		var phone = $('#intaro_crmbundle_ordertype_customFields_phone_poluchatelya');
+		input.on('change', function () {
+			switch (input.prop('checked')) {
+				case true:
+					name.val($('#intaro_crmbundle_ordertype_firstName').val());
+					phone.val($('#intaro_crmbundle_ordertype_phone').val());
+					break;
+				case false:
+					name.val('');
+					phone.val('');
+					break;
+			}
+		});
+	}
+	/* мессенджер заказчика */
+	function orderMessengerIcons() {
+		var field = $('#intaro_crmbundle_ordertype_customFields_messenger_zakazchika');
+		var iconSize = 18;
+		var icons = getMessengerIcons(iconSize);
+		$.each(icons, function (i, e) {
+			var btn = $('<div class="messengerIcon">' + icons[i] + '</a>');
+			if (field.val().startsWith('@')) return;
+			btn.insertAfter(field);
+			btn.on('click', function () {
+				field.val(i);
+			});
+		});
+	}
+	/* окно набора товаров в заказ */
+	function orderShopPopup() {
+		$('#add-order-product-btn').on('click', function () {
+			$('#CRMBundle_AddOrderProductPopupFilter_Type_site').val(4).change(); //магазин "остатки"
+			$('#CRMBundle_AddOrderProductPopupFilter_Type_mixNameProduct').nextAll('button[name="search"]').trigger('click');
+			buketsZeroPrice();
+			popupTitle();
+		});
+		/* обнуляем стоимость букетов */
+		function buketsZeroPrice() {
+			tovars.each(function () {
+				if (!isBuket($(this))) return true;
+				var inputs = $(this).find('input[id$="initialPrice"],[id$="order-price-dropdown"] .order-price__main input');
+				inputs.val(0).change();
+			});
+		}
+		/* добавляем в заголовок данные о деньгах */
+		function popupTitle(tovars) {
+			var title = $('<span class="popupTitle"></span>');
+			var initialTitleText = 'Добавление товаров';
+			var h2 = $('.popup-with-item-list h2');
+			h2.get(0).childNodes[0].remove();
+			h2.prepend(title);
+			var int = setInterval(function () {
+				title.html('Счет' + popupTitleConstructor());
+			}, 1000);
+			//очищаем заголовок
+			$('body').on('click', '#order-product-popup .close, .popup-closer-overlay', function () {
+				title.html(initialTitleText);
+				clearInterval(int);
+			});
+		}
+		/* строим строку для заголовка */
+		function popupTitleConstructor() {
+			var text = '';
+			var money = getMoney();
+			text += money['tovars'];
+			if (money['total']) text += ' <small>из</small> ' + (money['total'] - money['delivery']);
+			if (money['delivery']) text += ' + <small>доставка:</small> ' + money['delivery'];
+			if (money['delivery']) {
+				text += ' = ' + (money['tovars'] + money['delivery']);
+				if (money['total']) text += ' <small>из</small> ' + money['total'];
+			}
+			if (text) text = ': ' + text + ' ₽';
+			if (money['payed']) text += ' <small>(оплачено)</small>';
+			text += ' (<b>' + (money['total'] - money['current'] == 0 ? 'ok' : (money['total'] - money['current']) + ' ₽') + '</b>)';
+			return text;
+		}
+	}
+	/* окно добавления свойств в товар */
+	function orderTovarPercsPopup() {
+		var popup, field, name, value, selects, nameSelect, valueSelect;
+		var names = {
+			'фор мат': ['букетусик', 'букетик', 'букет', 'букетище', 'коробка', 'сердечко', 'сердце', 'кастрюлька', 'кастрюля', 'кастрюлища', 'корзинка', 'корзина', 'корзинища', 'горшочек', 'горшок'],
+			'выебри карточку': ['с нашей карточкой', 'со своим текстом', 'без карточки', 'без айдентики'],
+			'цена': [5000, 6000, 10000, 15000, 20000, 25000, 35000, 50000]
+		};
+		var codes = {
+			'фор мат': 'for-mat',
+			'выебри карточку': 'viebri-kartochku',
+			'цена': 'tsena'
+		};
+		nameSelect = $('<select style="margin-left:10px"><option></option></select>');
+		valueSelect = nameSelect.clone();
+		$.each(names, function (i) {
+			nameSelect.append('<option value="' + i + '">' + i + '</option>');
+		});
+		selects = $('<div style="position:absolute;top:5px;right:5px">Быстрый выбор: </div>');
+		selects.append(nameSelect).append(valueSelect);
+		function appendOptionsToValueSelect(value) {
+			valueSelect.empty();
+			valueSelect.append('<option></option>');
+			$.each(names[nameSelect.val()], function (i, j) {
+				valueSelect.append('<option value="' + j + '">' + j + '</option>');
+			});
+		}
+		var fieldSelected = null;
+		var int = setInterval(function () {
+			popup = $('#order-product-properties');
+			if (!popup.length) return;
+			if (!popup.is(':visible')) return;
+			field = popup.find('.field-settings:visible');
+			if (!field.length) return;
+			if (fieldSelected == field.data('index')) return;
+			fieldSelected = field.data('index');
+			field.append(selects);
+			//code
+			var code = field.find('.property-field-code');
+			code = code.length ? code.children('span').text().trim() : 'new';
+			//name
+			name = field.find('.property-field-name input');
+			nameSelect.val(name.val());
+			nameSelect.prop('disabled', codes[name.val()] == code);
+			nameSelect.on('change', function () {
+				name.val(nameSelect.val());
+				appendOptionsToValueSelect();
+				value.val('');
+				name.change();
+				value.change();
+			});
+			//value
+			value = field.find('.property-field-value input');
+			appendOptionsToValueSelect();
+			valueSelect.val(value.val());
+			valueSelect.on('change', function () {
+				value.val(valueSelect.val());
+				value.change();
+			});
+		}, 1000);
+		$('body').on('click', '#order-product-properties .close, #order-product-properties .save-button, .popup-closer-overlay', function () {
+			clearInterval(int);
+			fieldSelected = null;
+		});
+	}
+	/* торговые предложения по порядку по цене */
+	function orderOstatkiOrderPriceASC() {
+		$('body').on('click', '#order-list #order-product-popup tr.has-children', function () {
+			var tr = $(this);
+			var productId = tr.data('product-id');
+			var int = setInterval(function () {
+				var children = tr.siblings('.is-child[data-product-id="' + productId + '"][data-price]').get();
+				if (!children.length) return;
+				children.sort(function (a, b) {
+					var keyA = parseInt($(a).data('price').replace(/\.\d+/, ''));
+					var keyB = parseInt($(b).data('price').replace(/\.\d+/, ''));
+					if (keyA < keyB) return 1;
+					if (keyA > keyB) return -1;
+					return 0;
+				});
+				$.each(children, function (i, row) {
+					tr.next().after(row);
+				});
+				clearInterval(int);
+			}, 50);
+
+		});
+	}
+	/* описание для дефолтного адреса */
+	function orderAdresDescription() {
+		$('label[for="intaro_crmbundle_ordertype_deliveryAddress_text"]').html('Адрес<br><span style="font-size:.8em;line-height:.6em">это поле используется только для определения станции метро. Для того, чтобы адрес доставки отображался в общей таблице и был доступен для отправки курьерам, используй поле "Адрес доставки" ниже</span>');
+	}
+	/* добавляем транспортировочное автоматически */
+	function orderAddTransport() {
+		var transportByMagazin = {
+			'2STEBLYA': 'Транспортировочное',
+			'STAY TRUE Flowers': 'Упаковка'
+		}
+		searchTransport();
+		$('#intaro_crmbundle_ordertype_site').on('change', function () {
+			searchTransport();
+		});
+		/* проверяем магазин и наличие транспортировочного */
+		function searchTransport() {
+			magazin = getMagazin();
+			if (!Object.keys(transportByMagazin).includes(magazin)) return;
+			var exist = false;
+			tovars.each(function () {
+				if ($(this).find('.title .tr-link').text() != transportByMagazin[magazin]) return;
+				exist = true;
+				return false;
+			});
+			if (!exist) addTransport();
+		}
+		/* добавляем транспортировочное */
+		function addTransport() {
+			$('#add-order-product-btn').trigger('click');
+			var exist = false;
+			var int = setInterval(function () {
+				var popup = $('#order-product-popup');
+				if (!popup.length) return;
+				popup.hide();
+				$('#CRMBundle_AddOrderProductPopupFilter_Type_site').val(4).change(); //магазин "остатки"
+				$('#CRMBundle_AddOrderProductPopupFilter_Type_mixNameProduct').nextAll('button[name="search"]').trigger('click');
+				setTimeout(function () {
+					var rows = popup.find('.modern-table_product tr');
+					if (!rows.length) return;
+					rows.each(function () {
+						if ($(this).children('td').eq(1).text().trim() == transportByMagazin[magazin]) {
+							exist = true;
+							if (magazin == 'STAY TRUE Flowers') $(this).find('.product-count__area').val(2); //две упаковки для STF
+							$(this).trigger('click');
+							popup.find('.close').trigger('click');
+							return false;
+						}
+					});
+					if (!exist) {
+						rows.last().find('a').trigger('click');
+						return;
+					}
+					decriseTovarPrice();
+					delivery500();
+					clearInterval(int);
+				}, 1000);
+			}, 50);
+		}
+		/* уменьшаем стоимость букеа на стоимость транспортировочного */
+		function decriseTovarPrice() {
+			tovars.each(function () {
+				if (!isBuket($(this))) return true;
+				var inputTd = $(this).find('td.price');
+				var input = inputTd.find('.order-price__main .order-value-input');
+				var price = parseInt($(this).find('.order-product-properties span[title^="цена"]').text().replace(/[^\d]/g, ''));
+				var decrease = {
+					'2STEBLYA': 1000,
+					'STAY TRUE Flowers': 100
+				};
+				inputTd.find('.order-price__value').trigger('click');
+				input.val(price - decrease[magazin]);
+				inputTd.find('.order-price__button_submit').trigger('click');
+				return false;
+			});
+		}
+		/* стоимость доставки */
+		function delivery500() {
+			var price = 500;
+			$('#delivery-cost').val(price);
+			$('.order-delivery-cost__value-static').eq(0).html(' ' + price + '<span class="currency-symbol rub">₽</span>');
+		}
+	}
+	/* оплачено рядом с ценой */
+	function orderPayedVSTovars() {
+		var payed = getPayedMoney();
+		if (!payed) return;
+		$('#order-total-summ').after('<span title="оплачено"> / ' + payed.toString().replace(/(.{3})$/, ' $1') + ' <span class="currency-symbol rub">₽</span></span>');
+	}
+	/* переносим кастомные поля вправо */
+	function orderCustomFieldsToRight() {
+		$('#order-custom-fields').addClass('toRight').removeClass('ft-lt m-box__left-side').insertAfter($('.m-box__right-side > div:last')).wrap('<div />');
+	}
+	/* флорист в основное */
+	function orderFloristField() {
+		var florist = $('#intaro_crmbundle_ordertype_customFields_florist');
+		var floristParent = florist.parent();
+		var manager = $('#intaro_crmbundle_ordertype_manager').parent();
+		florist.insertAfter(floristParent);
+		manager.hide().after(floristParent);
+	}
+	/* расходы на закуп цветка */
+	function orderFlowersRashod() {
+		var flowersRashodBlock = $('<li class="order-table-footer__list-item"><p class="order-table-footer__text order-table-footer__text_muted order-table-footer__text_full">Стоимость закупа (цветок / упак)</p><p class="order-table-footer__text order-table-footer__text_price"><span id="flowersRashodValue"></span>&nbsp;<span class="currency-symbol rub">₽</span> / <span id="noflowersRashodValue"></span>&nbsp;<span class="currency-symbol rub">₽</span></p></li>');
+		flowersRashodBlock.prependTo('#order-list .order-table-footer__list');
+		var flowersRashodField = $('#intaro_crmbundle_ordertype_customFields_flower_rashod');
+		var flowersRashodFieldOldValue = flowersRashodField.val();
+		var noflowersRashodField = $('#intaro_crmbundle_ordertype_customFields_noflower_rashod');
+		var noflowersRashodFieldOldValue = noflowersRashodField.val();
+		flowersRashodField.parent().hide();
+		noflowersRashodField.parent().hide();
+		rashodCalc();
+		/* пересчитываем стоимость, если менялись данные полей */
+		$("#order-products-table input").on('change', function () {
+			rashodCalc();
+		});
+		/* пересчитываем стоимость, если меняется количество товаров */
+		var tovarsAmountOld = 0;
+		setInterval(function () {
+			var tovarsAmountNew = tovars.length;
+			if (tovarsAmountOld == tovarsAmountNew) return;
+			tovarsAmountOld = tovarsAmountNew;
+			rashodCalc();
+		}, 1000);
+		function rashodCalc() {
+			var flowersPrice = 0;
+			var noflowersPrice = 0;
+			tovars.each(function () {
+				var tovar = $(this);
+				if (isBuket(tovar)) return;
+				var amount = parseFloat(tovar.find('.quantity input').val().replace(',', '.'));
+				var title = tovar.find('.title .tr-link').text().replace(/\s\d+/, '');
+				/* считаем цены */
+				var price = parseFloat(tovar.find('.wholesale-price__value').text().replace(/\s/, '').replace('₽', ''));
+				if (noFlowers().includes(title)) {
+					noflowersPrice += price * amount;
+				} else {
+					flowersPrice += price * amount;
+				}
+			});
+			flowersPrice = flowersPrice.toFixed(0);
+			noflowersPrice = noflowersPrice.toFixed(0);
+			flowersRashodBlock.find('#flowersRashodValue').text(flowersPrice);
+			flowersRashodBlock.find('#noflowersRashodValue').text(noflowersPrice);
+			if (flowersRashodFieldOldValue != flowersPrice) flowersRashodField.val(flowersPrice);
+			if (noflowersRashodFieldOldValue != noflowersPrice) noflowersRashodField.val(noflowersPrice);
+		}
+	}
 	/* перезагрузить страницу, если сохраняем и не выхоидим */
-	reloadOnSave();
-	function reloadOnSave() {
+	function orderReloadOnSave() {
 		$('body').on('click', 'button[name="save"],button[name="set_status_button"]', function () {
 			smartReload();
 		});
 	}
+
+	/* HELPERS */
+	function getTovars() {
+		return tovarsTable.find('tbody.product-group');
+	}
+	function getMagazin() {
+		var block = $('#intaro_crmbundle_ordertype_site_chosen span');
+		if (!block.length) return false;
+		return block.text().trim();
+	}
+	function getSite() {
+		var block = $('#intaro_crmbundle_ordertype_site_chosen .chosen-single span');
+		if (!block.length) return false;
+		return block.text().trim();
+	}
+	function isBuket(tovar) {
+		if ($(tovar).find('.image img').length) return true;
+		return false;
+	}
+	function getCurrentMoney() {
+		return parseFloat($('#order-total-summ').text().replace(/[^\d,]/g, '').replace(',', '.'));
+	}
+	function getPayedMoney() {
+		payed = 0;
+		var pays = $('[id$="amount_text"][id^="intaro_crmbundle_ordertype_payments"]');
+		pays.each(function () {
+			var status = $(this).parents('.payment__content-wrapper').children('.input-group').eq(0).find('[id$="status_chosen"] a span').text();
+			if (status != 'Оплачен') return;
+			var pay = $(this).text().replace(/[^\d]/g, '');
+			payed += parseInt(pay);
+		});
+		return payed;
+	}
+	function getDeliveryMoney() {
+		return parseInt($('#delivery-cost').val().replace(/,.*/, ''));
+	}
+	function getTotalMoney() {
+		var totalPrice = 0;
+		/* если есть оплаты, пробуем оттолкнуться от них */
+		totalPrice = getPayedMoney();
+		/* если нет оплат, пробуем поискать поле "цена" у товара */
+		if (!totalPrice) {
+			if (tovars.length) {
+				tovars.each(function () {
+					if (!isBuket($(this))) return true;
+					var props = $(this).find('.order-product-properties span.additional');
+					if (!props) return;
+					props.each(function (i, e) {
+						var prop = $(this).attr('title').split(': ');
+						if (prop[0] != 'цена') return;
+						totalPrice += parseInt(parseInt(prop[1]));
+					});
+				});
+			}
+		}
+		return totalPrice;
+	}
+	function getTovarsMoney() {
+		return getCurrentMoney() - getDeliveryMoney();
+	}
+	function getMoney() {
+		return {
+			current: getCurrentMoney(),
+			payed: getPayedMoney(),
+			delivery: getDeliveryMoney(),
+			tovars: getTovarsMoney(),
+			total: getTotalMoney()
+		};
+	}
 }
 
 /********************
-	ORDERS
-	страница с заказами
+ORDERS
+страница с заказами
 *********************/
 ordersPage();
 function ordersPage() {
 	if (!pageHasCustomJs('orders')) return;
 
-	var table = $('.js-order-list');
-	var trs = getTrs();
-	var ths = getThs();
+	var table;
+	var trs;
+	var ths;
 	var indexes = {};
 	var hiddenCols = [
 		'Дата и время',
@@ -756,28 +740,60 @@ function ordersPage() {
 		'Сумма по товарам'
 	];
 
+	var int = setInterval(function () {
+		table = $('.js-order-list');
+		if (!table.length) return;
+		trs = getTrs();
+		if (!trs.length) return;
+		ths = getThs();
+
+		ordersTdIndexes();
+		ordersHideHiddenCols();
+		ordersNewOrderAppear();
+		ordersReloadPage();
+		ordersColoredRows();
+		ordersComments();
+		ordersOnanim();
+		ordersMessenger();
+		ordersVip();
+		ordersId();
+		ordersCurrentMonneyVsOplata();
+		ordersNoIdentic();
+		ordersAdresOptimize();
+		ordersMagazinLogos();
+		ordersCopyCourier();
+		ordersCopySostav();
+		ordersCopyCustomText();
+		ordersNotifyPoluchatel();
+		ordersOrderByCreationDate();
+		ordersFilterDelivery();
+		ordersFilterZakazDate();
+		ordersFilterSpisanie();
+		ordersFilterOtkudaUznal();
+		ordersFilterNalichieSpisanie();
+		ordersSvodkaCouriers();
+		ordersSvodkaFlowersNoflowers();
+
+		clearInterval(int);
+	}, 50);
+
 	/* собираем индексы всех столбцов, чтоб в дальнейшем обращаться к ним во внутренних функциях */
-	ordersTdIndexes();
 	function ordersTdIndexes() {
 		ths.each(function () {
 			var th = $(this);
 			indexes[th.text().trim()] = th.index();
 		});
 	}
-
 	/* скрываем ненужные столбцы */
-	ordersHideHiddenCols();
 	function ordersHideHiddenCols() {
+		var style = $('<style />');
 		$.each(hiddenCols, function (i, title) {
-			ths.eq(indexes[title]).hide();
-			trs.each(function () {
-				getTd($(this), title).hide();
-			});
+			var index = ths.eq(indexes[title]).index() + 1;
+			style.append('.js-order-list tr th:nth-child(' + index + '),.js-order-list tr td:nth-child(' + index + '){display:none}');
 		});
+		style.appendTo('body');
 	}
-
 	/* если появляется новый заказ на открытой странице */
-	ordersNewOrderAppear();
 	function ordersNewOrderAppear() {
 		var oldVal = trs.length;
 		setInterval(function () {
@@ -787,17 +803,13 @@ function ordersPage() {
 			oldVal = trs.length;
 		}, 1000);
 	}
-
 	/* обновляем страницу, если было изменение по клику на что-то */
-	ordersReloadPage();
 	function ordersReloadPage() {
 		$('body').on('click', 'button[type="submit"],#multiple-status-change-button,#multiple-courier-change a,a.filterDate', function () {
 			smartReload();
 		});
 	}
-
 	/* подкрашиваем строки */
-	ordersColoredRows();
 	function ordersColoredRows() {
 		trs.each(function () {
 			var tr = $(this);
@@ -818,9 +830,7 @@ function ordersPage() {
 			tr.css('background-color', '#' + color);
 		});
 	}
-
 	/* комментарии */
-	ordersComments();
 	function ordersComments() {
 		trs.each(function () {
 			var tr = $(this);
@@ -837,9 +847,7 @@ function ordersPage() {
 			ths.eq(indexes['Чат']).text('Коммментарии');
 		});
 	}
-
 	/* онаним */
-	ordersOnanim();
 	function ordersOnanim() {
 		trs.each(function () {
 			var tr = $(this);
@@ -847,9 +855,7 @@ function ordersPage() {
 			getTd(tr, 'Покупатель').addClass('orderComment zakazchikOnanim');
 		});
 	}
-
 	/* месссенджер заказчика */
-	ordersMessenger();
 	function ordersMessenger() {
 		var iconSize = 15;
 		icons = getMessengerIcons(iconSize);
@@ -897,9 +903,7 @@ function ordersPage() {
 			aTelegram.appendTo(tdClient);
 		});
 	}
-
 	/* vip */
-	ordersVip();
 	function ordersVip() {
 		trs.each(function () {
 			var tr = $(this);
@@ -908,9 +912,7 @@ function ordersPage() {
 			getTd(tr, 'Покупатель').append(importantFlag);
 		});
 	}
-
 	/* номер заказа перед чекбоксом */
-	ordersId();
 	function ordersId() {
 		trs.each(function () {
 			var tr = $(this);
@@ -923,9 +925,7 @@ function ordersPage() {
 			tr.children('td:first').prepend('<br>').prepend(id);
 		});
 	}
-
 	/* сумма и оплата */
-	ordersCurrentMonneyVsOplata();
 	function ordersCurrentMonneyVsOplata() {
 		trs.each(function () {
 			var tr = $(this);
@@ -944,9 +944,7 @@ function ordersPage() {
 			}
 		});
 	}
-
 	/* подсвечиваем "без айдентики" */
-	ordersNoIdentic();
 	function ordersNoIdentic() {
 		trs.each(function () {
 			var tr = $(this);
@@ -954,9 +952,7 @@ function ordersPage() {
 			getTd(tr, 'Выебри карточку').contents().wrap('<span style="background:#f3ff92" />');
 		});
 	}
-
 	/* переоформляем адрес доставки */
-	ordersAdresOptimize();
 	function ordersAdresOptimize() {
 		trs.each(function () {
 			var tr = $(this);
@@ -981,9 +977,7 @@ function ordersPage() {
 			ctrlC($(this).text());
 		});
 	}
-
 	/* лого магазинов */
-	ordersMagazinLogos();
 	function ordersMagazinLogos() {
 		trs.each(function () {
 			var tr = $(this);
@@ -999,9 +993,7 @@ function ordersPage() {
 			td.css(css).html(img);
 		});
 	}
-
 	/* кнопка копировать: инфа для курьера */
-	ordersCopyCourier();
 	function ordersCopyCourier() {
 		/* собираем столбцы для использования в тектсе для курьера */
 		var courierIndexes = {};
@@ -1079,9 +1071,7 @@ function ordersPage() {
 			ctrlC(output);
 		}
 	}
-
 	/* кнопка копировать: состав заказа */
-	ordersCopySostav();
 	function ordersCopySostav() {
 		trs.each(function () {
 			var tr = $(this);
@@ -1145,9 +1135,7 @@ function ordersPage() {
 			return zakazBukets;
 		}
 	}
-
 	/* кнопка копировать: свой текст добавить к выебри карточке */
-	ordersCopyCustomText();
 	function ordersCopyCustomText() {
 		trs.each(function () {
 			var tr = $(this);
@@ -1167,9 +1155,7 @@ function ordersPage() {
 			td.addClass('orderComment withCustomText').append(a).append(tooltip);
 		});
 	}
-
 	/* нотификатор: нет имени/телефона/адреса получателя */
-	ordersNotifyPoluchatel();
 	function ordersNotifyPoluchatel() {
 		trs.each(function () {
 			var tr = $(this);
@@ -1217,16 +1203,12 @@ function ordersPage() {
 			}
 		});
 	}
-
 	/* по умолчанию сортировка по дате создания заказа */
-	ordersOrderByCreationDate();
 	function ordersOrderByCreationDate() {
 		if (window.location.search) return;
 		window.location.search = '?filter%5Bsort%5D=created_at&filter%5Bdirection%5D=desc';
 	}
-
 	/* фильтр: доставка (сегодня/завтра) */
-	ordersFilterDelivery();
 	function ordersFilterDelivery() {
 		$('.default-form-filter .filter-group').each(function () {
 			if ($(this).find('.control-label span').text().trim() != 'Дата доставки') return true;
@@ -1263,9 +1245,7 @@ function ordersPage() {
 			return $('<a class="filterDate" href="' + href + '" style="' + style + '">' + title + '</a>');
 		}
 	}
-
 	/* фильтр: дата заказа (вчера/сегодня/завтра) */
-	ordersFilterZakazDate();
 	function ordersFilterZakazDate() {
 		$('.default-form-filter .filter-group').each(function () {
 			var filterGroup = $(this);
@@ -1289,9 +1269,7 @@ function ordersPage() {
 			});
 		});
 	}
-
 	/* фильтр: списания */
-	ordersFilterSpisanie();
 	function ordersFilterSpisanie() {
 		var thisMonth = new Date();
 		var prevMonth = new Date();
@@ -1323,33 +1301,20 @@ function ordersPage() {
 			return [start, end];
 		}
 	}
-
 	/* фильтр: откуда узнал */
-	ordersFilterOtkudaUznal();
 	function ordersFilterOtkudaUznal() {
 		var shown = false;
-		var i = indexes['Откуда узнал о нас (в заказе)'];
+		var index = indexes['Откуда узнал о нас (в заказе)'] + 1;
 		var btn = $('<a style="display:inline-block;font-size:13px;line-height:1.1em;line-height:36px;margin-left:8px;cursor:pointer">Откуда узнал</a>');
+		var style = $('<style />');
+		style.appendTo('body');
 		btn.insertAfter($('.m-filter .parameters')).on('click', function (e) {
 			e.preventDefault();
-			if (shown) {
-				ths.eq(i).hide();
-				trs.each(function () {
-					$(this).children('td').eq(i).hide();
-				});
-				shown = false;
-			} else {
-				ths.eq(i).show();
-				trs.each(function () {
-					$(this).children('td').eq(i).show();
-				});
-				shown = true;
-			}
+			style.text('.js-order-list tr th:nth-child(' + index + '),.js-order-list tr td:nth-child(' + index + '){display:' + (shown ? 'none' : 'table-cell') + '}');
+			shown = shown ? false : true;
 		});
 	}
-
 	/* фильтр: скрыть наличие и списание */
-	ordersFilterNalichieSpisanie();
 	function ordersFilterNalichieSpisanie() {
 		var int = setInterval(function () {
 			if (!$('.js-order-list tr').length) return;
@@ -1370,9 +1335,7 @@ function ordersPage() {
 			clearInterval(int);
 		}, 50);
 	}
-
 	/* сводка: курьеры */
-	ordersSvodkaCouriers();
 	function ordersSvodkaCouriers() {
 		var data = {};
 		var totalAmount = 0;
@@ -1430,9 +1393,7 @@ function ordersPage() {
 		/* общие затраты на курьеров */
 		$('#list-total-count').before('<span id="list-total-courierRashod">Расход на курьеров: ' + totalAmount + ' ₽</span>');
 	}
-
 	/* сводка: расходы на цветок/нецветок */
-	ordersSvodkaFlowersNoflowers();
 	function ordersSvodkaFlowersNoflowers() {
 		var flowersSummary = 0;
 		var neflowersSummary = 0;
@@ -1462,8 +1423,8 @@ function ordersPage() {
 }
 
 /*******************
-	PRODUCT
-	страница товара
+PRODUCT
+страница товара
 ************************/
 productPage();
 function productPage() {
@@ -1503,18 +1464,15 @@ function productPage() {
 				blocks.eq(i).addClass('ostatki').attr(attrs[i], true);
 			});
 		}
-
 		/* меняем блоки местами */
 		function ostatkiReorderBlocks() {
 			blocks.parent().append(blocks.eq(1));
 		}
-
 		/* есть торговые предложения или нет */
 		function ostatkiHasVariants() {
 			var rows = $('.ostatki[amount] tbody tr');
 			return rows.length > 1 ? true : false;
 		}
-
 		/* цены в торговых предложениях или нет */
 		function ostatkiHasPrices() {
 			var props = $('.ostatki[properties]');
@@ -1522,7 +1480,6 @@ function productPage() {
 			if (props.find('input[value="purchasePrice"]').is(':checked')) return true;
 			return false;
 		}
-
 		/* есть или нет вариантов у товара */
 		function ostatkiHasVariantsTumbler() {
 			var tumblerText = 'Различные ценовые варианты';
@@ -1536,7 +1493,6 @@ function productPage() {
 
 			});
 		}
-
 		/* улучшаем блоки */
 		function ostatkiReorganizeBlocks() {
 			var variants = $('.ostatki[variants] .product-offers__collapse-box');
@@ -1566,7 +1522,6 @@ function productPage() {
 			ostatkiAmountListener(table, trs.length);
 			ostatkiVariantsOrder(table, trs);
 		}
-
 		/* торговые предложения по алфавиту */
 		function ostatkiVariantsOrder(table, trs) {
 			var rows = trs.get();
@@ -1582,15 +1537,14 @@ function productPage() {
 			$.each(rows, function (i, row) {
 				table.children('tbody').append(row);
 			});
+			function ostatkiApproxZakupPrice(caption, price) {
+				if (caption.children('.approxPrice').length) return;
+				var mid = Math.round(price / 3);
+				var min = mid - 25;
+				var max = mid + 25;
+				caption.append('<span class="approxPrice">~' + mid + ' ₽</span>');
+			}
 		}
-		function ostatkiApproxZakupPrice(caption, price) {
-			if (caption.children('.approxPrice').length) return;
-			var mid = Math.round(price / 3);
-			var min = mid - 25;
-			var max = mid + 25;
-			caption.append('<span class="approxPrice">~' + mid + ' ₽</span>');
-		}
-
 		/* следим за изменением количества торговых предложений
 		если добавлено новое, перезагружаем страницу */
 		function ostatkiAmountListener(table, oldVal) {
@@ -1611,7 +1565,6 @@ function productPage() {
 				}
 			}, 50);
 		}
-
 		/* улучшаем таблицу "остатки" */
 		function ostatkiAmountEnhanced() {
 			/* пишем правльный заголовок таблицы */
@@ -1653,7 +1606,6 @@ function productPage() {
 				});
 			}
 		}
-
 		/* кнопки "сохранить" зеленые */
 		function ostatkiGreenBtns() {
 			var btns = $('.ostatki .UiButton_btn_primary-success_3CPeN');
@@ -1663,7 +1615,6 @@ function productPage() {
 				$(this).find('.UiButton_btn__txt_lBLyT').text(captions[i]);
 			});
 		}
-
 		/* белый фон */
 		function ostatkiBg() {
 			$('.inner-wrapper__content').css('background', '#fff');
@@ -1672,56 +1623,72 @@ function productPage() {
 }
 
 /*******************
-	КУРЬЕР
+КУРЬЕР
 ************************/
 courierPage();
 function courierPage() {
 	if (!pageHasCustomJs('courier')) return;
 
+	var descr;
+	var int = setInterval(function () {
+		descr = $('#intaro_crmbundle_couriertype_description');
+		if (!descr.length) return;
+
+		courierBank();
+		courierReloadOnSave();
+
+		clearInterval(int);
+	}, 50);
+
 	/* перезагрузка после сохранения */
-	reloadOnSave();
-	function reloadOnSave() {
+	function courierReloadOnSave() {
 		$('body').on('click', 'button[name="submit"]', function () {
-			description();
 			setTimeout(function () {
 				location.reload();
-			}, 1000);
+			}, 500);
 		});
 	}
+	/* добавляем возможность добавить курьеру банк */
+	function courierBank() {
 
-	/* создаем селект для банка */
-	var options = ['', 'Сбер', 'Тинькофф', 'Альфа', 'Райффайзен', 'ВТБ', 'СГБ', 'Газпром', 'Россельхоз'];
-	var bankSelect = $('<select id="courierBank"></select>');
-	$.each(options, function (i, e) {
-		bankSelect.append('<option value="' + e + '">' + e + '</option>');
-	});
-	var block = $('<div class="control-group"><div class="control-label"><label for="courierBank"><span>Банк</span></label></div><div class="controls"></div></div>');
-	bankSelect.appendTo(block.find('.controls'));
-	var e = $('form[name="intaro_crmbundle_couriertype"] .control-group:nth-child(5)');
-	block.insertAfter(e);
+		var descrClone;
+		var bankSelect;
+		var bank;
 
-	/* создаем клон примечания */
-	var descr = $('#intaro_crmbundle_couriertype_description');
-	var descrClone = descr.clone();
-	descrClone.removeAttr('id').removeAttr('name').insertAfter(descr);
-	descrClone.val(descr.val().replace(/банк.+\n*/g, ''));
-	descr.hide();
+		/* создаем селект для банка */
+		var options = ['', 'Сбер', 'Тинькофф', 'Альфа', 'Райффайзен', 'ВТБ', 'СГБ', 'Газпром', 'Россельхоз'];
+		bankSelect = $('<select id="courierBank"></select>');
+		$.each(options, function (i, e) {
+			bankSelect.append('<option value="' + e + '">' + e + '</option>');
+		});
+		var block = $('<div class="control-group"><div class="control-label"><label for="courierBank"><span>Банк</span></label></div><div class="controls"></div></div>');
+		bankSelect.appendTo(block.find('.controls'));
+		var e = $('form[name="intaro_crmbundle_couriertype"] .control-group:nth-child(5)');
+		block.insertAfter(e);
 
-	/* определяем банк */
-	var bank = descr.val().match(/банк:\s(.+)\n*/);
-	bank = (bank[1] ? bank[1] : '');
-	bankSelect.children('option[value="' + bank + '"]').prop('selected', true);
+		/* создаем клон примечания */
+		descrClone = descr.clone();
+		descrClone.removeAttr('id').removeAttr('name').insertAfter(descr);
+		descrClone.val(descr.val().replace(/банк.+\n*/g, ''));
+		descr.hide();
 
-	function description() {
-		var text = '';
-		if (bankSelect.val()) text += 'банк: ' + bankSelect.val() + '\n';
-		text += descrClone.val();
-		descr.val(text);
+		/* определяем банк */
+		var bank = descr.val().match(/банк:\s(.+)\n*/);
+		bank = (Array.isArray(bank) && bank[1] ? bank[1] : '');
+		bankSelect.children('option[value="' + bank + '"]').prop('selected', true);
+
+		/* обновляем данные о банке */
+		bankSelect.on('change', function () {
+			var text = '';
+			if (bankSelect.val()) text += 'банк: ' + bankSelect.val() + '\n';
+			text += descrClone.val();
+			descr.val(text);
+		});
 	}
 }
 
 /*******************
-	ЛЕВОЕ МЕНЮ
+ЛЕВОЕ МЕНЮ
 ************************/
 leftMenu();
 function leftMenu() {
@@ -1729,10 +1696,13 @@ function leftMenu() {
 		var menu = $('#nav-bar');
 		if (!menu.length) return;
 		if (!menu.find('.nav-btn').length) return;
+
 		analyticsBtnMoveDown();
+
 		clearInterval(int);
 	}, 50);
 
+	/* переносим аналитику вниз */
 	function analyticsBtnMoveDown() {
 		var a = $('.nav-btn_analytics');
 		a.insertAfter(a.siblings(':last'));
@@ -1743,7 +1713,7 @@ function leftMenu() {
 
 
 /*******************
-	HELPERS
+HELPERS
 ************************/
 
 /* перезагружать страницу только после того, как crm загрузит все формы на сервер (появится и пропадет прелоадер)
