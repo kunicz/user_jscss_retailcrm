@@ -19,7 +19,7 @@ leftMenu();
 hiddenFinance();
 
 /* игнорировать страницы, для которых еще не написан custom JS */
-function pageHasCustomJs(page = null) {
+function pageHasCustomJs(page) {
 	var pages = {
 		orders: 'orders/$',
 		order: 'orders/\\d+',
@@ -27,20 +27,8 @@ function pageHasCustomJs(page = null) {
 		product: 'products/\\d+',
 		courier: 'admin/couriers/\\d+'
 	};
-	//если знаем страницу, которую проверяем
-	if (page) return testPage(pages[page]);
-	//если не знаем
-	var hasJs = false;
-	$.each(pages, function (i) {
-		if (testPage(pages[i])) {
-			hasJs = true;
-			return false;
-		}
-	});
-	return hasJs;
-	function testPage(p) {
-		return (new RegExp(p)).test(window.location.pathname);
-	}
+	if (!pages[page]) return false;
+	return new RegExp(pages[page]).test(window.location.pathname);
 }
 
 /********************
