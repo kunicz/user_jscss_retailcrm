@@ -36,6 +36,9 @@
 	/*коммуникации*/
 		#order-communications{display:none}
 	/* товары в таблице заказа */
+		.modern-order-table th:nth-child(1),.modern-order-table td:nth-child(1){display:none}
+		.modern-order-table th:nth-child(2){padding-left:10px!important}
+		.modern-table tr td.image{text-align:center}
 		.modern-order-table tr .last-cell.price{margin-bottom:0}
 		.modern-order-table .info-btn-group{margin:0}
 		.modern-table.order-products tr td,

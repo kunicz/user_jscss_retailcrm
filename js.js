@@ -35,7 +35,7 @@ function alwaysReloadOnHrefChange() {
 		if (href == window.location.href) return;
 		href = window.location.href;
 		if (!pageHasCustomJs()) return;
-		window.location.reload();
+		customRetailCrmFunctions();
 	}, 50);
 }
 
@@ -53,17 +53,26 @@ function hiddenFinance() {
 }
 
 /* торговые предложение не из группы "срезка" */
-function noFlowers() {
-	var upak = ['Транспортировочное', 'Упаковка', 'Декор', 'Оазис', 'Основа', 'Поддон', 'Яйцо', 'Свеча', 'Секатор', 'Игрушка'];
-	var container = ['Ящик', 'Сердце', 'Кастрюля', 'Корзина', 'Горшок', 'Коробка'];
-	return [...upak, ...container];
+var noFlowers = [
+	...['Транспортировочное', 'Упаковка', 'Декор', 'Оазис', 'Основа', 'Поддон', 'Яйцо', 'Свеча', 'Секатор', 'Игрушка'], // разное
+	...['Ящик', 'Сердце', 'Кастрюля', 'Корзина', 'Горшок', 'Коробка'] //ёмкости
+];
+console.log(noFlowers);
+
+/* улучшаем страницы */
+customRetailCrmFunctions();
+function customRetailCrmFunctions() {
+	orderPage();
+	ordersPage();
+	productPage();
+	courierPage();
+	leftMenu();
 }
 
 /********************
 ORDER
 страница заказа
 *********************/
-orderPage();
 function orderPage() {
 	if (!pageHasCustomJs('order') && !pageHasCustomJs('order_new')) return;
 
@@ -584,7 +593,7 @@ function orderPage() {
 				var title = tovar.find('.title .tr-link').text().replace(/\s\d+/, '');
 				/* считаем цены */
 				var price = parseFloat(tovar.find('.wholesale-price__value').text().replace(/\s/, '').replace('₽', ''));
-				if (noFlowers().includes(title)) {
+				if (noFlowers.includes(title)) {
 					noflowersPrice += price * amount;
 				} else {
 					flowersPrice += price * amount;
@@ -679,7 +688,6 @@ function orderPage() {
 ORDERS
 страница с заказами
 *********************/
-ordersPage();
 function ordersPage() {
 	if (!pageHasCustomJs('orders')) return;
 
@@ -1081,7 +1089,7 @@ function ordersPage() {
 							prop = prop.replace(/\sодн|\sкуст/, ''); //убираем одн и куст (роза одн)
 							prop = prop.replace(/\s*\(.*\)/, ''); //убираем все в скобочках
 							prop = prop.replace(/\s-\s.*$/, ''); //убираем все после дефиса
-							if (noFlowers().includes(prop) || zakazBukets.includes(prop)) isFlower = false;
+							if (noFlowers.includes(prop) || zakazBukets.includes(prop)) isFlower = false;
 							break;
 						case 2:	//количество
 							if (!prop) isFlower = false;
@@ -1393,12 +1401,10 @@ function ordersPage() {
 		return $(getTd(tr, title)).text().trim();
 	}
 }
-
 /*******************
 PRODUCT
 страница товара
 ************************/
-productPage();
 function productPage() {
 	if (!pageHasCustomJs('product')) return;
 	if ($('body').is('.responsive-form')) {
@@ -1593,11 +1599,9 @@ function productPage() {
 		}
 	}
 }
-
 /*******************
 КУРЬЕР
 ************************/
-courierPage();
 function courierPage() {
 	if (!pageHasCustomJs('courier')) return;
 
@@ -1658,11 +1662,9 @@ function courierPage() {
 		});
 	}
 }
-
 /*******************
 ЛЕВОЕ МЕНЮ
 ************************/
-leftMenu();
 function leftMenu() {
 	var int = setInterval(function () {
 		var menu = $('#nav-bar');
@@ -1683,7 +1685,6 @@ function leftMenu() {
 
 
 
-
 /*******************
 HELPERS
 ************************/
@@ -1694,16 +1695,14 @@ readyToReload = false;
 function smartReload() {
 	//перезагружаем только после того, как стандартный лоадер отработает и пропадет
 	var int = setInterval(function () {
-		console.log('waiting for save');
-		//stat-box-popup-bg overpage bg-light o-bg black-red-loader
-		var loader = $('.black-red-loader');
+		var loader = $('.black-red-loader'); //class: stat-box-popup-bg overpage bg-light o-bg black-red-loader
 		if (!loader.length && !readyToReload) return;
 		readyToReload = true;
 		if (loader.length && readyToReload) return;
 		readyToReload = false;
 		clearInterval(int);
-		location.reload();
-	}, 1);
+		customRetailCrmFunctions();
+	}, 50);
 }
 /* кнопка для копирования */
 function ctrlCbtn() {
