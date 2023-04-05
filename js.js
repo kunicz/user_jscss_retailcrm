@@ -682,7 +682,6 @@ function ordersPage() {
 
 		ordersTdIndexes();
 		ordersHideHiddenCols();
-		ordersNewOrderAppear();
 		ordersColoredRows();
 		ordersComments();
 		ordersOnanim();
@@ -723,16 +722,6 @@ function ordersPage() {
 			style.append('.js-order-list tr th:nth-child(' + index + '),.js-order-list tr td:nth-child(' + index + '){display:none}');
 		});
 		style.appendTo('body');
-	}
-	/* если появляется новый заказ на открытой странице */
-	function ordersNewOrderAppear() {
-		var oldVal = trs.length;
-		setInterval(function () {
-			trs = getTrs();
-			if (oldVal == trs.length) return;
-			ordersHideHiddenCols();
-			oldVal = trs.length;
-		}, 1000);
 	}
 	/* подкрашиваем строки */
 	function ordersColoredRows() {
