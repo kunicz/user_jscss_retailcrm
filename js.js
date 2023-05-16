@@ -69,6 +69,7 @@ function orderPage() {
 		orderAddTransport();
 		orderPayedVSTovars();
 		orderCustomFieldsToRight();
+		orderDiscount();
 		orderFloristField();
 		orderFlowersRashod();
 
@@ -508,6 +509,20 @@ function orderPage() {
 		var payed = getPayedMoney();
 		if (!payed) return;
 		$('#order-total-summ').after('<span title="оплачено"> / ' + payed.toString().replace(/(.{3})$/, ' $1') + ' <span class="currency-symbol rub">₽</span></span>');
+	}
+	/* скидка для STF */
+	function orderDiscount() {
+		if (magazin != 'STAY TRUE Flowers') return;
+		if ($('#intaro_crmbundle_ordertype_customFields_discount_trigger_ignore').is(':checked')) return;
+		var totalField = $('#custom-field-summa_zakazov');
+		if (!totalField.length) return;
+		var discount = 0;
+		var total = parseInt(totalField.text().trim());
+		if (total > 0 && total < 25000) discount = 5;
+		if (total >= 25000 && total < 50000) discount = 7;
+		if (total >= 50000 && total < 100000) discount = 10;
+		if (total >= 100000) discount = 15;
+		$('#intaro_crmbundle_ordertype_discountManualPercent').val(discount).change();
 	}
 	/* переносим кастомные поля вправо */
 	function orderCustomFieldsToRight() {
