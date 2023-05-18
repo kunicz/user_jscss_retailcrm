@@ -67,7 +67,6 @@ function orderPage() {
 		orderOstatkiOrderPriceASC();
 		orderAdresDescription();
 		orderAddTransport();
-		orderPayedVSTovars();
 		orderCustomFieldsToRight();
 		orderDiscount();
 		orderFloristField();
@@ -440,13 +439,18 @@ function orderPage() {
 		function searchTransport() {
 			magazin = getMagazin();
 			if (!Object.keys(transportByMagazin).includes(magazin)) return;
-			var exist = false;
+			var dont = false;
 			tovars.each(function () {
-				if ($(this).find('.title .tr-link').text() != transportByMagazin[magazin]) return;
-				exist = true;
+				var title = $(this).find('.title .tr-link').text();
+				if (/ДОНАТОШНАЯ/.test(title)) {
+					dont = true;
+					return;
+				}
+				if (title != transportByMagazin[magazin]) return;
+				dont = true;
 				return false;
 			});
-			if (!exist) addTransport();
+			if (!dont) addTransport();
 		}
 		/* добавляем транспортировочное */
 		function addTransport() {
@@ -503,12 +507,6 @@ function orderPage() {
 			$('#delivery-cost').val(price);
 			$('.order-delivery-cost__value-static').eq(0).html(' ' + price + '<span class="currency-symbol rub">₽</span>');
 		}
-	}
-	/* оплачено рядом с ценой */
-	function orderPayedVSTovars() {
-		var payed = getPayedMoney();
-		if (!payed) return;
-		$('#order-total-summ').after('<span title="оплачено"> / ' + payed.toString().replace(/(.{3})$/, ' $1') + ' <span class="currency-symbol rub">₽</span></span>');
 	}
 	/* скидка для STF */
 	function orderDiscount() {
@@ -610,13 +608,12 @@ function orderPage() {
 		pays.each(function () {
 			var status = $(this).parents('.payment__content-wrapper').children('.input-group').eq(0).find('[id$="status_chosen"] a span').text();
 			if (status != 'Оплачен') return;
-			var pay = $(this).text().replace(/[^\d]/g, '');
-			payed += parseInt(pay);
+			payed += parseFloat($(this).text().replace(/[^\d,]/g, '').replace(',', '.'));
 		});
 		return payed;
 	}
 	function getDeliveryMoney() {
-		return parseInt($('#delivery-cost').val().replace(/,.*/, ''));
+		return parseFloat($('#delivery-cost').val());
 	}
 	function getTotalMoney() {
 		var totalPrice = 0;
