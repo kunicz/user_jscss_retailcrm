@@ -1035,6 +1035,7 @@ function ordersPage() {
 							prop = prop.replace(/\sодн|\sкуст/, ''); //убираем одн и куст (роза одн)
 							prop = prop.replace(/\s*\(.*\)/, ''); //убираем все в скобочках
 							prop = prop.replace(/\s-\s.*$/, ''); //убираем все после дефиса
+							prop = prop.trim();
 							if (noFlowers.includes(prop) || zakazBukets.includes(prop)) isFlower = false;
 							break;
 						case 2:	//количество
@@ -1056,6 +1057,7 @@ function ordersPage() {
 				buket = buket.replace(/\(\d+\sш.*$/, ''); //удаляем штуки
 				buket = buket.replace(/\s*\(.*\)/, ''); //убираем все в скобочках
 				buket = buket.replace(/\s-\s.*$/, ''); //убираем все после дефиса
+				buket = buket.trim();
 				zakazBukets[i] = buket;
 			});
 			return zakazBukets;
