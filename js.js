@@ -1019,7 +1019,6 @@ function ordersPage() {
 			var tooltip = $('<div class="inline-tooltip inline-tooltip_normal" style="max-width:300px;width:300px;top:0;text-align:left">' + sostav + '</div>');
 			td.append(a).append(tooltip);
 		});
-		/* разбираем состав */
 		function parseOrdersSostav(sostav, zakazBukets) {
 			sostav = sostav.replaceAll(/шт\./g, 'шт.*separator*');
 			var flowers = [];
@@ -1027,28 +1026,13 @@ function ordersPage() {
 			zakazBukets = parseZakazBukets(zakazBukets);
 			$.each(sostavItems, function (i, item) {
 				if (!item) return;
-				var isFlower = true;
-				var sostavItemProps = item.trim().replace('шт.', '').replace('₽,', '—').split('—');
-				$.each(sostavItemProps, function (j, prop) {
-					prop = prop.trim();
-					switch (j) {
-						case 0:	//название
-							//убираем цену из названия (роза 300)
-							if (!prop.startsWith('Букет') && !prop.startsWith('Цветочный микс')) prop = prop.replace(/\s\d+/, '');
-							prop = prop.replace(/\sодн|\sкуст/, ''); //убираем одн и куст (роза одн)
-							prop = prop.replace(/\s*\(.*\)/, ''); //убираем все в скобочках
-							prop = prop.replace(/\s-\s.*$/, ''); //убираем все после дефиса
-							prop = prop.trim();
-							if (noFlowers.includes(prop) || zakazBukets.includes(prop)) isFlower = false;
-							break;
-						case 2:	//количество
-							if (!prop) isFlower = false;
-							break;
-					}
-					sostavItemProps[j] = prop;
-				});
-				sostavItems[i] = sostavItemProps;
-				if (isFlower) flowers.push(sostavItemProps[0].toLowerCase());
+				item = item.trim();
+				item = item.replace(/\s*—.*$/, '');
+				if (!item.startsWith('Букет') && !item.startsWith('Цветочный микс')) item = item.replace(/\s\d+$/, '');
+				item = item.replace(/\sодн|\sкуст/, ''); //убираем одн и куст (роза одн)
+				item = item.replace(/\s-\s.*$/, ''); //убираем все после дефиса
+				if (noFlowers.includes(item) || zakazBukets.includes(item)) return;
+				flowers.push(item.toLowerCase());
 			});
 			if (!flowers.length) return false;
 			return Array.from(new Set(flowers)).sort().join(', '); //возвращаем массив без дубликатов и по алфавиту
