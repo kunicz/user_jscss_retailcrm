@@ -492,11 +492,12 @@ function orderPage() {
 				var input = inputTd.find('.order-price__main .order-value-input');
 				var price = parseInt($(this).find('.order-product-properties span[title^="цена"]').text().replace(/[^\d]/g, ''));
 				var decrease = {
-					'2STEBLYA': 1000,
-					'STAY TRUE Flowers': 100
+					/* на сколько / сколько раз */
+					'2STEBLYA': [1000, 1], //транспорт
+					'STAY TRUE Flowers': [100, 2] // упак
 				};
 				inputTd.find('.order-price__value').trigger('click');
-				input.val(price - decrease[magazin]);
+				input.val(price - decrease[magazin][0] * decrease[magazin][1]);
 				inputTd.find('.order-price__button_submit').trigger('click');
 				return false;
 			});
@@ -514,6 +515,8 @@ function orderPage() {
 		if ($('#intaro_crmbundle_ordertype_customFields_discount_trigger_ignore').is(':checked')) return;
 		var totalField = $('#custom-field-summa_zakazov');
 		if (!totalField.length) return;
+		var zakazAmount = parseInt($('[title="Количество заказов, оформленных данным покупателем"]').text().trim().match(/(?:\d+) всего/));
+		if (zakazAmount <= 1) return;
 		var discount = 0;
 		var total = parseInt(totalField.text().trim());
 		if (total > 0 && total < 25000) discount = 5;
