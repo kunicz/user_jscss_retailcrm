@@ -1019,14 +1019,14 @@ function ordersPage() {
 			var tooltip = $('<div class="inline-tooltip inline-tooltip_normal" style="max-width:300px;width:300px;top:0;text-align:left">' + sostav + '</div>');
 			td.append(a).append(tooltip);
 		});
+		/* убираем из состава лишнее и формируем строку */
 		function parseOrdersSostav(sostav, zakazBukets) {
-			sostav = sostav.replaceAll(/шт\./g, 'шт.*separator*');
 			var flowers = [];
-			var sostavItems = sostav.split('*separator*');
+			var sostavItems = sostav.replaceAll(/шт\./g, 'шт.*separator*').split('*separator*');
 			zakazBukets = parseZakazBukets(zakazBukets);
 			$.each(sostavItems, function (i, item) {
-				if (!item) return;
 				item = item.trim();
+				if (!item) return;
 				item = item.replace(/\s*—.*$/, '');
 				if (!item.startsWith('Букет') && !item.startsWith('Цветочный микс')) item = item.replace(/\s\d+$/, '');
 				item = item.replace(/\sодн|\sкуст/, ''); //убираем одн и куст (роза одн)

@@ -284,6 +284,7 @@
 .hiddenFinance .nav-btn_analytics,/*меню : аналитика*/
 .hiddenFinance .nav-btn_sites,/*меню : сайты*/
 .hiddenFinance .nav-btn_admin,/*меню : настройки*/
+.hiddenFinance .nav-btn_automation,/*меню : триггеры*/
 .hiddenFinance .sub-item[data-name="Менеджеры"],
 .hiddenFinance #ui-sidebar-5 .profile-sidebar__footer,/*настройки профился,разлогиниться*/
 .hiddenFinance [href='#export']
