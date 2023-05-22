@@ -701,6 +701,7 @@ function ordersPage() {
 		ordersNoIdentic();
 		ordersAdresOptimize();
 		ordersMagazinLogos();
+		ordersSpecialCharsInBuckets();
 		ordersCopyCourier();
 		ordersCopySostav();
 		ordersCopyCustomText();
@@ -916,6 +917,16 @@ function ordersPage() {
 			td.css(css).html(img);
 		});
 	}
+	/* специальные символы в названиях букетов */
+	function ordersSpecialCharsInBuckets() {
+		trs.each(function () {
+			var tr = $(this);
+			var td = getTd(tr, 'Букеты в заказе');
+			var text = getTdText(tr, 'Букеты в заказе');
+			text = text.replaceAll('&quot;', '"');
+			td.text(text);
+		});
+	}
 	/* кнопка копировать: инфа для курьера */
 	function ordersCopyCourier() {
 		/* собираем столбцы для использования в тектсе для курьера */
@@ -927,7 +938,6 @@ function ordersPage() {
 		/* столбец: тип доставки */
 		trs.each(function () {
 			var tr = $(this);
-			var td = getTd(tr, 'Тип доставки');
 			if (getTdText(tr, 'Тип доставки') == 'Самовывоз') tr.addClass('samovyvoz');
 		});
 		/* столбец: курьер */
