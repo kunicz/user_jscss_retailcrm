@@ -193,17 +193,10 @@ function orderPage() {
 			amount = parseInt(amount, 10);
 			buckets.push(title + '(' + amount + ' шт)');
 		});
-		//таймаут нужен, чтоб сначала страница успела загрузиться
-		setTimeout(function () {
-			var fieldBucket = $('#intaro_crmbundle_ordertype_customFields_bukety_v_zakaze');
-			var fieldCard = $('#intaro_crmbundle_ordertype_customFields_card');
-			if (fieldBucket.val() != buckets.join(', ')) fieldBucket.val(buckets.join(', '));
-			if (fieldCard.val() != cards.join(', ')) fieldCard.val(cards.join(', '));
-			/*
-			fieldBucket.prop('disabled',true);
-			fieldCard.prop('disabled',true);
-			*/
-		}, 2000);
+		var fieldBucket = $('#intaro_crmbundle_ordertype_customFields_bukety_v_zakaze');
+		var fieldCard = $('#intaro_crmbundle_ordertype_customFields_card');
+		if (fieldBucket.val() != buckets.join(', ')) fieldBucket.val(buckets.join(', '));
+		if (fieldCard.val() != cards.join(', ')) fieldCard.val(cards.join(', '));
 	}
 	/* товары по алфавиту */
 	function orderTovarsASC() {
@@ -517,9 +510,10 @@ function orderPage() {
 		if (!totalField.length) return;
 		var zakazAmount = parseInt($('[title="Количество заказов, оформленных данным покупателем"]').text().trim().match(/(?:\d+) всего/));
 		if (zakazAmount <= 1) return;
-		var discount = 0;
 		var total = parseInt(totalField.text().trim());
-		if (total > 0 && total < 25000) discount = 5;
+		if (!total) return;
+		var discount = 0;
+		if (total < 25000) discount = 5;
 		if (total >= 25000 && total < 50000) discount = 7;
 		if (total >= 50000 && total < 100000) discount = 10;
 		if (total >= 100000) discount = 15;
