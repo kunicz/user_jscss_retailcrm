@@ -19,6 +19,8 @@
 	/* poluchtelDop */
 	.poluchatelDop{width:15px;text-align:center}
 	.poluchatelDop > *{display:block;margin-bottom:5px}
+	/* смена статуса batch */
+	#multiple-status-change .batch-statuses__item{padding-top:3px!important}
 
 /* ORDER */
 	/*данные заказчика*/
