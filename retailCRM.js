@@ -1032,9 +1032,12 @@ function ordersPage() {
 			adres = adres.replace(/\s*☎/, '');
 			if (type == 'short') adres = adres.replace(/(,\s(?:кв|эт|под)\..+$)/, '');
 
+			/*авто*/
+			var auto = (fields['Автокурьер'] == 'Да' ? 'Доставка на своем автомобиле или на такси!' : '');
+
 			/* формируем текст */
 			output += day + ' ' + fields['Время доставки'];
-			if (fields['Автокурьер']) output += '\n' + 'Доставка на своем автомобиле или на такси!';
+			output += (auto ? '\n' : '') + auto;
 			output += '\n' + adres;
 			if (type != 'short') {
 				if (fields['Комментарий клиента']) output += '\n' + fields['Комментарий клиента'];
