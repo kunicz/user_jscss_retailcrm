@@ -55,6 +55,7 @@ function orderPage() {
 		orderDeliveryIntervalEditable();
 		orderRemoveZipcode();
 		orderYadres();
+		orderAutoCourier();
 		orderCourierPriceLabel();
 		orderMagazinLogoInHeader();
 		orderCardAndBuketCustomFields();
@@ -139,6 +140,23 @@ function orderPage() {
 			});
 			$('#order-delivery .collapse-section__title').append(btn);
 		}
+	}
+	/* автокурьер */
+	function orderAutoCourier() {
+		if (site != '2STEBLYA') return;
+		var autoFormats = ['коробка', 'корзинка', 'корзина', 'букет-гигант', 'корзинища'];
+		tovars.each(function () {
+			var tr = $(this);
+			if (!isBuket(tr)) return;
+			var props = tr.find('.order-product-properties > span');
+			props.each(function () {
+				var p = $(this).attr('title').split(': ');
+				if (p[0] != 'фор мат') return;
+				if (!autoFormats.includes(p[1])) return;
+				$('#intaro_crmbundle_ordertype_customFields_auto_courier').prop('checked', true);
+				return false;
+			});
+		});
 	}
 	/* себестоимость доставки переименовать в "Стоимость для курьера" */
 	function orderCourierPriceLabel() {
@@ -672,6 +690,7 @@ function ordersPage() {
 		'Оплачено',
 		'Телефон курьера',
 		'Примечания курьера',
+		'Автокурьер',
 		'Расходы на закуп цветка',
 		'Расходы на закуп нецветка',
 		'Откуда узнал о нас (в заказе)',
@@ -702,6 +721,7 @@ function ordersPage() {
 		ordersAdresOptimize();
 		ordersMagazinLogos();
 		ordersSpecialCharsInBuckets();
+		ordersAutoCourier();
 		ordersCopyCourier();
 		ordersCopySostav();
 		ordersCopyCustomText();
@@ -927,11 +947,30 @@ function ordersPage() {
 			td.text(text);
 		});
 	}
+	/* автокурьер */
+	function ordersAutoCourier() {
+		trs.each(function () {
+			var tr = $(this);
+			var td = getTd(tr, 'Курьер');
+			var auto = getTdText(tr, 'Автокурьер');
+			if (auto != 'Да') return;
+			var icon = [
+				'<svg width="18px" height="18px" fill="#0052cc" style="opacity:.7;margin-right:5px" viewBox="0 0 700 500" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">',
+				'<g transform="matrix(1.28628,0,0,1.28628,-100.203,-110.147)">',
+				'<path d="M235.95,332.29C197.329,332.29 166.055,363.599 166.055,402.204C166.055,440.809 197.328,472.083 235.95,472.083C274.572,472.083 305.864,440.81 305.864,402.204C305.86,363.599 274.555,332.29 235.95,332.29ZM235.95,434C218.415,434 204.169,419.773 204.169,402.219C204.169,384.668 218.415,370.457 235.95,370.457C253.485,370.457 267.731,384.684 267.731,402.219C267.731,419.754 253.485,434 235.95,434Z" style="fill-rule:nonzero;"/>',
+				'<path d="M495.27,332.29C456.649,332.29 425.34,363.599 425.34,402.204C425.34,440.809 456.649,472.083 495.27,472.083C533.891,472.083 565.165,440.81 565.165,402.204C565.169,363.599 533.876,332.29 495.27,332.29ZM495.27,434C477.735,434 463.489,419.773 463.489,402.219C463.489,384.668 477.735,370.457 495.27,370.457C512.805,370.457 527.051,384.684 527.051,402.219C527.051,419.754 512.805,434 495.27,434Z" style="fill-rule:nonzero;"/>',
+				'<path d="M594.32,305.18L594.32,271.266C594.32,256.356 606.359,244.282 621.254,244.176C620.012,194.738 609.879,148.645 591.399,126.766C568.508,99.657 550.711,87.899 494.833,87.899L280.841,87.899C261.837,87.899 253.63,98.887 246.907,118.419C230.001,167.575 215.18,219.569 215.18,219.569C215.18,219.569 116.024,232.292 93.15,234.846C79.939,236.315 76.947,252.225 79.673,271.264L106.712,271.264C118.892,271.264 128.743,281.151 128.743,293.295C128.743,305.459 118.891,315.346 106.712,315.346L86.954,315.346C101.181,390.666 111.645,418.666 143.899,420.276C142.797,414.432 142.114,408.378 142.114,402.217C142.114,350.416 184.13,308.401 235.93,308.401C287.731,308.401 329.746,350.417 329.746,402.217C329.746,408.448 329.062,414.518 327.926,420.436L403.211,420.436C402.039,414.522 401.39,408.448 401.39,402.217C401.39,350.416 443.406,308.401 495.206,308.401C547.007,308.401 588.952,350.417 588.952,402.217C588.952,408.201 588.358,414.045 587.273,419.733C618.23,415.901 616.48,357.452 618.457,332.006C604.937,330.518 594.312,319.123 594.312,305.178L594.32,305.18ZM253.05,213.653C253.839,209.786 279.702,123.512 279.702,123.512L396.412,123.512L429.541,213.653L253.05,213.653ZM467.67,213.653L434.576,123.512L469.42,123.512C508.779,123.512 526.748,136.934 537.916,149.43C549.482,162.364 553.717,172.129 558.443,213.657L467.67,213.653Z" style="fill-rule:nonzero;"/>',
+				'</g>',
+				'</svg>'
+			].join('');
+			td.find('a').prepend(icon);
+		});
+	}
 	/* кнопка копировать: инфа для курьера */
 	function ordersCopyCourier() {
 		/* собираем столбцы для использования в тектсе для курьера */
 		var courierIndexes = {};
-		var courierColsTitles = ['Дата доставки', 'Время доставки', 'Адрес доставки', 'Метро', 'Телефон получателя', 'Имя получателя', 'Себестоимость доставки', 'Комментарий клиента'];
+		var courierColsTitles = ['Дата доставки', 'Время доставки', 'Адрес доставки', 'Метро', 'Телефон получателя', 'Имя получателя', 'Себестоимость доставки', 'Комментарий клиента', 'Автокурьер'];
 		$.each(courierColsTitles, function (i, title) {
 			courierIndexes[title] = indexes[title];
 		});
@@ -995,6 +1034,7 @@ function ordersPage() {
 
 			/* формируем текст */
 			output += day + ' ' + fields['Время доставки'];
+			if (fields['Автокурьер']) output += '\n' + 'Доставка на своем автомобиле или на такси!';
 			output += '\n' + adres;
 			if (type != 'short') {
 				if (fields['Комментарий клиента']) output += '\n' + fields['Комментарий клиента'];
