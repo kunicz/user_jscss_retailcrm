@@ -442,6 +442,7 @@ function orderPage() {
 			'2STEBLYA': 'Транспортировочное',
 			'STAY TRUE Flowers': 'Упаковка'
 		}
+		var deliveryPrice = parseInt($('#custom-field-stoimost_dostavki_iz_tildy').text().trim());
 		searchTransport();
 		$('#intaro_crmbundle_ordertype_site').on('change', function () {
 			searchTransport();
@@ -490,7 +491,7 @@ function orderPage() {
 						return;
 					}
 					decriseTovarPrice();
-					delivery500();
+					setDeliveryPrice();
 					clearInterval(int);
 				}, 1000);
 			}, 50);
@@ -504,20 +505,19 @@ function orderPage() {
 				var price = parseInt($(this).find('.order-product-properties span[title^="цена"]').text().replace(/[^\d]/g, ''));
 				var decrease = {
 					/* на сколько / сколько раз */
-					'2STEBLYA': [1000, 1], //транспорт
+					'2STEBLYA': [500, 1], //транспорт
 					'STAY TRUE Flowers': [100, 2] // упак
 				};
 				inputTd.find('.order-price__value').trigger('click');
-				input.val(price - decrease[magazin][0] * decrease[magazin][1]);
+				input.val(price - decrease[magazin][0] * decrease[magazin][1] - deliveryPrice);
 				inputTd.find('.order-price__button_submit').trigger('click');
 				return false;
 			});
 		}
 		/* стоимость доставки */
-		function delivery500() {
-			var price = 500;
-			$('#delivery-cost').val(price);
-			$('.order-delivery-cost__value-static').eq(0).html(' ' + price + '<span class="currency-symbol rub">₽</span>');
+		function setDeliveryPrice() {
+			$('#delivery-cost').val(deliveryPrice);
+			$('.order-delivery-cost__value-static').eq(0).html(' ' + deliveryPrice + '<span class="currency-symbol rub">₽</span>');
 		}
 	}
 	/* скидка для STF */
