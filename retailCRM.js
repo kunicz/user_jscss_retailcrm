@@ -687,7 +687,7 @@ function ordersPage() {
 		'Узнать адрес у получателя',
 		'Номер',
 		'Метро',
-		'Оплачено',
+		'Сумма оплаты',
 		'Телефон курьера',
 		'Примечания курьера',
 		'Автокурьер',
@@ -716,7 +716,7 @@ function ordersPage() {
 		ordersMessenger();
 		ordersVip();
 		ordersId();
-		ordersCurrentMonneyVsOplata();
+		ordersSummaOplata();
 		ordersNoIdentic();
 		ordersAdresOptimize();
 		ordersMagazinLogos();
@@ -870,23 +870,31 @@ function ordersPage() {
 		});
 	}
 	/* сумма и оплата */
-	function ordersCurrentMonneyVsOplata() {
+	function ordersSummaOplata() {
 		trs.each(function () {
 			var tr = $(this);
-			var tdSumma = getTd(tr, 'Сумма');
-			/* скидка */
-			var skidkaAmount = getTdText(tr, 'Скидка в процентах');
-			if (skidkaAmount != '—' && skidkaAmount != 0) {
-				$('<div style="position:absolute;top:0;right:0;font-size:10px;background:#ff7a93;color:#fff;line-height:15px;padding:0 4px">' + getTdText(tr, 'Скидка в процентах') + '%</div>').appendTo(tdSumma);
-			}
-			/* оплата */
-			var tdOplata = getTd(tr, 'Оплачено');
-			var summaAmount = tdSumma.get(0).childNodes[0].nodeValue;
-			var oplataAmount = tdOplata.get(0).childNodes[0].nodeValue;
-			if (summaAmount != oplataAmount) {
-				$('<div style="font-size:.9em;opacity:.5">Оплачено:<br>' + getTdText(tr, 'Оплачено') + '</div>').appendTo(tdSumma);
-			}
+			summaOplata(tr);
+			skidka(tr);
 		});
+		function summaOplata(tr) {
+			var summa = parseInt(getTdText(tr, 'Сумма').replace(/[^\d]/, ''));
+			var oplata = getOplata(getTdText(tr, 'Сумма оплаты').replaceAll(/(\d)\s(\d)/g, '$1$2').match(/\d+/g));
+			if (summa == oplata) return;
+			$('<div style="font-size:.9em;opacity:.5">Оплачено:<br>' + oplata + '</div>').appendTo(getTd(tr, 'Сумма'));
+		}
+		function getOplata(oplatas) {
+			var oplata = 0;
+			if (!Array.isArray(oplatas)) return oplata;
+			for (var i = 0; i < oplatas.length; i++) {
+				oplata += parseInt(oplatas[i]);
+			}
+			return oplata;
+		}
+		function skidka(tr) {
+			var skidkaAmount = getTdText(tr, 'Скидка в процентах');
+			if (skidkaAmount == '—' || skidkaAmount == 0) return;
+			$('<div style="position:absolute;top:0;right:0;font-size:10px;background:#ff7a93;color:#fff;line-height:15px;padding:0 4px">' + getTdText(tr, 'Скидка в процентах') + '%</div>').appendTo(getTd(tr, 'Сумма'));
+		}
 	}
 	/* подсвечиваем "без айдентики" */
 	function ordersNoIdentic() {
