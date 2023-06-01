@@ -5,6 +5,17 @@ var noFlowers = [
 	'Транспортировочное', 'Упаковка', 'Декор', 'Оазис', 'Основа', 'Поддон', 'Яйцо', 'Свеча', 'Секатор', 'Игрушка', // разное
 	'Ящик', 'Сердце', 'Кастрюля', 'Корзина', 'Горшок', 'Коробка' //ёмкости
 ];
+var streetPercs = [
+	['ул', 'улица'],
+	['наб', 'набережная'],
+	['бул', 'бульвар'],
+	['ш', 'шоссе'],
+	['пр-кт', 'проспект'],
+	['пр-д', 'проезд'],
+	['пер', 'переулок'],
+	['пл', 'площадь'],
+	['алл', 'аллея']
+];
 
 /* улучшаем страницы */
 setInterval(function () {
@@ -55,6 +66,7 @@ function orderPage() {
 		orderDeliveryIntervalEditable();
 		orderRemoveZipcode();
 		orderYadres();
+		orderAdresStreetDisclaimer();
 		orderAutoCourier();
 		orderCourierPriceLabel();
 		orderMagazinLogoInHeader();
@@ -140,6 +152,15 @@ function orderPage() {
 			});
 			$('#order-delivery .collapse-section__title').append(btn);
 		}
+	}
+	/* примечание по улицам */
+	function orderAdresStreetDisclaimer() {
+		var disclaimerPercs = [];
+		for (var i = 0; i < streetPercs.length; i++) {
+			disclaimerPercs.push('<b>' + streetPercs[i][0] + '</b> (<small>' + streetPercs[i][1] + '</small>)');
+		}
+		var disclaimer = $('<div id="streetDisclaimer" class="input-group cleared control-after" style="max-width:280px"><p>Чтобы в таблице адрес стал кликабельным, соблюдай шаблон:</p><p>' + disclaimerPercs.join(', ') + '<br> + точка + пробел + название</p><p>Например: ул. Тверская, ш. Энтузиастов</p></div>');
+		disclaimer.insertBefore('.address-form');
 	}
 	/* автокурьер */
 	function orderAutoCourier() {
@@ -917,8 +938,13 @@ function ordersPage() {
 			adres = adres.replace('г. Москва, ', '');
 			/* удаляем индекс (у старых заказов) */
 			adres = adres.replace(/^\d+,\s/, '');
-			/* ссылка для Я.карт */
-			adres = adres.replace(/(^.*(?:ул|наб|бул|ш|пр\-кт|пр\-д|пер|пл|алл)\.\s(?:[^,])+,\sд\.\s(?:[^,])+(?:,\s(?:корп\.|стр\.)\s[^,]+)*)/, '<a class="yadres">$1</a>');
+			/* кликабельный адрес (город, улица, дом) */
+			var streetPercsShort = [];
+			for (var i = 0; i < streetPercs.length; i++) {
+				streetPercsShort.push(streetPercs[i][0]);
+			}
+			var adresRegex = new RegExp('(^.*(?:' + streetPercsShort.join('|') + ')\\.\\s(?:[^,])+,\\sд\.\\s(?:[^,])+(?:,\\s(?:корп\\.|стр\\.)\\s[^,]+)*)');
+			adres = adres.replace(adresRegex, '<a class="yadres">$1</a>');
 			/* метро */
 			adres = adres.replace(/(.+)(?:,\sметро\s(.+))/, 'м. $2<br>$1');
 			td.html(adres);

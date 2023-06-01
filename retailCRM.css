@@ -35,6 +35,7 @@
 		/*адрес*/
 			#address-notes,#index-text{display:none!important}
 			.adresCopyBtn{margin-left:10px;font-weight:300;font-size:13px;line-height:1.2;}
+			#streetDisclaimer p{padding: 3px 0}
 	/*коммуникации*/
 		#order-communications{display:none}
 	/* товары в таблице заказа */
