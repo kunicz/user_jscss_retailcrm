@@ -751,7 +751,7 @@ function ordersPage() {
 		ordersFilterZakazDate();
 		ordersFilterSpisanie();
 		ordersFilterOtkudaUznal();
-		ordersFilterNalichieSpisanie();
+		ordersFilterNonProductiveOrders();
 		ordersSvodkaCouriers();
 		ordersSvodkaFlowersNoflowers();
 
@@ -791,8 +791,12 @@ function ordersPage() {
 					tr.addClass('nalichie batchHide');
 					break;
 			}
+			if (getTdText(tr, 'Букеты в заказе').match(/ДОНАТОШНАЯ/)) {
+				color = 'ffffe9';
+				tr.addClass('donat batchHide');
+			}
 			if (!color) return true;
-			tr.css('background-color', '#' + color);
+			tr.children().css('background-color', '#' + color);
 		});
 	}
 	/* комментарии */
@@ -995,7 +999,8 @@ function ordersPage() {
 				'<path d="M495.27,332.29C456.649,332.29 425.34,363.599 425.34,402.204C425.34,440.809 456.649,472.083 495.27,472.083C533.891,472.083 565.165,440.81 565.165,402.204C565.169,363.599 533.876,332.29 495.27,332.29ZM495.27,434C477.735,434 463.489,419.773 463.489,402.219C463.489,384.668 477.735,370.457 495.27,370.457C512.805,370.457 527.051,384.684 527.051,402.219C527.051,419.754 512.805,434 495.27,434Z" style="fill-rule:nonzero;"/>',
 				'<path d="M594.32,305.18L594.32,271.266C594.32,256.356 606.359,244.282 621.254,244.176C620.012,194.738 609.879,148.645 591.399,126.766C568.508,99.657 550.711,87.899 494.833,87.899L280.841,87.899C261.837,87.899 253.63,98.887 246.907,118.419C230.001,167.575 215.18,219.569 215.18,219.569C215.18,219.569 116.024,232.292 93.15,234.846C79.939,236.315 76.947,252.225 79.673,271.264L106.712,271.264C118.892,271.264 128.743,281.151 128.743,293.295C128.743,305.459 118.891,315.346 106.712,315.346L86.954,315.346C101.181,390.666 111.645,418.666 143.899,420.276C142.797,414.432 142.114,408.378 142.114,402.217C142.114,350.416 184.13,308.401 235.93,308.401C287.731,308.401 329.746,350.417 329.746,402.217C329.746,408.448 329.062,414.518 327.926,420.436L403.211,420.436C402.039,414.522 401.39,408.448 401.39,402.217C401.39,350.416 443.406,308.401 495.206,308.401C547.007,308.401 588.952,350.417 588.952,402.217C588.952,408.201 588.358,414.045 587.273,419.733C618.23,415.901 616.48,357.452 618.457,332.006C604.937,330.518 594.312,319.123 594.312,305.178L594.32,305.18ZM253.05,213.653C253.839,209.786 279.702,123.512 279.702,123.512L396.412,123.512L429.541,213.653L253.05,213.653ZM467.67,213.653L434.576,123.512L469.42,123.512C508.779,123.512 526.748,136.934 537.916,149.43C549.482,162.364 553.717,172.129 558.443,213.657L467.67,213.653Z" style="fill-rule:nonzero;"/>',
 				'</g>',
-				'</svg>'
+				'</svg>',
+				'<br>'
 			].join('');
 			td.find('a').prepend(icon);
 		});
@@ -1306,13 +1311,13 @@ function ordersPage() {
 		});
 	}
 	/* фильтр: скрыть наличие и списание */
-	function ordersFilterNalichieSpisanie() {
+	function ordersFilterNonProductiveOrders() {
 		var int = setInterval(function () {
 			if (!$('.js-order-list tr').length) return;
 			var batchHide = $('.batchHide');
 			//batchHide.hide();
 			var shown = true;
-			var btn = $('<a style="display:inline-block;font-size:13px;line-height:1.1em;line-height:36px;margin-left:8px;margin-right:8px;cursor:pointer">Наличие/списание</a>');
+			var btn = $('<a style="display:inline-block;font-size:13px;line-height:1.1em;line-height:36px;margin-left:8px;margin-right:8px;cursor:pointer">Технические заказы</a>');
 			btn.insertAfter($('.m-filter .parameters')).on('click', function (e) {
 				e.preventDefault();
 				if (shown) {
