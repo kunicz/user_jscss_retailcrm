@@ -67,6 +67,7 @@ function orderPage() {
 		orderRemoveZipcode();
 		orderYadres();
 		orderAdresStreetDisclaimer();
+		orderClearAdressNewOrder();
 		orderAutoCourier();
 		orderCourierPriceLabel();
 		orderMagazinLogoInHeader();
@@ -161,6 +162,38 @@ function orderPage() {
 		}
 		var disclaimer = $('<div id="streetDisclaimer" class="input-group cleared control-after" style="max-width:280px"><p>Чтобы в таблице адрес стал кликабельным, соблюдай шаблон:</p><p>' + disclaimerPercs.join(', ') + '<br> + точка + пробел + название</p><p>Например: ул. Тверская, ш. Энтузиастов</p></div>');
 		disclaimer.insertBefore('.address-form');
+	}
+	/* очищаем поля адреса, когда создается заказ вручную */
+	function orderClearAdressNewOrder() {
+		if (!pageHasCustomJs('order_new')) return;
+		var name = $('#intaro_crmbundle_ordertype_firstName');
+		var adresFields = [
+			$('#intaro_crmbundle_ordertype_deliveryAddress_street'),
+			$('#intaro_crmbundle_ordertype_deliveryAddress_streetId'),
+			$('#intaro_crmbundle_ordertype_deliveryAddress_region'),
+			$('#intaro_crmbundle_ordertype_deliveryAddress_regionId'),
+			$('#intaro_crmbundle_ordertype_deliveryAddress_city'),
+			$('#intaro_crmbundle_ordertype_deliveryAddress_cityId'),
+			$('#intaro_crmbundle_ordertype_deliveryAddress_metro'),
+			$('#intaro_crmbundle_ordertype_deliveryAddress_building'),
+			$('#intaro_crmbundle_ordertype_deliveryAddress_flat'),
+			$('#intaro_crmbundle_ordertype_deliveryAddress_house'),
+			$('#intaro_crmbundle_ordertype_deliveryAddress_block'),
+			$('#intaro_crmbundle_ordertype_deliveryAddress_floor'),
+			$('#intaro_crmbundle_ordertype_deliveryAddress_housing')
+		];
+		var int = setInterval(function () {
+			if (!name.val()) return;
+			clearInterval(int);
+			var int2 = setInterval(function () {
+				if (!adresFields[0].val()) return;
+				if (!adresFields[0].is('.important-auto-data')) return;
+				$.each(adresFields, function (i, adresField) {
+					adresField.val('').removeClass('important-auto-data');
+				});
+				clearInterval(int2);
+			}, 100);
+		}, 100);
 	}
 	/* автокурьер */
 	function orderAutoCourier() {
