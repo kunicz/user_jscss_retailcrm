@@ -496,7 +496,7 @@ function orderPage() {
 			'2STEBLYA': 'Транспортировочное',
 			'STAY TRUE Flowers': 'Упаковка'
 		}
-		var deliveryPrice = parseInt($('#custom-field-stoimost_dostavki_iz_tildy').text().trim());
+		var deliveryPrice = $('#custom-field-stoimost_dostavki_iz_tildy').text() ? parseInt($('#custom-field-stoimost_dostavki_iz_tildy').text().trim()) : 500;
 		searchTransport();
 		$('#intaro_crmbundle_ordertype_site').on('change', function () {
 			searchTransport();
@@ -814,8 +814,7 @@ function ordersPage() {
 			var color = null;
 			if (getTdText(tr, 'Магазин') == 'STAY TRUE Flowers') color = 'fffaff';
 			switch (getTdText(tr, 'Покупатель')) {
-				case 'Списание Порча':
-				case 'Списание Недостача':
+				case 'списание':
 					color = 'fff3ee';
 					tr.addClass('spisanie batchHide');
 					break;
@@ -845,8 +844,9 @@ function ordersPage() {
 			if (courier && courier != '—') {
 				texts.push('<b>Курьеру</b>:<br>' + courier);
 			}
-			getTd(tr, 'Чат').html(texts.join('<br><br>'));
-			ths.eq(indexes['Чат']).text('Коммментарии');
+			var minWidth = 320;
+			getTd(tr, 'Чат').html(texts.join('<br><br>')).css('min-width', minWidth + 'px');
+			ths.eq(indexes['Чат']).text('Коммментарии').css('min-width', minWidth + 'px');
 		});
 	}
 	/* онаним */
@@ -1193,6 +1193,7 @@ function ordersPage() {
 	function ordersNotifyPoluchatel() {
 		trs.each(function () {
 			var tr = $(this);
+			if (tr.is('.batchHide')) return;
 			if (getTdText(tr, 'Тип доставки') != 'Доставка курьером') return;
 			if (getTdText(tr, 'Покупатель').match(/Наличие|Списание/)) return;
 			var poluchatel = {
@@ -1205,6 +1206,9 @@ function ordersPage() {
 				if (value && value != '—') return true;
 				poluchatelMiss.push(i);
 			});
+			if (poluchatel['адрес'] && poluchatel['адрес'] != '—' && !poluchatel['адрес'].match(/\sд\.\s/)) {
+				poluchatelMiss.push('дом');
+			}
 			var td = getTd(tr, 'Адрес доставки');
 			var cont = $('<div class="poluchatelDop" style="position:absolute;top:0;right:0"></div>');
 			cont.appendTo(td);
@@ -1222,7 +1226,7 @@ function ordersPage() {
 				var tooltip = $('<div class="inline-tooltip inline-tooltip_normal" style="max-width:140px;width:140px;top:0;text-align:left">'+text+'</div>');
 				cont.append(btn).append(tooltip);
 				*/
-				td.css('padding-top', '17px').append('<div style="position:absolute;left:15px;top:0;font-size:.8em;line-height:17px;white-space:nowrap;padding:0 5px;height:17px;background:#edffd9">' + text + '</div>');
+				td.css('padding-top', '17px').append('<div style="position:absolute;left:8px;top:0;font-size:.8em;line-height:17px;white-space:nowrap;padding:0 5px;height:17px;background:#edffd9">' + text + '</div>');
 			}
 			function phone() {
 				if (poluchatelMiss.includes('телефон')) return;

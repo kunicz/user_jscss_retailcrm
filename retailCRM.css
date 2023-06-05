@@ -2,7 +2,8 @@
 	.modern-table-container{overflow-x:visible;}
 	/* tovars rows */
 		/* td,th */
-		.js-order-list th,.js-order-list td,.js-order-list tr td:first-child{position:relative;padding-left:8px}
+		.js-order-list th,.js-order-list td:not(#upload){position:relative;padding:15px 8px 11px 8px;}
+		.js-order-list tr.batchHide th,.js-order-list tr.batchHide td{padding:11px 8px!important;}
 		.js-order-list tr:nth-child(n+3) td{padding-top:8px;padding-bottom:8px;}
 		/* выебри карточку */
 		.orderComment:after{display:block;font-size:.8em;margin-top:3px;opacity:.5}
