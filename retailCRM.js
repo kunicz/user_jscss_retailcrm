@@ -550,7 +550,7 @@ function orderPage() {
 				}, 1000);
 			}, 50);
 		}
-		/* уменьшаем стоимость букеа на стоимость транспортировочного */
+		/* уменьшаем стоимость букета на стоимость транспортировочного */
 		function decriseTovarPrice() {
 			tovars.each(function () {
 				if (!isBuket($(this))) return true;
@@ -576,6 +576,7 @@ function orderPage() {
 	}
 	/* скидка для STF */
 	function orderDiscount() {
+		if ($('#intaro_crmbundle_ordertype_status + div').get(0).innerText == 'Выполнен') return;
 		if (magazin != 'STAY TRUE Flowers') return;
 		if ($('#intaro_crmbundle_ordertype_customFields_discount_trigger_ignore').is(':checked')) return;
 		var totalField = $('#custom-field-summa_zakazov');
@@ -1193,51 +1194,50 @@ function ordersPage() {
 	function ordersNotifyPoluchatel() {
 		trs.each(function () {
 			var tr = $(this);
-			if (tr.is('.batchHide')) return;
-			if (getTdText(tr, 'Тип доставки') != 'Доставка курьером') return;
-			if (getTdText(tr, 'Покупатель').match(/Наличие|Списание/)) return;
-			var poluchatel = {
+			if (warnException(tr)) return;
+			var poluchatelData = {
 				'имя': getTdText(tr, 'Имя получателя'),
 				'телефон': getTdText(tr, 'Телефон получателя'),
 				'адрес': getTdText(tr, 'Адрес доставки')
 			};
 			var poluchatelMiss = [];
-			$.each(poluchatel, function (i, value) {
+			$.each(poluchatelData, function (i, value) {
 				if (value && value != '—') return true;
 				poluchatelMiss.push(i);
 			});
-			if (poluchatel['адрес'] && poluchatel['адрес'] != '—' && !poluchatel['адрес'].match(/\sд\.\s/)) {
+			if (poluchatelData['адрес'] && poluchatelData['адрес'] != '—' && !poluchatelData['адрес'].match(/\sд\.\s/)) {
 				poluchatelMiss.push('дом');
 			}
 			var td = getTd(tr, 'Адрес доставки');
-			var cont = $('<div class="poluchatelDop" style="position:absolute;top:0;right:0"></div>');
-			cont.appendTo(td);
+			var poluchatelDop = $('<div class="poluchatelDop" style="position:absolute;top:0;right:0"></div>');
+			poluchatelDop.appendTo(td);
 			warn();
 			phone();
 
+			function warnException(tr) {
+				if (tr.is('.batchHide')) return true;
+				if (getTdText(tr, 'Тип доставки') != 'Доставка курьером') return true;
+				if (/наличие|списание/.test(getTdText(tr, 'Покупатель'))) return true;
+				return false;
+			}
 			function warn() {
 				if (!poluchatelMiss.length) return;
 				var text = 'уточнить ' + poluchatelMiss.join(', ');
 				if (getTdText(tr, 'Узнать адрес у получателя') == 'Да') {
-					if (!poluchatel['адрес'] || poluchatel['адрес'] == '—') text += ' / заказчик не знает адрес';
+					if (!poluchatelData['адрес'] || poluchatelData['адрес'] == '—') text += ' / заказчик не знает адрес';
 				}
-				/*
-				var btn = $('<div class="poluchatelWarn inline-tooltip-trigger">⚠️</div>');
-				var tooltip = $('<div class="inline-tooltip inline-tooltip_normal" style="max-width:140px;width:140px;top:0;text-align:left">'+text+'</div>');
-				cont.append(btn).append(tooltip);
-				*/
 				td.css('padding-top', '17px').append('<div style="position:absolute;left:8px;top:0;font-size:.8em;line-height:17px;white-space:nowrap;padding:0 5px;height:17px;background:#edffd9">' + text + '</div>');
 			}
 			function phone() {
 				if (poluchatelMiss.includes('телефон')) return;
 				var btn = $('<a class="inline-tooltip-trigger" style="opacity:.7">☎</a>');
-				var tooltip = $('<div class="inline-tooltip inline-tooltip_normal" style="max-width:140px;width:140px;top:0;text-align:left">' + poluchatel['телефон'] + (poluchatel['имя'] ? '<br>' + poluchatel['имя'] : '') + '</div>');
+				var tooltip = $('<div class="inline-tooltip inline-tooltip_normal" style="max-width:140px;width:140px;top:0;text-align:left">' + poluchatelData['телефон'] + (poluchatelData['имя'] ? '<br>' + poluchatelData['имя'] : '') + '</div>');
 				btn.on('click', function (e) {
 					e.preventDefault();
 					e.stopPropagation();
-					ctrlC(poluchatel['телефон']);
+					ctrlC(poluchatelData['телефон']);
 				});
-				cont.append(btn).append(tooltip);
+				poluchatelDop.append(btn).append(tooltip);
 			}
 		});
 	}
