@@ -55,6 +55,7 @@
 		.modern-order-table .subtotal .info-btn-group .info-btn,
 		.modern-order-table .subtotal .info-btn-group .info-btn__switch_trash{width:16px;height:16px;margin:0;min-width:auto;position:static;bottom:auto;right:auto;}
 		.modern-order-table .subtotal .info-btn-group{margin-left:10px}
+		.available-inventory-row:has(span.available-inventory){margin-bottom:5px}
 	/* кастомные поля справа */
 		#order-custom-fields.toRight{width:100%}
 		#order-custom-fields.toRight .input-group{min-width:unset}
