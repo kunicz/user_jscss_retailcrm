@@ -85,6 +85,7 @@ function orderPage() {
 		orderDiscount();
 		orderFloristField();
 		orderFlowersRashod();
+		orderAvailableInventories();
 
 		setInterval(function () {
 			tovars = getTovars();
@@ -494,7 +495,7 @@ function orderPage() {
 	function orderAddTransport() {
 		var transportByMagazin = {
 			'2STEBLYA': 'Транспортировочное',
-			'STAY TRUE Flowers': 'Упаковка'
+			'STAY TRUE Flowers': 'Транспортировочное'
 		}
 		var deliveryPrice = $('#custom-field-stoimost_dostavki_iz_tildy').text() ? parseInt($('#custom-field-stoimost_dostavki_iz_tildy').text().trim()) : 500;
 		searchTransport();
@@ -534,7 +535,7 @@ function orderPage() {
 					rows.each(function () {
 						if ($(this).children('td').eq(1).text().trim() == transportByMagazin[magazin]) {
 							exist = true;
-							if (magazin == 'STAY TRUE Flowers') $(this).find('.product-count__area').val(2); //две упаковки для STF
+							//if (magazin == 'STAY TRUE Flowers') $(this).find('.product-count__area').val(2); //две упаковки для STF
 							$(this).trigger('click');
 							popup.find('.close').trigger('click');
 							return false;
@@ -559,8 +560,8 @@ function orderPage() {
 				var price = parseInt($(this).find('.order-product-properties span[title^="цена"]').text().replace(/[^\d]/g, ''));
 				var decrease = {
 					/* на сколько / сколько раз */
-					'2STEBLYA': [500, 1], //транспорт
-					'STAY TRUE Flowers': [100, 2] // упак
+					'2STEBLYA': [500, 1],
+					'STAY TRUE Flowers': [500, 1]
 				};
 				inputTd.find('.order-price__value').trigger('click');
 				input.val(price - decrease[magazin][0] * decrease[magazin][1] - deliveryPrice);
@@ -576,8 +577,9 @@ function orderPage() {
 	}
 	/* скидка для STF */
 	function orderDiscount() {
-		if ($('#intaro_crmbundle_ordertype_status + div').get(0).innerText == 'Выполнен') return;
 		if (magazin != 'STAY TRUE Flowers') return;
+		if ($('#intaro_crmbundle_ordertype_status + div').get(0).innerText == 'Выполнен') return;
+		if (!$('.order-status .os-vip').is('.os-select')) return;
 		if ($('#intaro_crmbundle_ordertype_customFields_discount_trigger_ignore').is(':checked')) return;
 		var totalField = $('#custom-field-summa_zakazov');
 		if (!totalField.length) return;
@@ -603,6 +605,15 @@ function orderPage() {
 		var manager = $('#intaro_crmbundle_ordertype_manager').parent();
 		florist.insertAfter(floristParent);
 		manager.hide().after(floristParent);
+	}
+	/* доступные остатки */
+	function orderAvailableInventories() {
+		setInterval(function () {
+			$('#order-list [data-available-quantity]').each(function () {
+				if (parseInt($(this).attr('data-available-quantity')) < 999) return;
+				$(this).parent().hide();
+			});
+		}, 1000);
 	}
 	/* расходы на закуп цветка */
 	function orderFlowersRashod() {
@@ -1222,7 +1233,7 @@ function ordersPage() {
 			}
 			function warn() {
 				if (!poluchatelMiss.length) return;
-				var text = 'уточнить ' + poluchatelMiss.join(', ');
+				var text = '!' + poluchatelMiss.join(', ');
 				if (getTdText(tr, 'Узнать адрес у получателя') == 'Да') {
 					if (!poluchatelData['адрес'] || poluchatelData['адрес'] == '—') text += ' / заказчик не знает адрес';
 				}
