@@ -199,7 +199,7 @@ function orderPage() {
 	/* автокурьер */
 	function orderAutoCourier() {
 		if (site != '2STEBLYA') return;
-		var autoFormats = ['коробка', 'корзинка', 'корзина', 'букет-гигант', 'корзинища'];
+		var autoFormats = ['коробка', 'корзинка', 'корзина', 'букет-гигант', 'корзинища', 'горшок', 'корзина-гигант'];
 		tovars.each(function () {
 			var tr = $(this);
 			if (!isBuket(tr)) return;
@@ -610,7 +610,7 @@ function orderPage() {
 	function orderAvailableInventories() {
 		setInterval(function () {
 			$('#order-list [data-available-quantity]').each(function () {
-				if (parseInt($(this).attr('data-available-quantity')) < 999) return;
+				if (parseInt($(this).attr('data-available-quantity')) < 100) return;
 				$(this).parent().hide();
 			});
 		}, 1000);
@@ -838,6 +838,9 @@ function ordersPage() {
 			if (getTdText(tr, 'Букеты в заказе').match(/ДОНАТОШНАЯ/)) {
 				color = 'ffffe9';
 				tr.addClass('donat batchHide');
+			}
+			if (tr.find('.bill__title').text() == 'Разобран') {
+				tr.addClass('batchHide');
 			}
 			if (!color) return true;
 			tr.children().css('background-color', '#' + color);
