@@ -199,7 +199,7 @@ function orderPage() {
 	/* автокурьер */
 	function orderAutoCourier() {
 		if (site != '2STEBLYA') return;
-		var autoFormats = ['коробка', 'корзинка', 'корзина', 'букет-гигант', 'корзинища', 'горшок', 'корзина-гигант'];
+		var autoFormats = ['коробка', 'корзинка', 'корзина', 'букет-гигант', 'корзинища', 'горшок', 'корзилла'];
 		tovars.each(function () {
 			var tr = $(this);
 			if (!isBuket(tr)) return;
