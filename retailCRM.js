@@ -232,36 +232,34 @@ function orderPage() {
 			var tr = $(this);
 			if (!isBuket(tr)) return true;
 			var title = tr.find('.title .tr-link').text();
-			if (site == '2STEBLYA') {
-				var descr = [];
-				var format = '';
-				var props = tr.find('.order-product-properties > span');
-				$(props.get().reverse()).each(function () {
-					var p = $(this).attr('title').split(': ');
-					switch (p[0]) {
-						case 'цена':
-						case 'артикул':
-							break;
-						case 'выебри карточку':
-							cards.push(p[1]);
-							break;
-						case 'фор мат':
-							/* должен быть последним всегда, так как из тильды "фор мат" всегда улетает первым,
-							а ранее мы сделали reverse() для props */
-							format = p[1];
-							break;
-						default:
-							if (p[0].startsWith('накинуть')) break;
-							descr.push(p[0] + ': ' + p[1]);
-							break;
-					}
-				});
-				title = title.replace(/\s-\s.+/, '') + ' ';
-				title += descr.length ? '(' + descr.join(', ') + ') ' : '';
-				title += format ? '- ' + format + ' ' : '';
-			} else {
-				title += ' ';
-			}
+			var descr = [];
+			var format = '';
+			var props = tr.find('.order-product-properties > span');
+			$(props.get().reverse()).each(function () {
+				var p = $(this).attr('title').split(': ');
+				switch (p[0]) {
+					case 'цена':
+					case 'артикул':
+						break;
+					case 'выебри карточку':
+						cards.push(p[1]);
+						break;
+					case 'фор мат':
+					case 'формат':
+						/* должен быть последним всегда, так как из тильды "фор мат" всегда улетает первым,
+						а ранее мы сделали reverse() для props */
+						format = p[1];
+						break;
+					default:
+						if (p[0].startsWith('накинуть')) break;
+						if (p[0].startsWith('добавить')) break;
+						descr.push(p[0] + ': ' + p[1]);
+						break;
+				}
+			});
+			title = title.replace(/\s-\s.+/, '') + ' ';
+			title += descr.length ? '(' + descr.join(', ') + ') ' : '';
+			title += format ? '- ' + format + ' ' : '';
 			var amount = tr.find('.quantity input').val();
 			amount = parseInt(amount, 10);
 			buckets.push(title + '(' + amount + ' шт)');
