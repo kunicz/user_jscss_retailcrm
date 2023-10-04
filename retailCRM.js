@@ -36,6 +36,7 @@ function pageHasCustomJs(page) {
 		order: 'orders/\\d+',
 		order_new: 'orders/add',
 		product: 'products/\\d+',
+		admin: 'admin/*',
 		courier: 'admin/couriers/\\d+'
 	};
 	if (!pages[page]) return false;
@@ -79,6 +80,7 @@ function orderPage() {
 		orderShopPopup();
 		orderTovarPercsPopup();
 		orderOstatkiOrderPriceASC();
+		orderOstatkiQuantity();
 		orderAdresDescription();
 		orderAddTransport();
 		orderCustomFieldsToRight();
@@ -484,6 +486,12 @@ function orderPage() {
 			}, 50);
 
 		});
+	}
+	/* количество товаров в скрытое поле */
+	function orderOstatkiQuantity() {
+		if (!$('.status .stat-wrap').text() == 'Разобран') return;
+		tovars.find('.quantity > div').show();
+		tovars.find('.quantity input').css({ 'pointer-events': 'none', 'border': '0 none', 'height': 'auto' });
 	}
 	/* описание для дефолтного адреса */
 	function orderAdresDescription() {
@@ -1113,7 +1121,7 @@ function ordersPage() {
 
 			/*адрес*/
 			var adres = fields['Адрес доставки'];
-			adres = adres.replace(/\s*уточнить.*/, '');
+			adres = adres.replace(/\s*!!.*/, '');
 			adres = adres.replace(/\s*☎/, '');
 			if (type == 'short') adres = adres.replace(/(,\s(?:кв|эт|под)\..+$)/, '');
 
@@ -1234,7 +1242,7 @@ function ordersPage() {
 			}
 			function warn() {
 				if (!poluchatelMiss.length) return;
-				var text = '!' + poluchatelMiss.join(', ');
+				var text = '!!' + poluchatelMiss.join(', ');
 				if (getTdText(tr, 'Узнать адрес у получателя') == 'Да') {
 					if (!poluchatelData['адрес'] || poluchatelData['адрес'] == '—') text += ' / заказчик не знает адрес';
 				}
@@ -1476,23 +1484,25 @@ function productPage() {
 	} else {
 		productEditablePage();
 	}
-	function productNotEditablePage() { }
+
+	function productNotEditablePage() {
+		console.log('product page (tilda)');
+	}
 	function productEditablePage() {
+		console.log('product page (ostatki)');
 		var blocks;
 
 		/* функции для страницы /product */
 		productFunctions();
 		function productFunctions() {
 			var int = setInterval(function () {
-				blocks = $('[data-module-name="warehouse"] .UiTabsItem_tabs-item_lNPOp');
+				blocks = $('.warehouse-product .UiTabs-tabs-item-lNPO');
 				if (!blocks.length) return;
 				blocks.show();
 				ostatkiBlocksClasses();
 				ostatkiReorderBlocks();
-				//ostatkiHasVariantsTumbler();
 				ostatkiReorganizeBlocks();
 				ostatkiAmountEnhanced();
-				ostatkiGreenBtns();
 				ostatkiBg();
 				clearInterval(int);
 			}, 50);
@@ -1521,19 +1531,6 @@ function productPage() {
 			if (props.find('input[value="purchasePrice"]').is(':checked')) return true;
 			return false;
 		}
-		/* есть или нет вариантов у товара */
-		function ostatkiHasVariantsTumbler() {
-			var tumblerText = 'Различные ценовые варианты';
-			var tumbler = $('<div data-v-255e4334="" class="UiSwitch_switch_2hvMr" id="ostatkiHasVariantsTumbler"><div class="UiSwitch_switch__inner_UNbje"><label class="UiSwitch_label_1TVdi"><input type="checkbox" class="UiSwitch_switch__input_36pm9"><span class="UiSwitch_switch__thumb-wrap_HI58Y"><span class="UiSwitch_switch__thumb_3CKTY"><svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg" title="" class="UiIcon_icon_2pR-8 UiSwitch_switch__icon_2hDVc"><path fill-rule="evenodd" clip-rule="evenodd" d="M19.792 6.965a.77.77 0 01-.021 1.075l-9.815 9.607a1.224 1.224 0 01-1.714.006l-4.01-3.878a.77.77 0 01-.028-1.074l.684-.736a.735.735 0 011.053-.028l3.15 3.046 8.96-8.771a.735.735 0 011.053.022l.688.731z"></path></svg></span></span></label><div class="UiSwitch_switch__text_21bAo"><div data-label="" class="UiSwitch_switch__label_nvuGW">' + tumblerText + '</div></div></div></div>');
-			if (ostatkiHasVariants()) tumbler.addClass('UiSwitch_switch_checked_1sx2k');
-			$('.ostatki[properties] .product-properties').prepend(tumbler);
-			tumbler.on('click', function (e) {
-				e.preventDefault();
-				$(this).toggleClass('UiSwitch_switch_checked_1sx2k');
-				$('.ostatki[properties] .UiCheckbox_checkbox_CP9FX').trigger('click'); /* имитируем клик по чекбоксам */
-
-			});
-		}
 		/* улучшаем блоки */
 		function ostatkiReorganizeBlocks() {
 			var variants = $('.ostatki[variants] .product-offers__collapse-box');
@@ -1551,7 +1548,7 @@ function productPage() {
 				if (!i) {
 					var cont2 = cont.clone();
 					cont2.addClass('onePrice');
-					var pricesSingle = $('.ostatki[main] > div > .UiCollapseBox_box_XPylv:nth-child(3)');
+					var pricesSingle = $('.ostatki[main] > div > .UiCollapseBox-box-XPyl:nth-child(3)');
 					cont2.append(pricesSingle);
 					td.append(cont2);
 				}
@@ -1579,11 +1576,11 @@ function productPage() {
 				table.children('tbody').append(row);
 			});
 			function ostatkiApproxZakupPrice(caption, price) {
-				if (caption.children('.approxPrice').length) return;
+				if (caption.parents('.table__offers').find('.approxPrice').length) return;
 				var mid = Math.round(price / 3);
 				var min = mid - 25;
 				var max = mid + 25;
-				caption.append('<span class="approxPrice">~' + mid + ' ₽</span>');
+				caption.parents('.table__offers').append('<span class="approxPrice">~' + mid + ' ₽</span>');
 			}
 		}
 		/* следим за изменением количества торговых предложений
@@ -1646,15 +1643,6 @@ function productPage() {
 					});
 				});
 			}
-		}
-		/* кнопки "сохранить" зеленые */
-		function ostatkiGreenBtns() {
-			var btns = $('.ostatki .UiButton_btn_primary-success_3CPeN');
-			if (!btns.length) return;
-			var captions = ['Обновить количество товаров', 'Применить'];
-			btns.each(function (i, e) {
-				$(this).find('.UiButton_btn__txt_lBLyT').text(captions[i]);
-			});
 		}
 		/* белый фон */
 		function ostatkiBg() {
@@ -1734,6 +1722,7 @@ function leftMenu() {
 		if (!menu.find('.nav-btn').length) return;
 
 		analyticsBtnMoveDown();
+		couriers();
 
 		clearInterval(int);
 	}, 50);
@@ -1742,6 +1731,12 @@ function leftMenu() {
 	function analyticsBtnMoveDown() {
 		var a = $('.nav-btn_analytics');
 		a.insertAfter(a.siblings(':last'));
+	}
+
+	/* курьеры */
+	function couriers() {
+		var btn = $('<div data-v-7321ba24="" data-v-15a70082="" data-menu-btn="couriers" class="nav-btn nav-btn_tasks" data-view-mode=""><div data-v-7321ba24="" class="nav-btn__inner"><a data-v-7321ba24="" href="/admin/couriers/" class="nav-btn__link"><span data-v-7321ba24="" class="nav-btn__icon nav-btn__icon_couriers"></span> <!----> <!----></a> <div data-v-7321ba24="" class="nav-btn__tooltip">Курьеры</div> <div data-v-7321ba24="" class="nav-btn__menu"></div></div></div>')
+		btn.appendTo('#nav-bar .bar__col:first');
 	}
 }
 /*******************
@@ -1756,6 +1751,11 @@ function hiddenFinance() {
 			$('html').toggleClass('hiddenFinance');
 		}
 	});
+	setInterval(function () {
+		if (!$('html').is('.hiddenFinance')) return;
+		if (!pageHasCustomJs('admin')) return;
+		$('body').addClass('no-menu');
+	}, 500);
 }
 
 
