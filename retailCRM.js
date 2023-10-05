@@ -1723,6 +1723,7 @@ function leftMenu() {
 
 		analyticsBtnMoveDown();
 		couriers();
+		buyToday();
 
 		clearInterval(int);
 	}, 50);
@@ -1737,6 +1738,18 @@ function leftMenu() {
 	function couriers() {
 		var btn = $('<div data-v-7321ba24="" data-v-15a70082="" data-menu-btn="couriers" class="nav-btn nav-btn_tasks" data-view-mode=""><div data-v-7321ba24="" class="nav-btn__inner"><a data-v-7321ba24="" href="/admin/couriers/" class="nav-btn__link"><span data-v-7321ba24="" class="nav-btn__icon nav-btn__icon_couriers"></span> <!----> <!----></a> <div data-v-7321ba24="" class="nav-btn__tooltip">Курьеры</div> <div data-v-7321ba24="" class="nav-btn__menu"></div></div></div>')
 		btn.appendTo('#nav-bar .bar__col:first');
+	}
+
+	/* ссылка: купить сегодня */
+	function buyToday() {
+		var date = new Date();
+		var currentDay = String(date.getDate()).padStart(2, '0');
+		var currentMonth = String(date.getMonth() + 1).padStart(2, '0');
+		var currentYear = date.getFullYear();
+		var hash = CryptoJS.MD5(currentDay + '' + currentMonth + '' + currentYear).toString();
+		$('#quick-link-list').find('#16 a, #17 a').each(function () {
+			$(this).attr('href', $(this).attr('href') + '?buytoday=' + hash);
+		});
 	}
 }
 /*******************
