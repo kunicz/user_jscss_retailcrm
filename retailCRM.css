@@ -300,4 +300,7 @@
 .hiddenFinance [href='#export']
 {display:none}
 
+/* LEFT MENU */
+#quick-link-list .todayDate{padding-left:24px;font-size:14px;opacity:.5}
+
 body.no-menu .nav-panel{display:none}

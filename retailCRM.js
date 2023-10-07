@@ -1646,7 +1646,7 @@ function productPage() {
 		}
 		/* белый фон */
 		function ostatkiBg() {
-			$('.inner-wrapper__content').css('background', '#fff');
+			$('.inner-wrapper__content, #content-wrapper > .bg').css('background', '#fff');
 		}
 	}
 }
@@ -1750,6 +1750,8 @@ function leftMenu() {
 		$('#quick-link-list').find('#16 a, #17 a').each(function () {
 			$(this).attr('href', $(this).attr('href') + '?buytoday=' + hash);
 		});
+		var todayDate = $('<div data-v-1f69f94c="" data-v-066aed4d="" class="ql-item todayDate">сегодня: ' + currentDay + '.' + currentMonth + '.' + currentYear + '</div>');
+		todayDate.insertAfter('#quick-link-list #16');
 	}
 }
 /*******************
