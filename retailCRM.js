@@ -16,6 +16,7 @@ var streetPercs = [
 	['пл', 'площадь'],
 	['алл', 'аллея']
 ];
+var deliveryPriceAmount = 700;
 
 /* улучшаем страницы */
 setInterval(function () {
@@ -503,7 +504,7 @@ function orderPage() {
 			'2STEBLYA': 'Транспортировочное',
 			'STAY TRUE Flowers': 'Транспортировочное'
 		}
-		var deliveryPrice = $('#custom-field-stoimost_dostavki_iz_tildy').text() ? parseInt($('#custom-field-stoimost_dostavki_iz_tildy').text().trim()) : 500;
+		var deliveryPrice = $('#custom-field-stoimost_dostavki_iz_tildy').text() ? parseInt($('#custom-field-stoimost_dostavki_iz_tildy').text().trim()) : deliveryPriceAmount;
 		searchTransport();
 		$('#intaro_crmbundle_ordertype_site').on('change', function () {
 			searchTransport();
@@ -566,8 +567,8 @@ function orderPage() {
 				var price = parseInt($(this).find('.order-product-properties span[title^="цена"]').text().replace(/[^\d]/g, ''));
 				var decrease = {
 					/* на сколько / сколько раз */
-					'2STEBLYA': [500, 1],
-					'STAY TRUE Flowers': [500, 1]
+					'2STEBLYA': [deliveryPriceAmount, 1],
+					'STAY TRUE Flowers': [deliveryPriceAmount, 1]
 				};
 				inputTd.find('.order-price__value').trigger('click');
 				input.val(price - decrease[magazin][0] * decrease[magazin][1] - deliveryPrice);
@@ -771,7 +772,9 @@ function ordersPage() {
 		'Комментарий клиента',
 		'Контактный телефон',
 		'Состав',
-		'Сумма по товарам'
+		'Сумма по товарам',
+		'Добавить лубрикант Lovix',
+		'warning'
 	];
 
 	var int = setInterval(function () {
@@ -805,6 +808,8 @@ function ordersPage() {
 		ordersFilterNonProductiveOrders();
 		ordersSvodkaCouriers();
 		ordersSvodkaFlowersNoflowers();
+		ordersLovixlube();
+		ordersWarning();
 
 		clearInterval(int);
 	}, 50);
@@ -876,6 +881,22 @@ function ordersPage() {
 			var tr = $(this);
 			if (getTdText(tr, 'Аноним') == 'Нет') return true;
 			getTd(tr, 'Покупатель').addClass('orderComment zakazchikOnanim');
+		});
+	}
+	/* lovixlube */
+	function ordersLovixlube() {
+		trs.each(function () {
+			var tr = $(this);
+			if (getTdText(tr, 'Добавить лубрикант Lovix') != 'Да') return true;
+			getTd(tr, 'Букеты в заказе').addClass('lovixlube');
+		});
+	}
+	/* значок ЦФКТШТП */
+	function ordersWarning() {
+		trs.each(function () {
+			var tr = $(this);
+			if (getTdText(tr, 'warning') != 'Да') return true;
+			getTd(tr, 'Покупатель').addClass('warning');
 		});
 	}
 	/* месссенджер заказчика */
@@ -1736,7 +1757,7 @@ function leftMenu() {
 
 	/* курьеры */
 	function couriers() {
-		var btn = $('<div data-v-7321ba24="" data-v-15a70082="" data-menu-btn="couriers" class="nav-btn nav-btn_tasks" data-view-mode=""><div data-v-7321ba24="" class="nav-btn__inner"><a data-v-7321ba24="" href="/admin/couriers/" class="nav-btn__link"><span data-v-7321ba24="" class="nav-btn__icon nav-btn__icon_couriers"></span> <!----> <!----></a> <div data-v-7321ba24="" class="nav-btn__tooltip">Курьеры</div> <div data-v-7321ba24="" class="nav-btn__menu"></div></div></div>')
+		var btn = $('<div data-v-4cbeb000="" data-v-0c31c4ee="" data-menu-btn="couriers" class="nav-btn nav-btn_tasks" data-view-mode=""><div data-v-4cbeb000="" class="nav-btn__inner"><a data-v-4cbeb000="" href="/admin/couriers/" class="nav-btn__link"><span data-v-4cbeb000="" class="nav-btn__icon nav-btn__icon_couriers"></span> <!----> <!----></a> <div data-v-4cbeb000="" class="nav-btn__tooltip">Курьеры</div> <div data-v-4cbeb000="" class="nav-btn__menu"></div></div></div>')
 		btn.appendTo('#nav-bar .bar__col:first');
 	}
 
