@@ -1,0 +1,102 @@
+/*blocks menu*/
+.UiTabs-tabs__controls-2RzE{display:none}
+
+/*blocks.ostatki*/
+
+/*ostatki[main]*/
+	.ostatki[main]{display: block !important}
+	.ostatki[main] section{box-shadow: none!important;}
+	.ostatki[main] header + div{display: block !important;}
+	.ostatki[main] header + div > div > div{padding:0;display:inline-block;width:auto;vertical-align:bottom;min-height:unset;background:none}
+	.ostatki[main] header + div > div > div > div{margin:0;max-width:unset}
+	.ostatki[main] #productMainInfo form > div > div{display:inline-block;margin:0 10px 0 0;vertical-align:middle;max-width:unset;} /*название, торговая группа*/
+	/*торговая группа*/
+	.ostatki[main] #productMainInfo form > div > div:nth-child(6) > div:last-child > div{max-width: unset;}
+	.ostatki[main] #productMainInfo form > div > div:nth-child(6) > div:last-child > div > div > div{display:inline-block;width:auto;margin:0;vertical-align: bottom;}
+	.ostatki[main] #productMainInfo form > div > div:nth-child(6) > div:last-child .UiSelect-tag-item-1HFM{display:inline-block;margin:0 0 0 8px} /*срезка*/
+	/*сохранить*/
+	.ostatki[main] footer{display:inline-block;}
+	.ostatki[main] footer > div{padding:0;background:none;min-height:unset;}
+	/*скрываем ненужное*/
+	.ostatki[main] header,
+	.ostatki[main] footer .omnica-button_secondary,
+	.ostatki[main] #productMainInfo form > div > div:nth-child(2), /*описание*/
+	.ostatki[main] #productMainInfo form > div > div:nth-child(3), /*производитель*/
+	.ostatki[main] #productMainInfo form > div > div:nth-child(4), /*магазин*/
+	.ostatki[main] #productMainInfo form > div > div:nth-child(5), /*ссылка на товар*/
+	.ostatki[main] #productMainInfo form > div:last-child, /*метки*/
+	.ostatki[main] #productPrice, /*одиночная цена*/
+	.ostatki[main] #productImages /*картинки*/
+	{display:none}
+
+.warehouse-product .setting-box_second{margin:0}
+
+/*ostatki[amount]*/
+	.ostatki[amount]{display: block !important}
+	.ostatki[amount] section{margin:0}
+	.ostatki[amount] section header{padding:10px}
+	.ostatki[amount] section form > div:first-child,
+	.ostatki[amount] table thead tr{border:0 none}
+	.ostatki[amount] section form > div:last-child{margin:0}
+	/*Название / ~цена / активно*/
+	.ostatki[amount] .title_ihG5e{justify-content: flex-start}
+	.ostatki[amount] .title__status_l8CYc{order:3}
+	.ostatki[amount] .offerPrice{margin:0 auto 0 5px;display:inline-block;opacity:.7;font-weight:100;}
+	/*offer opened*/
+	.ostatki[amount] section > div > div > div{display:block;padding:10px 0 0 60px}
+	.ostatki[amount] form > div{display:inline-block;vertical-align:bottom;margin-right:20px;}
+	.ostatki[amount] form > div:first-child{padding:0 0 10px 0;}
+	.ostatki[amount] form > div:first-child *{padding-bottom:0}
+	.ostatki[amount] form .setting-box > div{display:inline-block;margin:0 20px 0px 0;vertical-align:bottom}
+	.ostatki[amount] form .setting-box > div:nth-child(4) table{margin:0}
+	.ostatki[amount] form .setting-box > div:nth-child(3) *,
+	.ostatki[amount] form .setting-box > div:nth-child(4) *{padding-bottom:0}
+	.ostatki[amount] form .setting-box > div:nth-child(3) > div:first-child{margin-bottom:4px}
+	.ostatki[amount] footer > div{padding-left:60px}
+	/*количество остатков*/
+	.ostatki[amount] .table__edit-txt{width:auto}
+	.ostatki[amount] .table__edit-txt > *{display:inline-block;vertical-align:middle;}
+	.ostatki[amount] .table__edit-txt > div{width:120px;margin-right:10px;}
+	.ostatki[amount] .table__edit-txt > div.plusMinusBtn{text-align:center;font-size:1.2em;width: 20px;line-height:20px;cursor:pointer;border-radius:50%;background-color:#005eeb;color:#fff;margin:4px}
+	/*скрываем ненужное*/
+	.ostatki[amount] section form > div:last-child > div:first-child, /*заголовок цена*/
+	.ostatki[amount] section form > div:nth-child(2), /*свойства*/
+	.ostatki[amount] section form > div:nth-child(3), /*картинка*/
+	.ostatki[amount] section form .setting-box > div:nth-child(4) table + div,
+	.ostatki[amount] .table-title, /*бронь/остатки*/
+	.ostatki[amount] .table__warehouse-value /*бронь*/
+	{display:none}
+
+/*ostatki[variants]*/
+	.ostatki[variants]{display: block !important}
+	.ostatki[variants] .product-content-box{padding:0;border:0 none;box-shadow: none;}
+	/*offer opened*/
+	.ostatki[variants] form > div{display:inline-block;vertical-align:bottom;margin-right:20px;}
+	.ostatki[variants] form > div:first-child{padding:0 0 10px 0;border:0 none}
+	.ostatki[variants] form > div:first-child *{padding-bottom:0}
+	.ostatki[variants] form .setting-box > div{display:inline-block;margin:0 20px 0px 0;vertical-align:bottom}
+	.ostatki[variants] form .setting-box > div:nth-child(4) table{margin:0}
+	.ostatki[variants] form .setting-box > div:nth-child(3) *,
+	.ostatki[variants] form .setting-box > div:nth-child(4) *{padding-bottom:0}
+	.ostatki[variants] form .setting-box > div:nth-child(3) > div:first-child{margin-bottom:4px}
+	.ostatki[variants] footer > div{padding-left:60px}
+	/*скрываем ненужное*/
+	.ostatki[variants] section form .setting-box > div:nth-child(4) table + div,
+	.ostatki[variants] section form > div:last-child > div:first-child, /*заголовок цена*/
+	.ostatki[variants] section form > div:nth-child(2), /*свойства*/
+	.ostatki[variants] .product-offers > div:first-child, /*опции*/
+	.ostatki[variants] .product-offers > div:nth-child(2) > div:first-child /*торговые предложения (заголовок)*/
+	{display: none;}
+
+/*ostatki[properties]*/
+	/*.ostatki[properties]{display: block !important}*/
+	.ostatki[properties] .save-box{display: block!important;}
+	.ostatki[properties] tr:nth-child(1),
+	.ostatki[properties] tr:nth-child(3),
+	.ostatki[properties] tr:nth-child(4) ~ tr,
+	.ostatki[properties] .table-toolbar{display:none}
+	.ostatki[properties] .product-properties:before{content:'Чтобы редактировать цены в товарах, поставь галочки';padding:10px 0;color:#8a96a6;display:inline-block;}
+	#toggleProperties{margin:24px 0 0 10px;cursor:pointer;line-height:34px;display:inline-block}
+
+
+.save-box .wrapper{padding-left:0}

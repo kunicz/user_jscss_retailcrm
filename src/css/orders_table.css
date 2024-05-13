@@ -1,0 +1,28 @@
+.modern-table-container{overflow-x:visible;}
+
+.js-order-list .copyBtn{position:absolute;top:2px;right:5px}
+.js-order-list .copyBtn:after{content:'❐';}
+.js-order-list .inline-tooltip.user_jscss_tooltip{max-width:300px;width:300px;top:0;text-align:left}
+
+svg.lovixlube{width:14px;height:14px;margin-left:4px;}
+svg.warning{width:14px;height:14px;margin-right:4px}
+
+.js-order-list th,.js-order-list td:not(#upload){position:relative;padding:8px;}
+.js-order-list td.addComment:after{display:block;font-size:.8em;margin-top:3px;opacity:.5}
+
+.js-order-list td[type="чат"]{min-width:320px}
+.js-order-list td[type="покупатель"].addComment.onanim:after{content:'аноним'}
+.js-order-list td[type="выебри карточку"].addComment.customCardText:after{content:'+ свой текст'}
+.js-order-list td[type="букеты в заказе"] svg.lovixlube{position:absolute;right:4px;bottom:4px}
+.js-order-list td[type="покупатель"] .telegram svg.telegram{display:inline-block;width:14px;height:14px;margin-right:5px;cursor:pointer;vertical-align:baseline;}
+.js-order-list td[type="покупатель"] .phoneZakazchika{display:block;font-size:.8em;opacity:.5;cursor:pointer;margin-top:5px}
+.js-order-list td[type="сумма"] .paid{font-size:.9em;opacity:.5}
+.js-order-list td[type="сумма"] .discount{position:absolute;top:0;right:0;font-size:10px;background:#ff7a93;color:#fff;line-height:15px;padding:0 4px}
+.js-order-list td[type="магазин"] .logo{width:30px;height:30px}
+.js-order-list td[type="адрес доставки"] .copyBtn.phonePoluchatelya:after{content:'☎'}
+.js-order-list td[type="адрес доставки"] .inline-tooltip.user_jscss_tooltip{left:auto;right:20px;}
+.js-order-list td[type="курьер"] .warning{position:absolute;top:0;left:0}
+.js-order-list td[type="курьер"] .inline-tooltip.user_jscss_tooltip{max-width:200px;width:200px;left:-4px;transform:translateX(-100%)}
+.js-order-list td[type="курьер"] .price{margin-top:4px}
+
+#list-total-wrapper a{cursor:pointer;}

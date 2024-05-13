@@ -1,0 +1,35 @@
+
+/* custom fields */
+#order-custom-fields label{width:80%}
+#order-custom-fields .text label{width:100%}
+#order-custom-fields .text input:not([type="checkbox"]),
+#order-custom-fields .text textarea{width:100%;max-width:unset}
+#order-custom-fields svg.icon{width:14px;height:14px;margin-right:4px;vertical-align:bottom;}
+
+/* клиент */
+#order-customer svg.telegram{width:14px;height:14px;margin-right:4px;vertical-align:bottom}
+
+/* отгрузка и доставка */
+.adresTooltip{width: calc(100% - 185px);}
+.adresTooltip:before{display:none}
+.adresTooltip:after{display:none}
+.adresTooltip div{font-size:13px;line-height:15px}
+.adresTooltip textarea{width:100% !important}
+#ctrlcAdres{margin-top:4px}
+#clearAdres{margin-top:10px}
+#ctrlcAdres a,#clearAdres a{cursor:pointer;font-size:13px}
+#ctrlcAdres a:last-child{margin-left:10px}
+
+/*скрыть*/
+#index-text,
+#address-notes
+{display: none !important;}
+
+[data-target="intaro_crmbundle_ordertype_deliveryCostIsManual"],[data-target="intaro_crmbundle_ordertype_deliveryNetCostIsManual"],/*рассчитать стоимость доставки автоматически*/
+#intaro-crm-deliveries .courier-text, /*комментарий курьера*/
+[for="intaro_crmbundle_ordertype_deliveryTime_from"] ~ .form-element-hint,
+[data-order-section="delivery"] .bk-control div:last-child, /*загрузить адрес доставки*/
+[data-order-section="shipment"] .bk-control div:last-child, /*забор товаров*/
+[data-order-section="shipment"] .input-group:not(:first-child) /*отгрузка со склада*/
+{display:none}
+

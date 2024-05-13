@@ -1,0 +1,8 @@
+#main .tab-section table tbody tr .courier-text p {padding:3px 0}
+
+#nav-bar .nav-btn__icon_couriers{
+	background-image:url('https://static.tildacdn.com/tild6336-3535-4664-a439-396632333837/courier.png');
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 28px;
+}

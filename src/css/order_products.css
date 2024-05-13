@@ -1,0 +1,26 @@
+.modern-order-table th:nth-child(2){padding-left:10px!important}
+.modern-order-table tr .last-cell.price{margin-bottom:0}
+.modern-order-table tr td, .modern-order-table tr td.subtotal.align-to-input{padding:10px!important}
+.modern-order-table td:last-child > div{display:inline-block}/*цена+удалить*/
+.modern-order-table td:last-child .info-btn-group,
+.modern-order-table td:last-child .info-btn-group .info-btn,
+.modern-order-table td:last-child .info-btn-group .info-btn__switch_trash{width:16px;height:16px;margin:0;min-width:auto;position:static;bottom:auto;right:auto;}
+.modern-order-table td:last-child .info-btn-group{margin-left:10px}
+.modern-order-table td.store{position:relative}
+.modern-order-table .image{text-align:left!important}
+.modern-order-table .add-property{margin-top:0} /*добавить свойство*/
+.modern-order-table .available-inventory-row{position:absolute;left:0;bottom:0;background:#fbfbfb;padding:4px;color:#aaa;opacity:.7;margin: 0 !important;}
+
+#ignoreDiscountTrigger{margin-top:8px;text-align:right}
+#ignoreDiscountTrigger .tooltip{font-size:13px;display:inline-block!important}
+#ignoreDiscountTrigger .tooltip:before,
+#ignoreDiscountTrigger .tooltip:after{display:none}
+#ignoreDiscountTrigger span{margin-right:10px;vertical-align: middle;}
+#ignoreDiscountTrigger input{float:none;vertical-align: middle;}
+
+/*скрыть*/
+.modern-order-table th:nth-child(1),.modern-order-table td:nth-child(1), /*нумерация товаров*/
+.modern-order-table td:last-child .dropdown_vat,/*без НДС*/
+.modern-order-table td:last-child .order-price__tooltip,/*товар по акционной скидке*/
+.modern-order-table .acc-tovar/*сопутствующие товары*/
+{display:none}

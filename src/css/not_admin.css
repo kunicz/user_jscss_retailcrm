@@ -1,0 +1,42 @@
+#nav-bar .bar__col:last-child:after{content:'admin';color:#fff;opacity:.5;font-size:10px;text-align:center;display:block;width:100%;padding:5px}
+
+body.no-menu .toggle-btn,
+body.no-menu .nav-panel,
+.notAdmin #nav-bar .bar__col:last-child:after,
+.notAdmin #ui-sidebar-5 .profile-sidebar__footer,/*настройки профиля,разлогиниться*/
+
+/*меню: 1 уровень*/
+.notAdmin [data-menu-btn="automation"],
+.notAdmin [data-menu-btn="sites"],
+.notAdmin [data-menu-btn="admin"],
+.notAdmin [data-menu-btn="marketing"],
+.notAdmin [data-menu-btn="chats"],
+.notAdmin [data-menu-btn="analytics"],
+
+/*меню: 2 уровень*/
+.notAdmin .nav-panel .sub-item[data-name="Менеджеры"],
+
+/*меню: 3 уровень*/
+.notAdmin .nav-panel [href*="product-groups"],
+.notAdmin .nav-panel [href*="shipments"],
+.notAdmin .nav-panel [href*="moving"],
+.notAdmin .nav-panel [href*="movement"],
+.notAdmin .nav-panel [href*="inventories"],
+.notAdmin .nav-panel [href*="communications"],
+.notAdmin .nav-panel [href*="loyalty"],
+
+/*import/export btns*/
+.notAdmin [href*="/orders/import"],
+.notAdmin [href*="/products/import"],
+.notAdmin [href*="/customers/import"],
+.notAdmin [href='#export'],/*ссылка на выгрузку заказов в эксель*/
+
+/*order*/
+.notAdmin [data-template-block-code="communications"],
+.notAdmin #order-common .input-group:last-child, /*способ оформления заказа (php)*/
+
+/*orders*/
+.notAdmin #list-total-summ,
+.notAdmin #list-total-margin
+
+{display:none}
