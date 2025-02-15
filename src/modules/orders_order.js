@@ -9,7 +9,7 @@ export async function order($tr) {
 	const shopDb = shops.get().find(s => s.shop_title === getNative('Магазин'));
 	const order = await retailcrm.get.order.byId(orderId, shopDb?.shop_crm_id);
 	const artikul = order.items.find(item => typeof item.properties === 'object' && item.properties?.artikul?.value)?.properties.artikul.value;
-	const probableSku = parseInt(artikul.match(/^\d+/)?.[0]);
+	const probableSku = parseInt(artikul?.match(/^\d+/)?.[0]);
 	const sku = RESERVED_ARTICLES.includes(probableSku) ? artikul : probableSku;
 
 	type();
@@ -91,13 +91,12 @@ export async function order($tr) {
 		}).appendTo(td('Покупатель'));
 	}
 	function phonePoluchatelya() {
-		if (!get('Телефон получателя')) return;
-		$(`<a class="copyBtn phonePoluchatelya inline-tooltip-trigger"></a>`).appendTo(td('Адрес доставки')).on('click', e => {
-			e.preventDefault();
-			e.stopPropagation();
-			ctrlc(get('Телефон получателя'));
-		});
-		$(`<div class="inline-tooltip inline-tooltip_normal user_jscss_tooltip phonePoluchatelya">${get('Телефон получателя')} / ${get('Имя получателя')}</div>`).appendTo(td('Адрес доставки'));
+		const phone = get('Телефон получателя');
+		if (!phone) return;
+		const name = get('Имя получателя');
+		const $copyBtn = copyBtn(phone);
+		$copyBtn.appendTo(td('Адрес доставки'));
+		inlineTooltip($copyBtn, phone + (name ? ` / ${name}` : ''));
 	}
 	function orderIdClickable() {
 		const id = td('Номер').find('a');
@@ -325,23 +324,18 @@ export async function order($tr) {
 		const flowersString = Array.from(new Set(flowers)).sort().join(', '); //сортируем по алфавиту и удаляем дубликаты + формируем строку
 
 		//copyBtn
-		$('<a class="copyBtn inline-tooltip-trigger"></a>').appendTo(td('Букеты в заказе')).on('click', e => {
-			e.preventDefault();
-			e.stopPropagation();
-			ctrlc(flowersString);
-		});
-		$(`<div class="inline-tooltip inline-tooltip_normal user_jscss_tooltip">${flowersString}</div>`).appendTo(td('Букеты в заказе'));
+		const $copyBtn = copyBtn(flowersString);
+		$copyBtn.appendTo(td('Букеты в заказе'));
+		inlineTooltip($copyBtn, flowersString);
 	}
 	function customCardText() {
-		if (!get('Текст в карточку')) return;
+		const text = get('Текст в карточку');
+		if (!text) return;
 		if (!get('Выебри карточку')) td('Выебри карточку').children('.native').text('со своим текстом');
 		if (get('Выебри карточку') != 'со своим текстом') td('Выебри карточку').addClass('addComment customCardText');
-		$('<a class="copyBtn inline-tooltip-trigger"></a>').appendTo(td('Выебри карточку')).on('click', e => {
-			e.preventDefault();
-			e.stopPropagation();
-			ctrlc(get('Текст в карточку'));
-		});
-		$(`<div class="inline-tooltip inline-tooltip_normal user_jscss_tooltip">${get('Текст в карточку')}</div>`).appendTo(td('Выебри карточку'));
+		const $copyBtn = copyBtn(text);
+		$copyBtn.appendTo(td('Выебри карточку'));
+		inlineTooltip($copyBtn, text);
 	}
 	async function printCard() {
 		if (!get('Выебри карточку')) return;
@@ -373,7 +367,7 @@ export async function order($tr) {
 			'телефон получателя': get('Телефон получателя'),
 			'адрес доставки': getNative('Адрес доставки'),
 			'стоимость доставки': get('Себестоимость доставки'),
-			'курьер не уведомлен': needCourierNonify() ? null : 'need'
+			'курьер не уведомлен': needCourierNonify() ? null : 'dont-need'
 		}
 		const nullItems = [];
 		for (const [key, value] of Object.entries(data)) {
@@ -381,20 +375,28 @@ export async function order($tr) {
 		}
 		if (!nullItems.length) return;
 
-		const $warnTooltip = $(`<div class="inline-tooltip inline-tooltip_normal user_jscss_tooltip">${nullItems.join('<br>')}</div>`);
 		const $warnIcon = $(iconsSVG.warning);
 		const $warnCont = td('Курьер').children('.warn');
-		const $warnIconTooltip = $('<div class="warn_icon_tooltip">');
-
-		$warnIcon.addClass('inline-tooltip-trigger');
-		$warnIconTooltip?.prepend($warnIcon);
-		$warnIconTooltip?.append($warnTooltip);
-		$warnIconTooltip.prependTo($warnCont);
+		$warnCont.prepend($warnIcon);
+		inlineTooltip($warnIcon, nullItems.join('<br>'));
 	}
 	function warnings() {
 		['Чат', 'Курьер'].forEach(c => {
 			td(c)?.append('<div class="warn"></div>');
 		});
+	}
+	function copyBtn(str) {
+		const $btn = $('<a class="copyBtn"></a>');
+		$btn.on('click', e => {
+			e.preventDefault();
+			e.stopPropagation();
+			ctrlc(str);
+		});
+		return $btn;
+	}
+	function inlineTooltip($trigger, text) {
+		$trigger.addClass('inline-tooltip-trigger');
+		$trigger.after(`<div class="inline-tooltip inline-tooltip_normal user_jscss_tooltip">${text}</div>`);
 	}
 
 
@@ -417,5 +419,4 @@ export async function order($tr) {
 		const excludedValues = new Set(['—', 'Нет', '0 ₽', '']);
 		return excludedValues.has(content) ? null : content;
 	}
-
 }

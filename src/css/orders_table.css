@@ -24,7 +24,7 @@ svg.lovixlube{width:14px;height:14px;margin-left:4px;}
 .js-order-list td[type="сумма"] .paid{font-size:.9em;opacity:.5}
 .js-order-list td[type="сумма"] .discount{position:absolute;top:0;right:0;font-size:10px;background:#ff7a93;color:#fff;line-height:15px;padding:0 4px}
 .js-order-list td[type="магазин"] .logo{width:30px;height:30px}
-.js-order-list td[type="адрес доставки"] .copyBtn.phonePoluchatelya:after{content:'☎'}
+.js-order-list td[type="адрес доставки"] .copyBtn:after{content:'☎'}
 .js-order-list td[type="адрес доставки"] .inline-tooltip.user_jscss_tooltip{left:auto;right:20px;}
 .js-order-list td[type="курьер"] .warn .inline-tooltip.user_jscss_tooltip{max-width:200px;width:200px;left:-4px;transform:translateX(-100%)}
 .js-order-list td[type="курьер"] .price{margin-top:4px}
