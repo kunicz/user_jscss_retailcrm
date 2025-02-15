@@ -1,13 +1,16 @@
 import { indexes, shops, couriersDataForSvodka, noFlowers } from './orders_table';
 import { shopIcon, adresParts, iconsSVG, fakeClients } from '../mappings';
 import { makeDate, ctrlc, normalize, retailcrm } from '@helpers';
+import { RESERVED_ARTICLES } from '@root/config';
 
 export async function order($tr) {
 
 	const orderId = normalize.int($tr.data('url'));
 	const shopDb = shops.get().find(s => s.shop_title === getNative('Магазин'));
 	const order = await retailcrm.get.order.byId(orderId, shopDb?.shop_crm_id);
-	const sku = order.items.find(item => typeof item.properties === 'object' && item.properties?.artikul?.value)?.properties.artikul.value.match(/^\d+/)?.[0];
+	const artikul = order.items.find(item => typeof item.properties === 'object' && item.properties?.artikul?.value)?.properties.artikul.value;
+	const probableSku = parseInt(artikul.match(/^\d+/)?.[0]);
+	const sku = RESERVED_ARTICLES.includes(probableSku) ? artikul : probableSku;
 
 	type();
 	coloredRow(); //подкрашиваем строки

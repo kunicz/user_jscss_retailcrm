@@ -4,6 +4,7 @@ import { products } from './modules/order_products';
 import { dostavka } from './modules/order_dostavka';
 import { zakazchik } from './modules/order_zakazchik';
 import { retailcrm, cache, normalize } from '@helpers';
+import { RESERVED_ARTICLES } from '@root/config';
 import './css/order.css';
 
 export const noFlowers = cache([]);
@@ -21,21 +22,18 @@ export async function order() {
 	discount();
 	products();
 	printCard();
-	validationError();
-
-	function validationError() {
-
-	}
 
 	function printCard() {
-		const orderId = normalize.int($('head title'));
+		const orderId = normalize.int($('head title').text());
 		const $btn = $('li.print [href$="print/16"]');
 		const $product = $('#order-products-table .catalog:first');
 		if (!$product.length) return;
 		const $card = $product.find('[title^="выебри карточку:"]');
 		if (!$card.length) return;
-		const $artikul = $product.find('[title^="артикул:"]');
-		const sku = $artikul.attr('title').match(/артикул:\s*(\d+)/)?.[1];
+		const artikul = $product.find('[title^="артикул:"]')?.attr('title')?.replace('артикул: ', '');
+		if (!artikul) return;
+		const probableSku = parseInt(artikul.match(/^(\d+)/)?.[1]);
+		const sku = RESERVED_ARTICLES.includes(probableSku) ? artikul : probableSku;
 		const shop = $('#intaro_crmbundle_ordertype_site option:selected').val();
 		$btn.attr('href', `https://php.2steblya.ru/print_card?order_id=${orderId}&sku=${sku}&shop_crm_id=${shop}`);
 	}
