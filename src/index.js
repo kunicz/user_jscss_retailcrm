@@ -1,16 +1,23 @@
-import { menu } from './pages/menu';
-import { product } from './pages/product';
-import { courier } from './pages/courier';
-import { couriers } from './pages/couriers';
-import { order } from './pages/order';
-import { orders } from './pages/orders';
-import { customer } from './pages/customer';
-import { notAdmin, toggleAdmin } from './pages/admin';
+import { product } from './product';
+import { products } from './products';
+import { courier } from './courier';
+import { couriers } from './couriers';
+import { order } from './order';
+import { orders } from './orders';
+import { customer } from './customer';
+import { menu } from './menu';
+import { retailcrm, cache } from '@helpers';
 
-$(document).ready(() => {
+window.BUNDLE_VERSION = '2.1.0'; //courier notify
 
-	$('html').addClass('notAdmin');
-	notAdmin();
+export let user = cache();
+
+$(document).ready(async () => {
+
+	user.set(await getUser());
+
+	menu();
+	checkVueUpdate();
 
 	function checkVueUpdate() {
 		//не могу использовать setInterval, потому что он замирает в какой-то момент на пару секунд
@@ -19,8 +26,8 @@ $(document).ready(() => {
 		if ($('#main.user_jscss').length) return;
 		$('#main').addClass('user_jscss');
 
-		notAdmin();
 		product();
+		products();
 		courier();
 		couriers();
 		orders();
@@ -28,9 +35,13 @@ $(document).ready(() => {
 		customer();
 
 	}
-
-	checkVueUpdate();
-	toggleAdmin();
-	menu();
-
 });
+
+export function isPage(page) {
+	return new RegExp(page).test(window.location.pathname);
+}
+
+async function getUser() {
+	const userId = $('head').data('user-id');
+	return await retailcrm.get.user.byId(userId);
+}

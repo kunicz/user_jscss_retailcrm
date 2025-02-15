@@ -1,10 +1,11 @@
-import { isPage } from '../helpers';
+import { isPage } from './index';
+import { bankNames } from './mappings';
 
 let descr = {};
 let descrBlock = '';
 
 export function courier() {
-	if (!isPage('admin\/couriers\/\\d+')) return;
+	if (!isPage('admin\/couriers\/(\\d+|new)')) return;
 
 	console.log('user_jscss : courier');
 
@@ -20,7 +21,7 @@ export function courier() {
 
 function bank() {
 	const select = $('<select id="courierBank"></select>');
-	['', 'Сбер', 'Тинькофф', 'Альфа', 'Райффайзен', 'ВТБ', 'СГБ', 'Газпром', 'Россельхоз'].forEach(bank => select.append(`<option value="${bank}">${bank}</option>`));
+	bankNames.forEach(bank => select.append(`<option value="${bank}">${bank}</option>`));
 	if (descr.bank != undefined) select.val(descr.bank);
 	select.on('change', () => {
 		descr.bank = select.val();

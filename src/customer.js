@@ -1,5 +1,5 @@
-import { isPage } from '../helpers';
-import '../css/customer.css';
+import { isPage } from './index';
+import './css/customer.css';
 
 export function customer() {
 	if (!isPage('customers\/\\d+')) return;

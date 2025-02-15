@@ -1,0 +1,8 @@
+#custom_popup__content{padding:32px}
+#custom_popup #omnica-modal-window-title{display:flex;align-items:center;}
+
+/*couriers*/
+#custom_popup[data-page="couriers"] #custom_popup__content{display:flex}
+#custom_popup[data-page="couriers"] #custom_popup__content > div{box-sizing:border-box; padding:20px}
+#custom_popup #couriers_list{width:70%}
+#custom_popup #couriers_editbox{width:30%}

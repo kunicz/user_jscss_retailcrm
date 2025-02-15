@@ -1,14 +1,26 @@
-import { iconsSVG } from '../helpers';
+import { iconsSVG } from '../mappings';
+import { normalize } from '@helpers';
 
 export function zakazchik() {
 	isPoluchatel();
 	telegram();
 	otkudaUznal();
+	phones();
+}
+
+function phones() {
+	const phoneFields = $('#intaro_crmbundle_ordertype_phone, #intaro_crmbundle_ordertype_additionalPhone, #intaro_crmbundle_ordertype_customFields_phone_poluchatelya');
+	phoneFields.each(function () {
+		$(this).val(normalize.phone($(this).val()));
+	});
+	phoneFields.on('change', function () {
+		$(this).val(normalize.phone($(this).val()));
+	});
 }
 
 function isPoluchatel() {
 	//при клике на галочку берем имя и телефон и вставляем в поля получателя
-	//при повторном клике - обнйляем поля
+	//при повторном клике - обнуляем поля
 	const zName = $('#intaro_crmbundle_ordertype_firstName');
 	const pName = $('#intaro_crmbundle_ordertype_customFields_name_poluchatelya');
 	const zPhone = $('#intaro_crmbundle_ordertype_phone');
@@ -34,7 +46,9 @@ function isPoluchatel() {
 }
 
 function telegram() {
-	$('#intaro_crmbundle_ordertype_customFields_messenger_zakazchika').prev().html('Телеграм').prepend(iconsSVG.telegram);
+	$('#intaro_crmbundle_ordertype_customFields_messenger_zakazchika')
+		.on('blur', e => $(e.target).val($(e.target).val().replace('@', '')))
+		.prev().html('Телеграм').prepend(iconsSVG.telegram);
 }
 
 function otkudaUznal() {

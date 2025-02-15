@@ -1,5 +1,5 @@
-import { isPage } from '../helpers';
-import '../css/couriers.css';
+import { isPage } from './index';
+import './css/couriers.css';
 
 export function couriers() {
 	if (!isPage('admin\/couriers(?:[^\/]|$)')) return;

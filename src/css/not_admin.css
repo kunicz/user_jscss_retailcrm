@@ -1,5 +1,3 @@
-#nav-bar .bar__col:last-child:after{content:'admin';color:#fff;opacity:.5;font-size:10px;text-align:center;display:block;width:100%;padding:5px}
-
 body.no-menu .toggle-btn,
 body.no-menu .nav-panel,
 .notAdmin #nav-bar .bar__col:last-child:after,

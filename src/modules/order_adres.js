@@ -1,4 +1,4 @@
-import { ctrlc } from '../helpers';
+import { ctrlc } from '@helpers';
 
 export const adres = {
 	ctrlc: (type) => {

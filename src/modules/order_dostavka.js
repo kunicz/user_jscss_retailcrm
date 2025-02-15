@@ -1,4 +1,4 @@
-import { adresParts } from '../helpers';
+import { adresParts } from '../mappings';
 import { adres as adresFunctions } from './order_adres';
 
 export function dostavka() {

@@ -11,10 +11,10 @@
 	.ostatki[main] header + div > div > div > div{margin:0;max-width:unset}
 	.ostatki[main] #productMainInfo form > div > div{display:inline-block;margin:0 10px 0 0;vertical-align:middle;max-width:unset;} /*название, торговая группа*/
 	/*торговая группа*/
-	.ostatki[main] #productMainInfo form > div > div:nth-child(6) > div:last-child > div{max-width: unset;}
-	.ostatki[main] #productMainInfo form > div > div:nth-child(6) > div:last-child > div > div > div{display:inline-block;width:auto;margin:0;vertical-align: bottom;}
-	.ostatki[main] #productMainInfo form > div > div:nth-child(6) > div:last-child .UiSelect-tag-item-1HFM{display:inline-block;margin:0 0 0 8px} /*срезка*/
-	/*сохранить*/
+	.ostatki[main] #productMainInfo form > div > div:nth-child(6) .warehouse-product__col{max-width:unset}
+	.ostatki[main] #productMainInfo form > div > div:nth-child(6) .warehouse-product__col > div > div{display:inline-block;width:auto;margin:0;vertical-align: bottom;}
+		.ostatki[main] #productMainInfo form > div > div:nth-child(6) .warehouse-product__col > div > div .UiSelect-tag-item-1HFM{display:inline-flex;margin:0 0 0 8px}
+	/*сохранить*/.UiSelect-tag-item-1HFM
 	.ostatki[main] footer{display:inline-block;}
 	.ostatki[main] footer > div{padding:0;background:none;min-height:unset;}
 	/*скрываем ненужное*/
@@ -97,6 +97,3 @@
 	.ostatki[properties] .table-toolbar{display:none}
 	.ostatki[properties] .product-properties:before{content:'Чтобы редактировать цены в товарах, поставь галочки';padding:10px 0;color:#8a96a6;display:inline-block;}
 	#toggleProperties{margin:24px 0 0 10px;cursor:pointer;line-height:34px;display:inline-block}
-
-
-.save-box .wrapper{padding-left:0}

@@ -25,7 +25,7 @@
 #address-notes
 {display: none !important;}
 
-[data-target="intaro_crmbundle_ordertype_deliveryCostIsManual"],[data-target="intaro_crmbundle_ordertype_deliveryNetCostIsManual"],/*рассчитать стоимость доставки автоматически*/
+/*[data-target="intaro_crmbundle_ordertype_deliveryCostIsManual"],[data-target="intaro_crmbundle_ordertype_deliveryNetCostIsManual"],/*рассчитать стоимость доставки автоматически*/
 #intaro-crm-deliveries .courier-text, /*комментарий курьера*/
 [for="intaro_crmbundle_ordertype_deliveryTime_from"] ~ .form-element-hint,
 [data-order-section="delivery"] .bk-control div:last-child, /*загрузить адрес доставки*/

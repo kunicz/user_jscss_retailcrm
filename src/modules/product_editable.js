@@ -14,6 +14,7 @@ export function product() {
 		pricesInItems();
 		background();
 		toggleProperties();
+		toggleBukets();
 	}, 500);
 }
 
@@ -136,6 +137,9 @@ function background() {
 	$('.save-box.wrapper').css({ border: '0 none', padding: '15px 0 10px 13px', 'margin-top': '10px' });
 }
 
+/**
+ * показать/скрыть настройки цен
+ */
 function toggleProperties() {
 	let prices = false;
 	$('<a id="toggleProperties"></a>').text(togglePropertiesText()).on('click', e => {
@@ -147,4 +151,16 @@ function toggleProperties() {
 	function togglePropertiesText() {
 		return prices ? 'скрыть цены' : 'включить цены';
 	}
+}
+
+/**
+ * включить/отключить букеты с этим цветком на сайтах
+ */
+async function toggleBukets() {
+	let title = $('.section-head__title').text().trim();
+	const response = await fetch('https://php.2steblya.ru/ajax.php?script=FromDB&request=flower&title=' + title);
+	const fromDB = await response.json();
+	if (!fromDB.success) return;
+	if (!fromDB.response.length) return;
+	console.log(fromDB.response[0]);
 }

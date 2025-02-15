@@ -18,6 +18,8 @@
 #ignoreDiscountTrigger span{margin-right:10px;vertical-align: middle;}
 #ignoreDiscountTrigger input{float:none;vertical-align: middle;}
 
+#sebes{vertical-align:middle;margin-right:20px;cursor:pointer;line-height:1.42}
+
 /*скрыть*/
 .modern-order-table th:nth-child(1),.modern-order-table td:nth-child(1), /*нумерация товаров*/
 .modern-order-table td:last-child .dropdown_vat,/*без НДС*/
