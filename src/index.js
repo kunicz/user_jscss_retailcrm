@@ -8,7 +8,7 @@ import { customer } from './customer';
 import { menu } from './menu';
 import { retailcrm, cache } from '@helpers';
 
-window.BUNDLE_VERSION = '2.1.2';
+window.BUNDLE_VERSION = '2.1.3';
 
 export let user = cache();
 

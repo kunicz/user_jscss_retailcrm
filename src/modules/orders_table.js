@@ -110,7 +110,7 @@ function couriersSvodka() {
 		});
 
 	function aggregateCouriers() {
-		const data = couriersDataForSvodka.get().reduce((acc, curr) => {
+		let data = couriersDataForSvodka.get().reduce((acc, curr) => {
 			if (curr.name === 'Другой курьер') {
 				acc.push({ ...curr });
 			} else {
@@ -123,12 +123,13 @@ function couriersSvodka() {
 			}
 			return acc;
 		}, []);
+		data = data.sort((a, b) => a.name.localeCompare(b.name));
 		couriersDataForSvodka.set(data);
 	}
 
 	function generateCourierSummary() {
-		const from = $('#filter_deliveryDateFrom_abs').siblings('input:last').val();
-		const to = $('#filter_deliveryDateTo_abs').siblings('input:last').val();
+		const from = $('#filter_deliveryDate_gte_abs').val().split('-').reverse().slice(0, 2).join('.');
+		const to = $('#filter_deliveryDate_lte_abs').val().split('-').reverse().slice(0, 2).join('.');
 
 		let output = from && to ? `с ${from} по ${to}` : from ? `за ${from}` : '';
 		output += '\n-------\n';
