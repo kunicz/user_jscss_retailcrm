@@ -26,6 +26,7 @@ export async function order($tr) {
 	productsSummary();
 	money();
 	adres();
+	clientMsg();
 	warnings();
 	courier();
 	sostav();
@@ -217,6 +218,68 @@ export async function order($tr) {
 			e.stopPropagation();
 			ctrlc($(e.target).text());
 		});
+	}
+
+	/**
+	 * добавляем copyBtn с информацией о заказе клиенту
+	 */
+	function clientMsg() {
+		const templates = {
+			'2steblya':
+				`📦 зоказек \*\*#{{orderId}}\*\* принят! проверь!
+
+📅 \*\*доставка\*\*:
+{{date}} {{time}} (именно в интервале! в какое точно время - босх его знает, курьер поедет по маршруту)
+
+🏠 \*\*по адресу\*\*:
+{{adres}}
+
+{{poluchatel}}
+
+⚠️ ну и эта - фот очки на праздники не присылаем
+(тупо нет на это времени - колошматим как не в себя!)
+
+💋 чмоки! пасиба за зоказек!`,
+			'2steblya_white':
+				`твой заказ \*\*#{{orderId}}\*\* принят! проверь!
+
+\*\*доставка\*\*\:
+{{date}} {{time}} (именно в интервале! в какое точно время - сказать не можем, курьер поедет по маршруту)
+
+\*\*по адресу\*\*:
+{{adres}}
+
+{{poluchatel}}
+
+фотографии на праздники не присылаем (к сожалению, на это нет времени)
+
+спасибо за заказ!`
+		}
+		templates.gvozdisco = templates['2steblya'];
+
+		const shop = shops.get().find(s => s.shop_title === getNative('Магазин'));
+		if (!shop || !(shop.shop_crm_code in templates)) return;
+
+		const template = templates[shop.shop_crm_code];
+		const data = {
+			orderId: String(order.id),
+			date: get('Дата доставки'),
+			time: get('Время доставки'),
+			adres: getNative('Адрес доставки'),
+			phone: get('Телефон получателя'),
+			name: get('Имя получателя')
+		}
+		data.poluchatel = data.phone ? `🙎 \*\*получатель\*\*:\n${data.name ? data.name + ' / ' : ''}${data.phone}` : '';
+
+		const output = formatString(template, data);
+		copyBtn(output).appendTo(td('Покупатель'));
+
+		// Функция подстановки значений в шаблон
+		function formatString(template, values) {
+			return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+				return values[key] || '';
+			});
+		}
 	}
 
 	/**
