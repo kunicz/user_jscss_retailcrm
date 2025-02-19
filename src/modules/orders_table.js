@@ -6,7 +6,6 @@ import '../css/orders_table.css';
 export let shops = cache();
 export let indexes = cache(); //индексы ячеек
 export let noFlowers = cache();
-export let couriersDataForSvodka = cache([]); //данные курьеров для сводки
 
 export async function ordersTable() {
 	indexes.set(getIndexes());
@@ -104,13 +103,13 @@ function couriersSvodka() {
 	$(`<span><a id="couriersSvodka">Сводка по оплате курьерам</a></span>`)
 		.appendTo($('#list-total-wrapper'))
 		.on('click', () => {
-			aggregateCouriers();
-			const summary = generateCourierSummary();
+			const summary = generate(aggregate());
 			ctrlc(summary);
 		});
 
-	function aggregateCouriers() {
-		let data = couriersDataForSvodka.get().reduce((acc, curr) => {
+	function aggregate() {
+		const $tds = getTrs().find('td[type="курьер"]');
+		let data = $tds.map((_, e) => $(e).data('svodka')).get().reduce((acc, curr) => {
 			if (curr.name === 'Другой курьер') {
 				acc.push({ ...curr });
 			} else {
@@ -124,17 +123,17 @@ function couriersSvodka() {
 			return acc;
 		}, []);
 		data = data.sort((a, b) => a.name.localeCompare(b.name));
-		couriersDataForSvodka.set(data);
+		return data;
 	}
 
-	function generateCourierSummary() {
+	function generate(data) {
 		const from = $('#filter_deliveryDate_gte_abs').val().split('-').reverse().slice(0, 2).join('.');
 		const to = $('#filter_deliveryDate_lte_abs').val().split('-').reverse().slice(0, 2).join('.');
 
 		let output = from && to ? `с ${from} по ${to}` : from ? `за ${from}` : '';
 		output += '\n-------\n';
 
-		output += couriersDataForSvodka.get().map(c =>
+		output += data.map(c =>
 			`${c.name}${c.comments ? ` (${c.comments})` : ''}${c.phone ? ` / ${c.phone}` : ''}${c.bank ? ` (${c.bank})` : ''} / ${c.price} ₽`
 		).join('\n');
 

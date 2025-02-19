@@ -1,11 +1,6 @@
 {
 	"name": "retailcrm",
-	"version": "1.0.0",
-	"description": "",
-	"main": "index.js",
-	"dependencies": {
-		"crypto-js": "^4.2.0"
-	},
+	"dependencies": {},
 	"devDependencies": {
 		"css-loader": "^6.10.0",
 		"mini-css-extract-plugin": "^2.9.0",
@@ -18,9 +13,7 @@
 		"webpack-cli": "^5.1.4"
 	},
 	"scripts": {
-		"build": "webpack --config webpack.config.js"
-	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC"
+		"build": "webpack --config webpack.config.js",
+		"watch": "webpack --watch --config webpack.config.js"
+	}
 }

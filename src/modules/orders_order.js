@@ -1,4 +1,4 @@
-import { indexes, shops, couriersDataForSvodka, noFlowers } from './orders_table';
+import { indexes, shops, noFlowers } from './orders_table';
 import { shopIcon, adresParts, iconsSVG, fakeClients } from '../mappings';
 import { makeDate, ctrlc, normalize, retailcrm } from '@helpers';
 import { RESERVED_ARTICLES } from '@root/config';
@@ -271,15 +271,8 @@ export async function order($tr) {
 		}
 		data.poluchatel = data.phone ? `🙎 \*\*получатель\*\*:\n${data.name ? data.name + ' / ' : ''}${data.phone}` : '';
 
-		const output = formatString(template, data);
+		const output = template.replace(/\{\{(\w+)\}\}/g, (match, key) => data[key] || '');
 		copyBtn(output).appendTo(td('Покупатель'));
-
-		// Функция подстановки значений в шаблон
-		function formatString(template, values) {
-			return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
-				return values[key] || '';
-			});
-		}
 	}
 
 	/**
@@ -292,7 +285,7 @@ export async function order($tr) {
 		if (isDone()) return;
 		price();
 		orderInfo();
-		appendSvodka();
+		svodka();
 		warning();
 		notifyIndicator();
 
@@ -395,7 +388,7 @@ export async function order($tr) {
 		 * формирует данные для администратора о работе курьера по заказу
 		 * будет использовано в генерации общей сводки в модуле orders_table
 		 */
-		function appendSvodka() {
+		function svodka() {
 			const name = getNative('Курьер');
 			const price = normalize.int(td('Курьер').children('.price').text());
 			if (!name || !price) return;
@@ -413,7 +406,7 @@ export async function order($tr) {
 					data = { ...data, ...JSON.parse(description) }
 				} catch (e) { }
 			}
-			couriersDataForSvodka.append(data);
+			td('Курьер').data('svodka', data);
 		}
 
 		/**

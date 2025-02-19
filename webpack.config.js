@@ -59,6 +59,5 @@ module.exports = {
 	experiments: {
 		topLevelAwait: true // Позволяет использовать `await import()` без чанков
 	},
-	watch: true,
 	devtool: 'inline-source-map'
 };
