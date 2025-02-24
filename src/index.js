@@ -1,3 +1,4 @@
+import { retailcrm, cache } from '@helpers';
 import { product } from './product';
 import { products } from './products';
 import { courier } from './courier';
@@ -6,9 +7,8 @@ import { order } from './order';
 import { orders } from './orders';
 import { customer } from './customer';
 import { menu } from './menu';
-import { retailcrm, cache } from '@helpers';
 
-window.BUNDLE_VERSION = '2.2.1';
+window.BUNDLE_VERSION = '2.2.2';
 
 export let user = cache();
 

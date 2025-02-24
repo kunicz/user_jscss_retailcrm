@@ -1,5 +1,5 @@
 import '../css/orders_filters.css';
-import { makeDate } from '@helpers';
+import { dates } from '@helpers';
 
 export function ordersFilters() {
 	dostavkaDate();
@@ -15,29 +15,29 @@ function dostavkaDate() {
 	if (!group) return;
 
 	const cont = $('<div class="additonalFilters"></div>');
-	const today = makeDate();
 
 	// Добавляем ссылки
-	cont.append(makeLink(makeDate(today.obj, -1)));         // Вчера
-	cont.append(makeLink(today));                           // Сегодня
-	cont.append(makeLink(today, makeDate(today.obj, 1)));   // Сегодня - Завтра
-	cont.append(makeLink(makeDate(today.obj, 1)));          // Завтра
-	cont.append(makeLink(makeDate(today.obj, 2)));          // Послезавтра
+	cont.append(makeLink(dates.yesterday));         		// Вчера
+	cont.append(makeLink(dates.today));                     // Сегодня
+	cont.append(makeLink(dates.today, dates.tomorrow));   	// Сегодня - Завтра
+	cont.append(makeLink(dates.tomorrow));          		// Завтра
+	cont.append(makeLink(dates.tomtomorrow));   	       	// Послезавтра
 
 	group.append(cont);
 
 	function makeLink(date1, date2 = date1) {
-		let title;
-
-		if (date1 === date2) {
-			title = `${date1.dd}.${date1.mm}`;
-			if (date1.d === today.d) title = 'сегодня';
-			if (date1.d - today.d === 1) title = 'завтра';
-		} else {
-			title = `${date1.dd}-${date2.dd}`;
-		}
-
+		const title = getTitle(date1, date2);
 		return $(`<a class="filterDate" href="${buildUrl(date1, date2)}">${title}</a>`);
+	}
+
+	function getTitle(date1, date2) {
+		if (date1 === date2) {
+			if (date1.d === dates.today.d) return 'сегодня';
+			if (date1.d - dates.today.d === 1) return 'завтра';
+			return `${date1.dd}.${date1.mm}`;
+		} else {
+			return `${date1.dd}-${date2.dd}`;
+		}
 	}
 }
 
@@ -46,18 +46,10 @@ function orderDate() {
 	const group = getFilterGroup('Дата оформления заказа');
 	if (!group) return;
 
-	const cont = $('<div class="additonalFilters"></div>');
-	const dates = {
-		сегодня: makeDate(),
-		вчера: makeDate(new Date(), -1)
-	};
-
-	const links = Object.entries(dates).map(([title, date]) =>
-		`<a class="filterDate" href="${buildUrl(date)}">${title}</a>`
-	).join('');
-
-	cont.append(links);
-	group.append(cont);
+	group.append(`<div class="additonalFilters">
+		<a class="filterDate" href="${buildUrl(dates.today)}">${dates.today.title}</a>
+		<a class="filterDate" href="${buildUrl(dates.yesterday)}">${dates.yesterday.title}</a>
+		</div>`);
 }
 
 
@@ -67,12 +59,10 @@ function spisanie() {
 	if (!group) return;
 
 	const cont = $('<div class="additonalFilters"></div>');
-
 	const thisMonth = getMonthDate(0);
 	const prevMonth = getMonthDate(-1);
 	const nextMonth = getMonthDate(1);
-
-	const dates = [
+	const data = [
 		{
 			title: `списание (${thisMonth.month})`,
 			from: thisMonth.str,
@@ -85,7 +75,7 @@ function spisanie() {
 		}
 	];
 
-	const links = dates.map(date =>
+	const links = data.map(date =>
 		`<a class="filterDate" href="${buildUrl(date.from, date.to, 'Списание')}">${date.title}</a>`
 	).join('');
 
@@ -95,7 +85,7 @@ function spisanie() {
 	function getMonthDate(offset) {
 		const date = new Date();
 		date.setMonth(date.getMonth() + offset, 2); // Ставим 2-е число
-		return makeDate(date);
+		return dates.object(date);
 	}
 
 	function buildUrl(from, to, customer = '') {

@@ -1,6 +1,6 @@
 import { indexes, shops, noFlowers } from './orders_table';
 import { shopIcon, adresParts, iconsSVG, fakeClients } from '../mappings';
-import { makeDate, ctrlc, normalize, retailcrm } from '@helpers';
+import { ctrlc, normalize, retailcrm, dates } from '@helpers';
 import { RESERVED_ARTICLES } from '@root/config';
 
 export async function order($tr) {
@@ -346,12 +346,8 @@ export async function order($tr) {
 			 * @returns {string} - данные
 			 */
 			function getData(full = false) {
-				const date = get('Дата доставки');
-				const today = makeDate();
-				const tomorrow = makeDate(today.obj, 1);
-				const tomtomorrow = makeDate(today.obj, 2);
-				const m = date.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
-				const deliveryDate = makeDate(new Date(m[3], m[2] - 1, m[1]));
+				const m = get('Дата доставки').match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+				const deliveryDate = dates.object(new Date(m[3], m[2] - 1, m[1]));
 				const auto = get('Автокурьер');
 				const adres = getNative('Адрес доставки');
 				const time = get('Время доставки');
@@ -361,14 +357,10 @@ export async function order($tr) {
 				const name = get('Имя получателя');
 
 				let output = '';
-				if (deliveryDate.str == today.str) {
-					output += `сегодня (${date})`;
-				} else if (deliveryDate.str == tomorrow.str) {
-					output += `завтра (${date})`;
-				} else if (deliveryDate.str == tomtomorrow.str) {
-					output += `послезавтра (${date})`;
+				if (deliveryDate.isToday || deliveryDate.daysTo <= 2) {
+					output += `${deliveryDate.title} (${deliveryDate.strRu})`;
 				} else {
-					output += date;
+					output += deliveryDate.strRu;
 				}
 				output += ` ${time}`;
 				if (auto) output += `\nДоставка на своем автомобиле или на такси!`;
