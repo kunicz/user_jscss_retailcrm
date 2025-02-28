@@ -36,7 +36,7 @@ function orders(trs = getTrs()) {
 	trs.each(function () {
 		const $row = $(this);
 		hiddenCols($row);
-		wrapInnerContentOfTds($row);
+		wrapNative($row);
 		order($row);
 	});
 }
@@ -79,7 +79,7 @@ function hiddenCols(nodes = getTrs()) {
 		});
 }
 
-function wrapInnerContentOfTds(nodes = getTrs()) {
+function wrapNative(nodes = getTrs()) {
 	nodes.find('td').each((_, e) => {
 		const $e = $(e);
 		$e.html(`<span class="native">${$e.html()}</span>`);
