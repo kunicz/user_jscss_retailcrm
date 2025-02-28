@@ -68,10 +68,11 @@ function hiddenCols(nodes = getTrs()) {
 		'Состав',
 		'Сумма по товарам/услугам',
 		'Добавить лубрикант Lovix',
-		'Пометить для флориста и/или администратора'
+		'Пометить для флориста и/или администратора',
+		'Курьер оповещен'
 	]
 		.forEach(title => {
-			const colIndex = indexes.get()[title.toLowerCase()];
+			const colIndex = indexes[title.toLowerCase()];
 			if (colIndex === undefined) return;
 			getThs().eq(colIndex).hide();
 			nodes.children(`:eq(${colIndex})`).hide();
@@ -86,15 +87,15 @@ function wrapInnerContentOfTds(nodes = getTrs()) {
 }
 
 function handleThs() {
-	getThs().eq(indexes.get()['магазин']).html('');
-	getThs().eq(indexes.get()['чат']).children('a').text('Комментарии');
+	getThs().eq(indexes['магазин']).html('');
+	getThs().eq(indexes['чат']).children('a').text('Комментарии');
 }
 
 /**
  * скрываем финансовую информацию от неадминов
  */
 function total() {
-	if (!user.get()?.isAdmin) {
+	if (!user?.isAdmin) {
 		$('#list-total-margin,#list-total-summ').hide();
 	}
 }

@@ -8,7 +8,7 @@ import { orders } from './orders';
 import { customer } from './customer';
 import { menu } from './menu';
 
-window.BUNDLE_VERSION = '2.2.2';
+window.BUNDLE_VERSION = '2.2.3';
 
 export let user = cache();
 
@@ -43,5 +43,6 @@ export function isPage(page) {
 
 async function getUser() {
 	const userId = $('head').data('user-id');
-	return await retailcrm.get.user.byId(userId);
+	const user = await retailcrm.get.user.byId(userId);
+	return user;
 }

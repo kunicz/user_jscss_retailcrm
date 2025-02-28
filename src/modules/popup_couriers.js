@@ -1,6 +1,7 @@
 import * as popup from '../popup';
 import { bankNames } from '../mappings';
 import { cache, retailcrm } from '@helpers';
+import { user } from '../index'
 
 const couriers = cache([]);
 
@@ -13,10 +14,8 @@ export const couriersMeta = {
 async function couriersLogic() {
 	popup.init(couriersMeta);
 	const $cont = $('#custom_popup__content');
-	const userId = $('head').data('user-id');
-	const user = await getUser(userId);
-	const cities = await getCities(user);
-	if (!couriers.get().length) {
+	const cities = await getCities();
+	if (!couriers.length) {
 		couriers.set(await getCouriers(cities));
 	}
 	searchForm();
@@ -25,18 +24,15 @@ async function couriersLogic() {
 }
 
 async function getCouriers(cities) {
-	const couriers = await retailcrm.get.couriers();
+	const couriers = await retailcrm.get.couriers.all();
+	console.log(couriers);
 	return couriers.filter(courier => !courier.city || cities.includes(courier.city));
 }
 
-function getCities(user) {
+function getCities() {
 	return user.groups
 		.filter(role => role.code.startsWith('manager-')) // Оставляем только manager-*
 		.map(role => role.code.split('-')[1]); // Берём только часть после дефиса
-}
-
-async function getUser(userId) {
-	return await retailcrm.get.user.byId(userId);
 }
 
 function searchForm() {

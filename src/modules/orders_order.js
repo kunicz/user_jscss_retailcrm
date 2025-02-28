@@ -6,8 +6,8 @@ import { RESERVED_ARTICLES } from '@root/config';
 export async function order($tr) {
 
 	const orderId = normalize.int($tr.data('url'));
-	const shopDb = shops.get().find(s => s.shop_title === getNative('Магазин'));
-	const order = await retailcrm.get.order.byId(orderId, shopDb?.shop_crm_id);
+	const shopDb = shops.find(s => s.shop_title === getNative('Магазин'));
+	const order = await retailcrm.get.order.byId(orderId);
 	const artikul = order.items.find(item => typeof item.properties === 'object' && item.properties?.artikul?.value)?.properties.artikul.value;
 	const probableSku = parseInt(artikul?.match(/^\d+/)?.[0]);
 	const sku = RESERVED_ARTICLES.includes(probableSku) ? artikul : probableSku;
@@ -39,7 +39,7 @@ export async function order($tr) {
 	 * проставляет ячейкам тип (название колонки)
 	 */
 	function type() {
-		$tr.each((_, tr) => $tr.children('td').each((i, td) => $(td).attr('type', indexes.get()[i])));
+		$tr.each((_, tr) => $tr.children('td').each((i, td) => $(td).attr('type', indexes[i])));
 	}
 
 	/**
@@ -257,7 +257,7 @@ export async function order($tr) {
 		}
 		templates.gvozdisco = templates['2steblya'];
 
-		const shop = shops.get().find(s => s.shop_title === getNative('Магазин'));
+		const shop = shops.find(s => s.shop_title === getNative('Магазин'));
 		if (!shop || !(shop.shop_crm_code in templates)) return;
 
 		const template = templates[shop.shop_crm_code];
@@ -524,7 +524,7 @@ export async function order($tr) {
 			item = item.replace(/\sодн|\sкуст/, ''); //убираем одн и куст (роза одн)
 			item = item.replace(/\s-\s.*$/, ''); //убираем все после дефиса
 			item = item.replace(/\s\d*$/, ''); //убираем цену			
-			if (noFlowers.get().includes(item) || products.includes(item)) return;
+			if (noFlowers.includes(item) || products.includes(item)) return;
 			flowers.push(item.toLowerCase());
 		});
 		if (!flowers.length) return;
@@ -609,7 +609,7 @@ export async function order($tr) {
 	// базовые функции обращения к ячейкам и их данным
 
 	function td(title) {
-		return $tr.children('td').eq(indexes.get()[title.toLowerCase()]);
+		return $tr.children('td').eq(indexes[title.toLowerCase()]);
 	}
 	function get(title) {
 		return gt(td(title));
