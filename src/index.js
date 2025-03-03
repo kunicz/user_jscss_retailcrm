@@ -8,7 +8,7 @@ import { orders } from './orders';
 import { customer } from './customer';
 import { menu } from './menu';
 
-window.BUNDLE_VERSION = '2.3.0';
+window.BUNDLE_VERSION = '2.3.1';
 
 export let user = cache();
 
