@@ -30,6 +30,7 @@ export async function order($tr) {
 	warnings();
 	courier();
 	sostav();
+	gamma();
 	customCardText();
 	warningFlorist();
 	lovixlube();
@@ -77,12 +78,13 @@ export async function order($tr) {
 	 * помечает заказы, которые не считаются важными, чтоб их можно было скрыть
 	 */
 	function batchHide() {
-		const conditions = [
-			fakeClients.includes(get('Покупатель')),
-			!!get('Букеты в заказе')?.match(/ДОНАТОШНАЯ/),
-			get('Статус заказа') == 'разобран'
-		]
-		if (conditions.includes(true)) $tr.addClass('batchHide');
+		if (
+			fakeClients.includes(get('Покупатель')) ||
+			!!get('Букеты в заказе')?.match(/ДОНАТОШНАЯ/) ||
+			get('Статус заказа') === 'разобран'
+		) {
+			$tr.addClass('batchHide');
+		}
 	}
 
 	/**
@@ -494,6 +496,30 @@ export async function order($tr) {
 			return !conditions.includes(true);
 		}
 	}
+
+	function gamma() {
+		const relevantKeys = ['gamma', 'viebri-tsvet', 'tsvet', 'viebri-gammu'];
+
+		const values = order.items
+			.flatMap(i => relevantKeys
+				.map(key => i.properties?.[key]?.value)
+				.filter(Boolean)
+			);
+
+		if (!values.length) return;
+
+		const gammaText = values.join(', ');
+		const gammaClasses = [
+			{ regex: /ярк/i, className: 'bright' },
+			{ regex: /нежн/i, className: 'soft' },
+			{ regex: /т[её]мн/i, className: 'dark' },
+			{ regex: /солнечн/i, className: 'sunny' },
+			{ regex: /светл/i, className: 'light' }
+		];
+		const gammaClass = gammaClasses.find(({ regex }) => regex.test(gammaText))?.className || '';
+		td('Букеты в заказе').prepend(`<div class="gamma ${gammaClass}">${gammaText}</div><br>`);
+	}
+
 
 	/**
 	 * формирует состав букетов (только цветки) и добавляет их в тултип и буфер (по клику на copyBtn)

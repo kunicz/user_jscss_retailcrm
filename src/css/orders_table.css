@@ -19,6 +19,12 @@ svg.lovixlube{width:14px;height:14px;margin-left:4px;}
 .js-order-list td[type="выебри карточку"].addComment.customCardText:after{content:'+ свой текст'}
 .js-order-list td[type="выебри карточку"] a.print_card{z-index:10;position:absolute;bottom:4px;right:4px;text-decoration:none;font-size:1.5em}
 .js-order-list td[type="букеты в заказе"] svg.lovixlube{position:absolute;right:4px;bottom:4px}
+.js-order-list td[type="букеты в заказе"] .gamma{display:inline-block;top:0;right:0; padding:1px 6px 4px 6px; background-color: yellow; vertical-align: super;}
+.js-order-list td[type="букеты в заказе"] .gamma.soft{background-color:#FADADD;}
+.js-order-list td[type="букеты в заказе"] .gamma.light{background-color:#E0F7FA;}
+.js-order-list td[type="букеты в заказе"] .gamma.bright{background-color:#FF4500;color:#fff}
+.js-order-list td[type="букеты в заказе"] .gamma.dark{background-color:#1C1C1C;color:#fff}
+.js-order-list td[type="букеты в заказе"] .gamma.sunny{background-color:#FFD700;color:#fff}
 .js-order-list td[type="покупатель"] .telegram svg.telegram{display:inline-block;width:14px;height:14px;margin-right:5px;cursor:pointer;vertical-align:baseline;}
 .js-order-list td[type="покупатель"] .phoneZakazchika{display:block;font-size:.8em;opacity:.5;cursor:pointer;margin-top:5px}
 .js-order-list td[type="сумма"] .paid{font-size:.9em;opacity:.5}
