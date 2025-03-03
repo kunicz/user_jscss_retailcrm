@@ -39,5 +39,7 @@ svg.lovixlube{width:14px;height:14px;margin-left:4px;}
 .js-order-list td[type="курьер"][data-notified="false"] .warn .notify{cursor:pointer;}
 .js-order-list td[type="курьер"][data-notified="false"] .warn .notify::after{content:'🔕';}
 .js-order-list td[type="курьер"][data-notified="true"] .warn .notify{display:none;}
+.js-order-list td[type="оплата"] .pay-status.wait{background:#FF4500!important; border-radius: 50%; text-align:center}
+.js-order-list td[type="оплата"] .pay-status.wait:before{content:'!$'; color:#fff; vertical-align:middle}
 
 #list-total-wrapper a{cursor:pointer;}

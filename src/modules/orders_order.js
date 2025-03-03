@@ -186,16 +186,24 @@ export async function order($tr) {
 	 * все финансовые данные по заказу (сумма заказа, сумма оплаты и скидки) в одной ячейке
 	 */
 	function money() {
-		const summa = normalize.int(get('Сумма')) || 0;
-		const payments = get('Сумма оплаты')?.replaceAll(/(\d)\s(\d)/g, '$1$2').match(/\d+/g) || [];
-		const paid = payments.reduce((sum, num) => sum + parseInt(num), 0);
+		const paid = normalize.int(get('Оплачено'));
+		const shouldPayed = sumPayments(get('Сумма оплаты') || '');
 		const discount = parseInt(get('Скидка в процентах') || 0);
+		let text = 'Оплачено:<br>';
+		text += paid;
+		if (shouldPayed && shouldPayed != paid) text += ` из ${shouldPayed}`
+		$(`<div class="paid">${text}</div>`).appendTo(td('Сумма'));
 
-		if (summa != paid) {
-			$(`<div class="paid">Оплачено:<br>${paid}</div>`).appendTo(td('Сумма'));
-		}
 		if (discount > 0) {
 			$(`<div class="discount">${discount}%</div>`).appendTo(td('Сумма'));
+		}
+
+		function sumPayments(text) {
+			const amounts = text.match(/\d[\d\s]*₽/g) || []; // Ищем все суммы с ₽
+			return amounts.reduce((sum, amount) => {
+				const numericValue = parseInt(amount.replace(/\s|₽/g, ''), 10); // Убираем пробелы и ₽
+				return sum + (isNaN(numericValue) ? 0 : numericValue);
+			}, 0);
 		}
 	}
 
