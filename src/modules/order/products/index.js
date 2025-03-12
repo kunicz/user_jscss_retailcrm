@@ -1,13 +1,13 @@
-import popup from "./order_propducts_popup.js";
-import { vehicleFormats } from "../mappings.js";
-import { noFlowers, getOrderId } from '../pages/order.js';
+import popup from '@modules/order/products/popup';
+import { vehicleFormats } from '@src/mappings';
+import { noFlowers, getOrderId } from '@src/pages/order';
 import db from '@helpers/db';
 import dom from '@helpers/dom';
 import retailcrm from '@helpers/retailcrm';
-import normalize from '@helpers/normalize.js';
-import wait from '@helpers/wait.js';
-import fetch from '@helpers/fetch.js';
-import '../css/order_products.css';
+import normalize from '@helpers/normalize';
+import wait from '@helpers/wait';
+import fetch from '@helpers/fetch';
+import '@css/order_products.css';
 
 let watcher;
 const money = {

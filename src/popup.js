@@ -1,4 +1,4 @@
-import './css/popup.css';
+import '@css/popup.css';
 
 export function init(meta) {
 	//если попап уже создан, возвращаем его

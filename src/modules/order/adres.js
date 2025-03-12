@@ -1,4 +1,4 @@
-import { ctrlc } from '@helpers/clipboard.js';
+import { ctrlc } from '@helpers/clipboard';
 
 export default {
 	parts: [

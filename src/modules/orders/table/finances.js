@@ -1,4 +1,4 @@
-import { user } from '../index.js';
+import { user } from '@src';
 
 export default () => {
 	admin();

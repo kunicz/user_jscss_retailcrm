@@ -1,6 +1,6 @@
-import * as popup from '../popup.js';
-import { user } from '../index.js';
-import { bankNames } from '../mappings.js';
+import * as popup from '@src/popup';
+import { user } from '@src';
+import { bankNames } from '@src/mappings';
 import retailcrm from '@helpers/retailcrm';
 
 let couriers = [];

@@ -1,5 +1,5 @@
-import { iconsSVG } from '../mappings.js';
-import normalize from '@helpers/normalize.js';
+import { iconsSVG } from '@src/mappings';
+import normalize from '@helpers/normalize';
 
 export default () => {
 	isPoluchatel();

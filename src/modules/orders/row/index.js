@@ -1,8 +1,8 @@
-import { indexes, shops, noFlowers } from './orders_table.js';
-import { shopIcon, iconsSVG, fakeClients } from '../mappings.js';
-import adres from './order_adres.js';
-import normalize from '@helpers/normalize.js';
-import { ctrlc } from '@helpers/clipboard.js';
+import { indexes, shops, noFlowers } from '@modules/orders/table/';
+import { shopIcon, iconsSVG, fakeClients } from '@src/mappings';
+import adres from '@modules/order/adres';
+import normalize from '@helpers/normalize';
+import { ctrlc } from '@helpers/clipboard';
 import retailcrm from '@helpers/retailcrm';
 import dates from '@helpers/dates';
 import { RESERVED_ARTICLES } from '@root/config';

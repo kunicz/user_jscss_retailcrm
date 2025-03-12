@@ -1,4 +1,4 @@
-import '../css/customer.css';
+import '@css/customer.css';
 
 export default () => {
 	preferedName();

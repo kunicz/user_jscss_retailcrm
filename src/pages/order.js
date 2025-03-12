@@ -1,11 +1,11 @@
-import { iconsSVG } from '../mappings.js';
-import products from '../modules/order_products.js';
-import dostavka from '../modules/order_dostavka.js';
-import zakazchik from '../modules/order_zakazchik.js';
+import { iconsSVG } from '@src/mappings';
+import products from '@modules/order/products';
+import dostavka from '@modules/order/dostavka';
+import zakazchik from '@modules/order/zakazchik';
 import retailcrm from '@helpers/retailcrm';
-import normalize from '@helpers/normalize.js';
-import { RESERVED_ARTICLES } from '@root/config.js';
-import '../css/order.css';
+import normalize from '@helpers/normalize';
+import { RESERVED_ARTICLES } from '@root/config';
+import '@css/order.css';
 
 export let noFlowers = [];
 export const getOrderId = () => normalize.int($('.order-num').text());

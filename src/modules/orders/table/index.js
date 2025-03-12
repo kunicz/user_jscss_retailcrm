@@ -1,10 +1,10 @@
-import order from './orders_order.js';
-import finances from './orders_table_finances.js';
-import { ctrlc } from '@helpers/clipboard.js';
+import order from '@modules/orders/row';
+import finances from '@modules/orders/table/finances';
+import { ctrlc } from '@helpers/clipboard';
 import retailcrm from '@helpers/retailcrm';
 import db from '@helpers/db';
 import dom from '@helpers/dom';
-import '../css/orders_table.css';
+import '@css/orders_table.css';
 
 export let shops = [];
 export let indexes = {};

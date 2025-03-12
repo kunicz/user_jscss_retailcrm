@@ -1,4 +1,4 @@
-import product_editable from '../modules/product_editable.js';
+import product_editable from '@modules/product/editable';
 
 export default () => {
 	product_editable();

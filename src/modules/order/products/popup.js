@@ -1,7 +1,7 @@
 import dom from '@helpers/dom';
-import wait from '@helpers/wait.js';
-import { calculator } from './order_products.js';
-import '../css/order_products_popup.css';
+import wait from '@helpers/wait';
+import { calculator } from '@modules/order/products';
+import '@css/order_products_popup.css';
 
 let $popup;
 const p = 'product-popup';

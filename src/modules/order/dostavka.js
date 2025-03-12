@@ -1,4 +1,4 @@
-import adres from './order_adres.js';
+import adres from '@modules/order/adres';
 
 export default () => {
 	address();

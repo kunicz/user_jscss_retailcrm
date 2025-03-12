@@ -1,4 +1,4 @@
-import '../css/couriers.css';
+import '@css/couriers.css';
 
 export default () => {
 	description();

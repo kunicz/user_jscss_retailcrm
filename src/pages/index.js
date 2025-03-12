@@ -1,10 +1,10 @@
-import { default as couriers } from './couriers.js';
-import { default as courier } from './courier.js';
-import { default as customer } from './customer.js';
-import { default as orders } from './orders.js';
-import { default as order } from './order.js';
-import { default as products } from './products.js';
-import { default as product } from './product.js';
+import couriers from '@src/pages/couriers';
+import courier from '@src/pages/courier';
+import customer from '@src/pages/customer';
+import orders from '@src/pages/orders';
+import order from '@src/pages/order';
+import products from '@src/pages/products';
+import product from '@src/pages/product';
 
 export { couriers, courier, customer, orders, order, products, product };
 export const routes = new Map([

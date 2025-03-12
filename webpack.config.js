@@ -4,6 +4,7 @@ import TerserPlugin from 'terser-webpack-plugin';
 import postcssDiscardComments from 'postcss-discard-comments';
 import SftpClient from 'ssh2-sftp-client';
 import SftpUploadPlugin from '../../ftp.mjs';
+import WebpackNotifierPlugin from 'webpack-notifier';
 
 const bundleName = 'retailcrm.js';
 const __filename = fileURLToPath(import.meta.url);
@@ -17,6 +18,7 @@ const sftpUploader = new SftpUploadPlugin({
 		bundleName
 	}]
 });
+const notifier = new WebpackNotifierPlugin({ onlyOnError: true });
 
 export default {
 	mode: 'production',
@@ -30,8 +32,12 @@ export default {
 		alias: {
 			'@helpers': path.resolve(__dirname, '../../@helpers/modules'),
 			'@root': path.resolve(__dirname, '../..'),
+			'@src': path.resolve(__dirname, 'src'),
+			'@css': path.resolve(__dirname, 'src/css'),
+			'@modules': path.resolve(__dirname, 'src/modules'),
 		},
-		extensions: ['.mjs', '.js', '.jsx', '.json'],  // Поддерживаем расширения
+		mainFiles: ['index'],
+		extensions: ['', '.mjs', '.js', '.jsx', '.json'],  // Поддерживаем расширения
 	},
 	module: {
 		rules: [
@@ -78,5 +84,5 @@ export default {
 		topLevelAwait: true // Позволяет использовать `await import()` без чанков
 	},
 	devtool: 'inline-source-map',
-	plugins: [sftpUploader]
+	plugins: [sftpUploader, notifier]
 };

@@ -1,5 +1,5 @@
-import '../css/product_editable.css';
-import wait from '@helpers/wait.js';
+import wait from '@helpers/wait';
+import '@css/product_editable.css';
 
 let blocks;
 

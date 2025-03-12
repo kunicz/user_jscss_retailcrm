@@ -1,7 +1,7 @@
-import { iconsSVG } from './mappings.js';
-import wait from '@helpers/wait.js';
-import couriers from './modules/popup_couriers.js';
-import './css/menu.css';
+import { iconsSVG } from '@src/mappings';
+import wait from '@helpers/wait';
+import couriers from '@modules/popup/couriers';
+import '@css/menu.css';
 
 const $navBar = $('#nav-bar .bar__inner');
 const $navBarTop = $navBar.children().eq(0);

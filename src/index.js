@@ -1,10 +1,10 @@
 import retailcrm from '@helpers/retailcrm';
-import menu from './menu.js';
-import * as pages from './pages/index.js';
+import menu from '@src/menu';
+import * as pages from '@src/pages';
 
 export let user = {};
 
-window.BUNDLE_VERSION = '2.4.1';
+window.BUNDLE_VERSION = '2.5.0';
 
 $(document).ready(async () => {
 	try {
@@ -24,7 +24,7 @@ $(document).ready(async () => {
 				break;
 			}
 		})();
-	} catch (e) {
-		console.error(e);
+	} catch (error) {
+		console.error(error);
 	}
 });
