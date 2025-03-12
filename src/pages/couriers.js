@@ -1,11 +1,6 @@
-import { isPage } from './index';
-import './css/couriers.css';
+import '../css/couriers.css';
 
-export function couriers() {
-	if (!isPage('admin\/couriers(?:[^\/]|$)')) return;
-
-	console.log('user_jscss : couriers');
-
+export default () => {
 	description();
 }
 

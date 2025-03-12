@@ -1,35 +1,33 @@
-import { order } from './orders_order';
-import { ctrlc, retailcrm, db, cache } from '@helpers';
-import { user } from '../index';
+import order from './orders_order.js';
+import finances from './orders_table_finances.js';
+import { ctrlc } from '@helpers/clipboard.js';
+import retailcrm from '@helpers/retailcrm';
+import db from '@helpers/db';
+import dom from '@helpers/dom';
 import '../css/orders_table.css';
 
-export let shops = cache();
-export let indexes = cache(); //индексы ячеек
-export let noFlowers = cache();
-
-export async function ordersTable() {
-	indexes.set(getIndexes());
-	shops.set(await getShops());
-	noFlowers.set(await getProductsNoFlowers());
+export let shops = [];
+export let indexes = {};
+export let noFlowers = [];
+export default async () => {
+	indexes = getIndexes();
+	shops = await getShops();
+	noFlowers = await getProductsNoFlowers();
 
 	hiddenCols();
 	orders();
 	listen();
-	total();
+	finances();
 	couriersSvodka();
 	handleThs();
 }
 
-function listen() {
-	const observer = new MutationObserver(function (mutations) {
-		mutations.forEach(function (mutation) {
-			if (mutation.type !== 'childList') return;
-			if (!$(mutation.target).is('tbody')) return;
-			orders($(mutation.addedNodes));
-			couriersSvodka();
-		});
-	});
-	observer.observe(getTable().get(0), { childList: true, subtree: true });
+const tableSelector = '.js-order-list';
+
+async function listen() {
+	const table = getTable()[0];
+	dom.watcher().setSelector('tbody').setTarget(table).setCallback(($node) => orders($node)).start();
+	dom.watcher().setSelector('tbody').setTarget(table).setCallback(couriersSvodka).setOnce().start();
 }
 
 function orders(trs = getTrs()) {
@@ -92,15 +90,6 @@ function handleThs() {
 	getThs().eq(indexes['чат']).children('a').text('Комментарии');
 }
 
-/**
- * скрываем финансовую информацию от неадминов
- */
-function total() {
-	if (!user?.isAdmin) {
-		$('#list-total-margin,#list-total-summ').hide();
-	}
-}
-
 function couriersSvodka() {
 	$(`<span><a id="couriersSvodka">Сводка по оплате курьерам</a></span>`)
 		.appendTo($('#list-total-wrapper'))
@@ -150,7 +139,7 @@ function couriersSvodka() {
 
 
 function getTable() {
-	return $('.js-order-list');
+	return $(tableSelector);
 }
 function getTrs() {
 	return getTable().find('tr[data-url*="orders"]');

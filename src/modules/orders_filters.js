@@ -1,7 +1,7 @@
 import '../css/orders_filters.css';
-import { dates } from '@helpers';
+import dates from '@helpers/dates';
 
-export function ordersFilters() {
+export default () => {
 	dostavkaDate();
 	orderDate();
 	spisanie();
@@ -22,10 +22,6 @@ function dostavkaDate() {
 	cont.append(makeLink(dates.today, dates.tomorrow));   	// Сегодня - Завтра
 	cont.append(makeLink(dates.tomorrow));          		// Завтра
 	cont.append(makeLink(dates.tomtomorrow));   	       	// Послезавтра
-	dates.set('03-07', 'm7');
-	dates.set('03-08', 'm8');
-	cont.append(makeLink(dates.m7));   	       	// Послезавтра
-	cont.append(makeLink(dates.m8));   	       	// Послезавтра
 
 	group.append(cont);
 
@@ -38,8 +34,7 @@ function dostavkaDate() {
 		if (date1 === date2) {
 			if (date1.d === dates.today.d) return 'сегодня';
 			if (date1.d - dates.today.d === 1) return 'завтра';
-			//return `${date1.dd}.${date1.mm}`;
-			return date1.dd;
+			return `${date1.dd}.${date1.mm}`;
 		} else {
 			return `${date1.dd}-${date2.dd}`;
 		}
@@ -90,7 +85,7 @@ function spisanie() {
 	function getMonthDate(offset) {
 		const date = new Date();
 		date.setMonth(date.getMonth() + offset, 2); // Ставим 2-е число
-		return dates.object(date);
+		return dates.create(date);
 	}
 
 	function buildUrl(from, to, customer = '') {

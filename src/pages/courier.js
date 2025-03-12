@@ -1,20 +1,15 @@
-import { isPage } from './index';
-import { bankNames } from './mappings';
+import { bankNames } from '../mappings.js';
 
 let descr = {};
 let descrBlock = '';
 
-export function courier() {
-	if (!isPage('admin\/couriers\/(\\d+|new)')) return;
-
-	console.log('user_jscss : courier');
-
+export default () => {
 	descr.bank = '';
 	descr.comments = '';
 	descrBlock = $('form[name="intaro_crmbundle_couriertype"] .control-group:last');
 	descrBlock.hide();
 
-	validJson();
+	validateDescr();
 	bank();
 	comments();
 }
@@ -56,7 +51,7 @@ function comments() {
 	</div>`).insertBefore(descrBlock).find('.controls').append(comments);
 }
 
-function validJson() {
+function validateDescr() {
 	const str = descrBlock.find('textarea').val();
 	try {
 		descr = JSON.parse(str);

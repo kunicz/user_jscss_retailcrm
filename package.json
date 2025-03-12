@@ -1,5 +1,6 @@
 {
 	"name": "retailcrm",
+	"type": "module",
 	"dependencies": {},
 	"devDependencies": {
 		"css-loader": "^6.10.0",
@@ -7,6 +8,7 @@
 		"postcss": "^8.4.38",
 		"postcss-discard-comments": "^6.0.2",
 		"postcss-loader": "^8.1.1",
+		"ssh2-sftp-client": "^9.0.0",
 		"style-loader": "^3.3.4",
 		"terser-webpack-plugin": "^5.3.10",
 		"webpack": "^5.91.0",

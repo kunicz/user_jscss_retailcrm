@@ -1,9 +1,13 @@
-import { indexes, shops, noFlowers } from './orders_table';
-import { shopIcon, adresParts, iconsSVG, fakeClients } from '../mappings';
-import { ctrlc, normalize, retailcrm, dates } from '@helpers';
+import { indexes, shops, noFlowers } from './orders_table.js';
+import { shopIcon, iconsSVG, fakeClients } from '../mappings.js';
+import adres from './order_adres.js';
+import normalize from '@helpers/normalize.js';
+import { ctrlc } from '@helpers/clipboard.js';
+import retailcrm from '@helpers/retailcrm';
+import dates from '@helpers/dates';
 import { RESERVED_ARTICLES } from '@root/config';
 
-export async function order($tr) {
+export default async ($tr) => {
 
 	const orderId = normalize.int($tr.data('url'));
 	const shopDb = shops.find(s => s.shop_title === getNative('Магазин'));
@@ -25,7 +29,7 @@ export async function order($tr) {
 	noIdentic();
 	productsSummary();
 	money();
-	adres();
+	address();
 	clientMsg();
 	warnings();
 	courier();
@@ -210,24 +214,47 @@ export async function order($tr) {
 	/**
 	 * делает часть адреса (город,улица,дом) доставки кликабельным, добавдяет в буфер
 	 */
-	function adres() {
-		let adres = getNative('Адрес доставки');
-		if (!adres) return;
-		//удаляем дублирующиеся пробелы
-		adres = adres.replace(/\s{2,}/, '');
-		//убираем москву
-		adres = adres.replace('Москва город, ', '');
-		adres = adres.replace('г. Москва, ', '');
-		//удаляем индекс
-		adres = adres.replace(/^\d+,\s/, '');
-		//кликабельный адрес (город, улица, дом)
-		adres = adres.replace(new RegExp(`(^.*(?:${adresParts.map(i => i[0]).join('|')})\\.\\s(?:[^,])+,\\sд\.\\s(?:[^,])+(?:,\\s(?:корп\\.|стр\\.)\\s[^,]+)*)`), '<a class="yadres">$1</a>');
-		adres = adres.replace(/(.+)(?:,\sметро\s(.+))/, 'м. $2<br>$1');
-		td('Адрес доставки').children('.native').html(adres).find('.yadres').on('click', e => {
+	function address() {
+		const rawAddress = getNative('Адрес доставки');
+		if (!rawAddress) return;
+
+		const formattedAddress = formatAddress(rawAddress);
+		const clickableAddress = makeAddressClickable(formattedAddress);
+		const finalAddress = formatMetro(clickableAddress);
+
+		td('Адрес доставки')
+			.children('.native')
+			.html(finalAddress)
+			.find('.yadres')
+			.on('click', handleAddressClick);
+
+		//Форматирует исходный адрес, удаляя лишние пробелы и ненужные части
+		function formatAddress(address) {
+			return address
+				.replace(/\s{2,}/, '') // удаляем дублирующиеся пробелы
+				.replace(/(Москва город, |г\. Москва, )/, '') // убираем москву
+				.replace(/^\d+,\s/, ''); // удаляем индекс
+		}
+
+		//Делает часть адреса (город, улица, дом) кликабельной
+		function makeAddressClickable(address) {
+			const parts = adres.parts.map(i => i[0]).join('|');
+			const pattern = `(^.*(?:${parts})\\.\\s(?:[^,])+,\\sд\\.\\s(?:[^,])+(?:,\\s(?:корп\\.|стр\\.)\\s[^,]+)*)`;
+			const addressRegex = new RegExp(pattern);
+			return address.replace(addressRegex, '<a class="yadres">$1</a>');
+		}
+
+		//Форматирует отображение метро в адресе
+		function formatMetro(address) {
+			return address.replace(/(.+)(?:,\sметро\s(.+))/, 'м. $2<br>$1');
+		}
+
+		//Обработчик клика по адресу - копирует адрес в буфер обмена
+		function handleAddressClick(e) {
 			e.preventDefault();
 			e.stopPropagation();
 			ctrlc($(e.target).text());
-		});
+		}
 	}
 
 	/**
@@ -357,7 +384,7 @@ export async function order($tr) {
 			 */
 			function getData(full = false) {
 				const m = get('Дата доставки').match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
-				const deliveryDate = dates.object(new Date(m[3], m[2] - 1, m[1]));
+				const deliveryDate = dates.create(new Date(m[3], m[2] - 1, m[1]));
 				const auto = get('Автокурьер');
 				const adres = getNative('Адрес доставки');
 				const time = get('Время доставки');

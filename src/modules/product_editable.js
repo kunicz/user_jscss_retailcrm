@@ -1,21 +1,19 @@
 import '../css/product_editable.css';
+import wait from '@helpers/wait.js';
 
 let blocks;
 
-export function product() {
-	setTimeout(() => {
-		blocks = $('.warehouse-product .UiTabs-tabs-item-lNPO');
-		if (blocks.length < 4) {
-			product();
-			return;
-		}
-		blocksClasses();
-		reorganizeBlocks();
-		pricesInItems();
-		background();
-		toggleProperties();
-		toggleBukets();
-	}, 500);
+export default async () => {
+	await wait.halfsec();
+	blocks = $('.warehouse-product .UiTabs-tabs-item-lNPO');
+	if (blocks.length < 4) return;
+
+	blocksClasses();
+	reorganizeBlocks();
+	pricesInItems();
+	background();
+	toggleProperties();
+	toggleBukets();
 }
 
 /* добавляем классы к основным блокам */

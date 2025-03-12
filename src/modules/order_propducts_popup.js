@@ -1,29 +1,24 @@
-import { mutationObserver, wait, waitCheck, waitDomElement } from '@helpers';
-import { calculator } from './order_products';
+import dom from '@helpers/dom';
+import wait from '@helpers/wait.js';
+import { calculator } from './order_products.js';
 import '../css/order_products_popup.css';
 
 let $popup;
-const popupPrefix = 'product-popup';
+const p = 'product-popup';
 
-export async function popup() {
+export default async () => {
 	listen();
 }
 
 function listen() {
-	const popupCollback = async (node) => {
-		//открытие попапа
-		if (node.id === popupPrefix) {
-			$popup = $(node);
-			stripPrice();
-			await popupLogic();
-		}
-
-		//добавление контена в попап
-		if (node.classList.contains(`${popupPrefix}__container`)) {
-			await popupLogic();
-		}
-	}
-	mutationObserver({ addedCallback: popupCollback, config: { childList: true, subtree: true } });
+	//открытие попапа
+	dom.watcher().setSelector(`#${p}`).setCallback(async (node) => {
+		$popup = $(node);
+		stripPrice();
+		await popupLogic();
+	}).start();
+	//добавление контена в попап
+	dom.watcher().setSelector(`.${p}__container`).setCallback(async () => { await popupLogic(); }).start();
 
 	async function popupLogic() {
 		await calculatorPlaceholder();
@@ -33,10 +28,10 @@ function listen() {
 
 async function defualtShop() {
 	const shop = 'Остатки (мск)';
-	const blockSelector = `#${popupPrefix} [class^="sidebar__form"] [id^="ui-select"]`;
+	const blockSelector = `#${p} [class^="sidebar__form"] [id^="ui-select"]`;
 
 	//список магазинов
-	const target = await waitDomElement(blockSelector, 5000);
+	const target = await wait.element(blockSelector);
 	if (!target) return console.log(`target: Не найден ${blockSelector}`);
 
 	const targetSelector = `${blockSelector} [class^="UiSelect-select-target"]`;
@@ -44,15 +39,15 @@ async function defualtShop() {
 	const inputSelector = `${targetSelector} input`;
 
 	//селект выбора магазина
-	const targetSelect = await waitDomElement(targetSelector, 5000);
+	const targetSelect = await wait.element(targetSelector);
 	if (!targetSelect) return console.log(`targetSelect: Не найден ${targetSelector}`);
 
 	//инпут выбора магазина
-	const targetInput = await waitDomElement(inputSelector);
+	const targetInput = await wait.element(inputSelector);
 	if (!targetInput) return console.log(`targetInput: Не найден ${inputSelector}`);
 
 	if (!targetInput.value) {
-		await waitCheck(() => targetInput.value !== '', 5000);
+		await wait.check(() => targetInput.value !== '');
 	}
 
 	if (targetInput.value === shop) return;
@@ -61,7 +56,7 @@ async function defualtShop() {
 	targetSelect.click();
 
 	//всплывающее окно со списком магазинов
-	const targetContent = await waitDomElement(contentSelector, 5000);
+	const targetContent = await wait.element(contentSelector);
 	if (!targetContent) return console.log(`targetContent: Не найден ${contentSelector}`);
 
 	//пункт нужного магазина с списке
@@ -73,7 +68,7 @@ async function defualtShop() {
 	//клик по магазину
 	targetOption.click();
 
-	await wait(500);
+	await wait.halfsec();
 
 	//клик по кнопке "Найти"
 	const searchButton = $popup.find('[class^="sidebar__footer"] button.omnica-button_secondary')[0];
@@ -89,11 +84,12 @@ function stripPrice() {
 }
 
 async function calculatorPlaceholder() {
-	const selector = `[class^="${popupPrefix}__header"]`;
-	await waitDomElement(selector);
-	const cont = $(selector);
-	cont.find(`#${popupPrefix}-title`).html('<div id="popupCalculator" />');
-	cont.children('p').hide();
+	const selector = `[class^="${p}__header"]`;
+	const header = await wait.element(selector);
+	if (!header) throw new Error(`Не найден ${selector}`);
+	const $header = $(header);
+	$header.find(`#${p}-title`).html('<div id="popupCalculator" />');
+	$header.children('p').hide();
 	calculator();
 }
 

@@ -1,7 +1,7 @@
-import { iconsSVG } from '../mappings';
-import { normalize } from '@helpers';
+import { iconsSVG } from '../mappings.js';
+import normalize from '@helpers/normalize.js';
 
-export function zakazchik() {
+export default () => {
 	isPoluchatel();
 	telegram();
 	otkudaUznal();

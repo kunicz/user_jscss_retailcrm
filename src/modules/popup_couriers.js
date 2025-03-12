@@ -1,23 +1,22 @@
-import * as popup from '../popup';
-import { bankNames } from '../mappings';
-import { cache, retailcrm } from '@helpers';
-import { user } from '../index'
+import * as popup from '../popup.js';
+import { user } from '../index.js';
+import { bankNames } from '../mappings.js';
+import retailcrm from '@helpers/retailcrm';
 
-const couriers = cache([]);
-
-export const couriersMeta = {
+let couriers = [];
+const couriersMeta = {
 	id: 'couriers',
 	title: 'Курьеры',
 	callback: () => couriersLogic()
 }
 
+export default couriersMeta;
+
 async function couriersLogic() {
 	popup.init(couriersMeta);
 	const $cont = $('#custom_popup__content');
 	const cities = await getCities();
-	if (!couriers.length) {
-		couriers.set(await getCouriers(cities));
-	}
+	if (!couriers.length) couriers = await getCouriers(cities);
 	searchForm();
 	list();
 	editbox(cities);

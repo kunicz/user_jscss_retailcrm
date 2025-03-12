@@ -1,8 +1,8 @@
-import { iconsSVG } from "./mappings";
-import { waitDomElement } from '@helpers';
-import { couriersMeta as couriers } from "./modules/popup_couriers";
+import { iconsSVG } from './mappings.js';
+import wait from '@helpers/wait.js';
+import couriers from './modules/popup_couriers.js';
 
-export async function menu() {
+export default async () => {
 	const $navBar = $('#nav-bar .bar__inner');
 	const $navBarTop = $navBar.children().eq(0);
 	const $navBarBottom = $navBar.children().eq(1);
@@ -11,7 +11,7 @@ export async function menu() {
 }
 
 async function addButton({ id, title, callback }, $block, before = '') {
-	if (!await waitDomElement('.nav-btn__icon')) return;
+	if (!await wait.element('.nav-btn__icon')) return;
 	const dataVAttr = $block.find('.nav-btn__icon')[0].attributes;
 	const v = [...dataVAttr].find(attr => attr.name.startsWith('data-v-'))?.name;
 	const btn = $(`

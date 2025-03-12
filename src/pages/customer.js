@@ -1,11 +1,6 @@
-import { isPage } from './index';
-import './css/customer.css';
+import '../css/customer.css';
 
-export function customer() {
-	if (!isPage('customers\/\\d+')) return;
-
-	console.log('user_jscss : customer_editable');
-
+export default () => {
 	preferedName();
 }
 

@@ -1,48 +1,30 @@
-import { retailcrm, cache } from '@helpers';
-import { product } from './product';
-import { products } from './products';
-import { courier } from './courier';
-import { couriers } from './couriers';
-import { order } from './order';
-import { orders } from './orders';
-import { customer } from './customer';
-import { menu } from './menu';
+import retailcrm from '@helpers/retailcrm';
+import menu from './menu.js';
+import * as pages from './pages/index.js';
 
-window.BUNDLE_VERSION = '2.3.2';
+export let user = {};
 
-export let user = cache();
+window.BUNDLE_VERSION = '2.4.0';
 
 $(document).ready(async () => {
+	try {
+		user = await retailcrm.get.user.byId($('head').data('user-id'));
+		menu();
+		(function update() {
+			// не использую setInterval, потому что он дает задержку даже при 0
+			requestAnimationFrame(update);
 
-	user.set(await getUser());
+			if ($('#main.user_jscss').length) return;
+			$('#main').addClass('user_jscss');
 
-	menu();
-	checkVueUpdate();
-
-	function checkVueUpdate() {
-		//не могу использовать setInterval, потому что он замирает в какой-то момент на пару секунд
-		requestAnimationFrame(checkVueUpdate);
-
-		if ($('#main.user_jscss').length) return;
-		$('#main').addClass('user_jscss');
-
-		product();
-		products();
-		courier();
-		couriers();
-		orders();
-		order();
-		customer();
-
+			for (const [title, pattern] of pages.routes) {
+				if (!new RegExp(pattern).test(window.location.pathname)) continue;
+				console.log(`user_jscss : ${title}`);
+				if (pages[title]) pages[title]();
+				break;
+			}
+		})();
+	} catch (e) {
+		console.error(e);
 	}
 });
-
-export function isPage(page) {
-	return new RegExp(page).test(window.location.pathname);
-}
-
-async function getUser() {
-	const userId = $('head').data('user-id');
-	const user = await retailcrm.get.user.byId(userId);
-	return user;
-}

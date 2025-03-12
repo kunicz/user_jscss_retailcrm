@@ -1,8 +1,15 @@
-import { popup } from "./order_propducts_popup";
-import { vehicleFormats } from "../mappings";
-import { retailcrm, db, normalize, wait } from '@helpers';
-import { noFlowers, getOrderId } from '../order';
+import popup from "./order_propducts_popup.js";
+import { vehicleFormats } from "../mappings.js";
+import { noFlowers, getOrderId } from '../pages/order.js';
+import db from '@helpers/db';
+import dom from '@helpers/dom';
+import retailcrm from '@helpers/retailcrm';
+import normalize from '@helpers/normalize.js';
+import wait from '@helpers/wait.js';
+import fetch from '@helpers/fetch.js';
 import '../css/order_products.css';
+
+let watcher;
 const money = {
 	flowers: 0, // закупочная стоимость цветов в заказе
 	noFlowers: 0, //закупочная стоимость нецветов и допников в заказе
@@ -12,47 +19,42 @@ const money = {
 	paid: 0, //сколько оплачено
 	current: 0 //сколько потрачено над анный момент
 }
-const observer = new MutationObserver(async () => {
-	try {
-		hideInfiniteOstatki();
-		await productsClassesByType();
-		productsSummary();
-		purchaseDopnikPrice();
-		properties();
-		//autoCouirer();
-		availableInventory();
-		orderASC();
-		await addTransport();
-	} catch (e) {
-		console.error(e);
-	}
-});
 
-export async function products() {
-	try {
-		listen();
-		table();
-		dostavkaPrice();
-		hideInfiniteOstatki();
-		sebes();
-		popup();
-		await productsClassesByType();
-		cardSummary();
-		productsSummary();
-		purchaseDopnikPrice();
-		properties();
-		autoCouirer();
-		availableInventory();
-		orderASC();
-		await addTransport();
-		await rashod();
-	} catch (e) {
-		console.error(e);
-	}
+export default async () => {
+	listen();
+	table();
+	dostavkaPrice();
+	hideInfiniteOstatki();
+	sebes();
+	popup();
+	await productsClassesByType();
+	cardSummary();
+	productsSummary();
+	purchaseDopnikPrice();
+	properties();
+	autoCouirer();
+	availableInventory();
+	orderASC();
+	await addTransport();
+	rashod();
 }
 
 function listen() {
-	observer.observe(document.querySelector('#order-products-table'), { childList: true, subtree: false });
+	watcher = dom.watcher();
+	watcher
+		.setType('both')
+		.setSelector('#order-products-table')
+		.setCallback(async () => {
+			hideInfiniteOstatki();
+			await productsClassesByType();
+			productsSummary();
+			purchaseDopnikPrice();
+			properties();
+			availableInventory();
+			orderASC();
+			addTransport();
+		})
+		.start();
 }
 
 function table() {
@@ -91,44 +93,52 @@ async function productsClassesByType() {
 }
 
 async function addTransport() {
-	//Транспортировочное не нужно добавлять если:
-	//в заказе уже есть транспортирочное
-	if ($('#order-products-table td.title a').filter((_, t) => $(t).text().trim() === 'Транспортировочное').length) return;
+	if (shouldSkipTransportAdd()) return;
 
-	//в заказе нет товаров с картинкой (.catalog)
-	if (!$('#order-products-table .catalog').length) return;
+	// сохраняем заказ и подготавливаем к добавлению транспорта
+	await prepareForTransportAdd();
 
-	//товары с картинкой это не только допники или донаты (.dopnik / .donat)
-	const catalogItems = document.querySelectorAll('#order-products-table .catalog').length;
-	const dopnikItems = document.querySelectorAll('#order-products-table .dopnik').length;
-	const donatItems = document.querySelectorAll('#order-products-table .donat').length;
-	if (catalogItems === dopnikItems + donatItems) return;
-
-	//если не назначен флорист
-	if (!$('#intaro_crmbundle_ordertype_customFields_florist').val()) return;
-
-	//сохраняем заказ
-	$('#main button[type="submit"]').trigger('click');
-
-	observer.disconnect(); //отключаем обсервер, иначе он сходит с ума и запускает бесконечный цикл
-	await wait(1000); //ждем секунду, чтоб срм успела сохранить заказ
-	toggleFreeze(true);
-	const orderId = getOrderId();
-	const response = await fetch(`https://php.2steblya.ru/ajax?script=RetailCrm_AddTransport&id=${orderId}&logger`)
-		.then(res => res.json())
-		.catch(e => console.error('Ошибка запроса:', e));
-	if (response.success) {
+	try {
+		const orderId = getOrderId();
+		await fetch.get('RetailCrm_AddTransport', { id: orderId });
 		window.location.reload();
-	} else {
+	} catch (error) {
+		console.error('Ошибка добавления транспортировочного:', error);
 		toggleFreeze(false);
-		alert('Транспортировочное не добавлено');
-		listen(); // включаем обсервер
+		watcher.start();
+	}
+
+	function shouldSkipTransportAdd() {
+		// проверяем наличие транспортировочного в заказе
+		if ($('#order-products-table td.title a').filter((_, t) => $(t).text().trim() === 'Транспортировочное').length) return true;
+
+		// проверяем наличие товаров с картинкой
+		if (!$('#order-products-table .catalog').length) return true;
+
+		// проверяем что есть не только допники/донаты
+		const catalogItems = document.querySelectorAll('#order-products-table .catalog').length;
+		const dopnikItems = document.querySelectorAll('#order-products-table .dopnik').length;
+		const donatItems = document.querySelectorAll('#order-products-table .donat').length;
+		if (catalogItems === dopnikItems + donatItems) return true;
+
+		// проверяем назначен ли флорист
+		if (!$('#intaro_crmbundle_ordertype_customFields_florist').val()) return true;
+
+		return false;
+	}
+
+	async function prepareForTransportAdd() {
+		$('#main button[type="submit"]').trigger('click');
+		watcher.stop();
+		await wait.sec();
+		toggleFreeze(true);
 	}
 
 	function toggleFreeze(toggle = true) {
 		$('body').css('opacity', toggle ? .2 : 1).attr('disabled', toggle);
 	}
 }
+
 
 function hideInfiniteOstatki() {
 	//в каждом товаре теперь есть информация о наличии остатков на складе
@@ -141,7 +151,7 @@ function hideInfiniteOstatki() {
 }
 
 function orderASC() {
-	observer.disconnect();
+	watcher.stop();
 	const temp = {};
 	const tempCatalog = {};
 	const tempDopnik = {};
@@ -161,7 +171,7 @@ function orderASC() {
 	Object.keys(tempCatalog).sort().forEach(key => $('#order-products-table').append(tempCatalog[key]));
 	Object.keys(tempDopnik).sort().forEach(key => $('#order-products-table').append(tempDopnik[key]));
 	Object.keys(temp).sort().forEach(key => $('#order-products-table').append(temp[key]));
-	listen();
+	watcher.start();
 }
 
 function autoCouirer() {
@@ -338,7 +348,7 @@ async function properties() {
 
 //считаем расход денег на закуп цветков и остального
 async function rashod() {
-	noFlowers.set(await retailcrm.get.products.noFlowers());
+	noFlowers = await retailcrm.get.products.noFlowers();
 	let oldSum;
 	let newSum;
 	//как бы сильно мне не хотелось использовать mutationObserver, конкретно тут он не работает
@@ -363,7 +373,7 @@ function rashodNoFlowers() {
 		const $product = $(product);
 		const productTitle = $product.find('.title a').text();
 		const productMoney = normalize.int($product.find('.order-price__initial-price__current').val()) * normalize.int($product.find('.quantity input').val());
-		$product.addClass(noFlowers.get().includes(productTitle) || $product.is('.catalog') ? 'noFlower' : 'flower');
+		$product.addClass(noFlowers.includes(productTitle) || $product.is('.catalog') ? 'noFlower' : 'flower');
 		if ($product.is('.flower')) {
 			money.flowers += productMoney;
 		} else {
@@ -451,8 +461,6 @@ function availableInventory() {
 		$e.html(`еще ${$e.text().replace(/\D/g, '')} шт`);
 	});
 }
-
-
 
 function getProductId($product) {
 	return $product.children().attr('data-product-id');

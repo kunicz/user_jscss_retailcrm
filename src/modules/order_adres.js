@@ -1,6 +1,18 @@
-import { ctrlc } from '@helpers';
+import { ctrlc } from '@helpers/clipboard.js';
 
-export const adres = {
+export default {
+	parts: [
+		['ул', 'улица'],
+		['наб', 'набережная'],
+		['бул', 'бульвар'],
+		['ш', 'шоссе'],
+		['пр-кт', 'проспект'],
+		['пр-д', 'проезд'],
+		['пер', 'переулок'],
+		['пл', 'площадь'],
+		['алл', 'аллея']
+	],
+
 	ctrlc: (type) => {
 		const id = '#intaro_crmbundle_ordertype_deliveryAddress_';
 		const copyValues = ['', ''];
@@ -21,6 +33,7 @@ export const adres = {
 		copyValues.forEach((e, i) => copyValues[i] = e.slice(0, -2));
 		ctrlc(copyValues[type]);
 	},
+
 	clear: () => {
 		$('#delivery-address-form textarea, #delivery-address-form input').val('');
 	}

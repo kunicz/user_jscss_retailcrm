@@ -1,10 +1,4 @@
-import { isPage } from './index';
-
-export function products() {
-	if (!isPage('products\/$')) return;
-
-	console.log('user_jscss : products');
-
+export default () => {
 	links();
 	allowness();
 }
