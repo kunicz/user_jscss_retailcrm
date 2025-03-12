@@ -1,6 +1,6 @@
 import order from '@modules/orders/row';
 import finances from '@modules/orders/table/finances';
-import { ctrlc } from '@helpers/clipboard';
+import { copy } from '@helpers/clipboard';
 import retailcrm from '@helpers/retailcrm';
 import db from '@helpers/db';
 import dom from '@helpers/dom';
@@ -95,7 +95,7 @@ function couriersSvodka() {
 		.appendTo($('#list-total-wrapper'))
 		.on('click', () => {
 			const summary = generate(aggregate());
-			ctrlc(summary);
+			copy(summary);
 		});
 
 	function aggregate() {

@@ -10,6 +10,7 @@ import fetch from '@helpers/fetch';
 import '@css/order_products.css';
 
 let watcher;
+const $table = $('#order-products-table');
 const money = {
 	flowers: 0, // закупочная стоимость цветов в заказе
 	noFlowers: 0, //закупочная стоимость нецветов и допников в заказе
@@ -22,17 +23,12 @@ const money = {
 
 export default async () => {
 	listen();
-	table();
+	title();
 	dostavkaPrice();
 	hideInfiniteOstatki();
+	await products();
 	sebes();
 	popup();
-	await productsClassesByType();
-	cardSummary();
-	productsSummary();
-	purchaseDopnikPrice();
-	properties();
-	autoCouirer();
 	availableInventory();
 	orderASC();
 	await addTransport();
@@ -43,13 +39,11 @@ function listen() {
 	watcher = dom.watcher();
 	watcher
 		.setType('both')
-		.setSelector('#order-products-table')
+		.setTarget($table[0])
+		.setSelector('tbody')
 		.setCallback(async () => {
 			hideInfiniteOstatki();
-			await productsClassesByType();
-			productsSummary();
-			purchaseDopnikPrice();
-			properties();
+			await products();
 			availableInventory();
 			orderASC();
 			addTransport();
@@ -57,14 +51,26 @@ function listen() {
 		.start();
 }
 
-function table() {
-	$('#order-products-table thead .title').text('Товар');
-}
-
-//определяем тип товаров (каталожный/с фоточкой и допник)
-async function productsClassesByType() {
-	const promises = $('#order-products-table tbody').toArray().map(async (product) => {
+async function products() {
+	const isAuto = false;
+	const bukety = [];
+	const cards = [];
+	const $products = $table.find('tbody');
+	$products.each(async (_, product) => {
 		const $product = $(product);
+		await classes($product);
+		checkAuto($product);
+		checkBukety($product);
+		chaeckCards($product);
+		dopnikPurchasePrice($product);
+		properties($product);
+	});
+	setAuto();
+	setBukety();
+	setCards();
+
+	//определяем тип товаров (каталожный/с фоточкой и допник)
+	async function classes($product) {
 		if ($product.is('.catalog')) return;
 		if (!$product.find('.image img').length) return;
 		$product.addClass('catalog');
@@ -87,9 +93,159 @@ async function productsClassesByType() {
 			if (type == 666) $product.addClass('podpiska');
 			if (type == 888) $product.addClass('dopnik');
 			if (type == 1111) $product.addClass('donat');
-		} catch ($e) { }
-	});
-	await Promise.all(promises);
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
+	function checkAuto($product) {
+		if (!$product.is('.catalog')) return;
+		const format = $product.find('.order-product-properties > span[title^="фор"]');
+		if (!format.length) return;
+		const conditions = [
+			$product.find('.title a') == 'БОЛЬШОЙ ДОБРЫЙ СЧАСТЛИВЫЙ МЕДВЕДЬ',
+			vehicleFormats.includes($product.find('.order-product-properties > span[title^="фор"]').attr('title').split(": ")[1])
+		];
+		if (!conditions.includes(true)) return;
+		$('#intaro_crmbundle_ordertype_customFields_auto_courier').prop('checked', true);
+		isAutoCourier = true;
+	}
+	function setAuto() {
+		const $input = $('#intaro_crmbundle_ordertype_customFields_auto_courier');
+		if ($input.prop('checked') === isAuto) return;
+		$input.prop('checked', isAuto);
+	}
+
+	function checkBukety($product) {
+		if (!$product.is('.catalog')) return;
+		bukety.push(`${$product.find('.title a').text()} (${parseFloat($product.find('.quantity input').val())} шт)`);
+	}
+	function setBukety() {
+		const $input = $('#intaro_crmbundle_ordertype_customFields_bukety_v_zakaze');
+		const value = bukety.join(',<br>');
+		$input.parent().hide();
+		if ($input.val() === value) return;
+		$input.val(value);
+	}
+
+	function chaeckCards($product) {
+		if (!$product.is('.catalog')) return;
+		const card = $product.find('.order-product-properties > span[title*="карточк"]');
+		if (!card.length) return;
+		cards.push(card.attr('title').split(": ")[1]);
+	}
+	function setCards() {
+		//удаляем дубликаты
+		//исхожу из того, что не бывает такого, что есть в одном заказе два букета и оба со своим текстом, причем разным
+		//во всех остальных случаях, кажется, этого будет достаточно
+		const cardsUnique = [...new Set(cards)];
+		if (!cardsUnique.length) return;
+		const $input = $('#intaro_crmbundle_ordertype_customFields_card');
+		const value = cardsUnique.length === 1 ? cardsUnique[0] : 'разные для букетов';
+		if ($input.val() === value) return;
+		$input.val(value);
+	}
+
+	async function dopnikPurchasePrice($product) {
+		if (!$product.is('.dopnik')) return;
+		const $input = $product.find('td.purchase-price input.purchase-price');
+		if (parseInt(normalize.int($input.val()) > 0)) return;
+		const productCrm = await retailcrm.get.product.byId(getProductId($product));
+		const requestData = {
+			request: 'products/get',
+			args: {
+				fields: [
+					'purchase_price'
+				],
+				where: {
+					id: productCrm.externalId,
+					shop_crm_id: productCrm.catalogId
+				},
+				limit: 1
+			}
+		}
+		const purchase_price = await db.request(requestData);
+		if ($input.val() == purchase_price) return;
+		$input.val(purchase_price).change();
+		$product.find('td.purchase-price button').trigger('click');
+	}
+
+	async function properties($product) {
+		if (!$product.is('.catalog')) return;
+
+		const $tr = $product.children('tr');
+		const productId = $tr.attr('data-product-id');
+		const productIndex = $tr.attr('data-order-product-index');
+		const productTitle = $product.find('.title a').text().trim();
+		const block = $product.find('td.properties-td');
+
+		//проверям, есть ли у товара все поля
+		if (![
+			$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_for-mat_value`).length,
+			$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_artikul_value`).length,
+			$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_tsena_value`).length
+		].includes(0)) return;
+
+		let index = $product.find('.order-product-properties > span').length;
+
+		//если нет артикула или цены, нужно запрашивать у срм товар
+		const productCrm = await retailcrm.get.product.byId(productId);
+		//формат (for-mat)
+		if (!$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_for-mat_value`).length) {
+			index++;
+			let value = $product.find('.title a').text();
+			if (productCrm.offers.length > 1) value = value.split(' - ').pop();
+			addPproperty('for-mat', 'фор мат', value, index, productIndex, block);
+		}
+		//артикул (artikul)
+		if (!$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_artikul_value`).length) {
+			index++;
+			addPproperty('artikul', 'артикул', productCrm.offers.filter(offer => offer.name == productTitle)[0]['article'], index, productIndex, block);
+		}
+		//цена (tsena)
+		if (!$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_tsena_value`).length) {
+			index++;
+			addPproperty('tsena', 'цена', productCrm.offers.filter(offer => offer.name == productTitle)[0]['price'], index, productIndex, block);
+		}
+
+		function addPproperty(code, name, value, index, productIndex, block) {
+			//code - код опции (for-mat)
+			//title - транслитерация field (фор мат)
+			//value - значение
+			//index - порядковый номер опции
+			//productIndex - какой-то непонятный индекс, который создает сама срм (как  понимаю, это идентификатор товара в плане за все время)
+			//block - родительский объект, к которому крепим
+
+			//невидимое
+			$(`
+			<div data-index="${index}" class="order-product-property-hidden" style="display:none">
+				<div class="property-field-code">
+					<input type="hidden" id="intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_${code}_code" name="intaro_crmbundle_ordertype[orderProducts][${productIndex}][properties][${code}][code]" autocomplete="disabled" value="${code}">
+				</div>
+				<div class="property-field-name">
+					<div class="value">
+						<input type="text" id="intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_${code}_name" name="intaro_crmbundle_ordertype[orderProducts][${productIndex}][properties][${code}][name]" required="required" autocomplete="disabled" value="${name}">
+					</div>
+				</div>
+				<div class="property-field-value">
+					<div class="value">
+						<input type="text" id="intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_${code}_value" name="intaro_crmbundle_ordertype[orderProducts][${productIndex}][properties][${code}][value]" required="required" autocomplete="disabled" value="${value}">
+					</div>
+				</div>
+			</div>`).appendTo(block);
+
+			//видимое
+			$(`
+			<span class="additional ellipsis edit" data-index="${index}" title="${name}: ${value}">
+				<span>${name}</span>
+				${value}
+			</span>`).appendTo(block.find('.order-product-properties'));
+		}
+	}
+}
+
+function title() {
+	$table.find('thead .title').text('Товар');
 }
 
 async function addTransport() {
@@ -139,11 +295,10 @@ async function addTransport() {
 	}
 }
 
-
+//в каждом товаре теперь есть информация о наличии остатков на складе
+//скрываем для тех, у кого их бесконечно (транспортировочное, декор и пр.)
 function hideInfiniteOstatki() {
-	//в каждом товаре теперь есть информация о наличии остатков на складе
-	//скрываем для тех, у кого их бесконечно (транспортировочное, декор и пр.)
-	$('#order-products-table [data-available-quantity]').each((_, e) => {
+	$table.find('[data-available-quantity]').each((_, e) => {
 		const $e = $(e);
 		if (parseInt($e.attr('data-available-quantity')) < 100) return;
 		$e.parent().hide();
@@ -155,7 +310,7 @@ function orderASC() {
 	const temp = {};
 	const tempCatalog = {};
 	const tempDopnik = {};
-	$('#order-products-table tbody').each((_, product) => {
+	$table.find('tbody').each((_, product) => {
 		const $product = $(product);
 		const title = $product.find('.title a').text();
 		if (!$product.is('.catalog')) {
@@ -168,182 +323,27 @@ function orderASC() {
 			}
 		}
 	});
-	Object.keys(tempCatalog).sort().forEach(key => $('#order-products-table').append(tempCatalog[key]));
-	Object.keys(tempDopnik).sort().forEach(key => $('#order-products-table').append(tempDopnik[key]));
-	Object.keys(temp).sort().forEach(key => $('#order-products-table').append(temp[key]));
+	Object.keys(tempCatalog).sort().forEach(key => $table.append(tempCatalog[key]));
+	Object.keys(tempDopnik).sort().forEach(key => $table.append(tempDopnik[key]));
+	Object.keys(temp).sort().forEach(key => $table.append(temp[key]));
 	watcher.start();
-}
-
-function autoCouirer() {
-	$('#order-products-table tbody').each((_, product) => {
-		const $product = $(product);
-		if (!$product.is('.catalog')) return;
-		const format = $product.find('.order-product-properties > span[title^="фор"]');
-		if (!format.length) return;
-		const conditions = [
-			$product.find('.title a') == 'БОЛЬШОЙ ДОБРЫЙ СЧАСТЛИВЫЙ МЕДВЕДЬ',
-			vehicleFormats.includes($product.find('.order-product-properties > span[title^="фор"]').attr('title').split(": ")[1])
-		];
-		if (!conditions.includes(true)) return;
-		$('#intaro_crmbundle_ordertype_customFields_auto_courier').prop('checked', true);
-		return false;
-	});
-}
-
-function cardSummary() {
-	const summary = [];
-	$('#order-products-table tbody').each((_, product) => {
-		const $product = $(product);
-		if (!$product.is('.catalog')) return;
-		const card = $product.find('.order-product-properties > span[title*="карточк"]');
-		if (!card.length) return;
-		summary.push(card.attr('title').split(": ")[1]);
-	});
-	//удаляем дубликаты
-	//исхожу из того, что не бывает такого, что есть в одном заказе два букета и оба со своим текстом, причем разным
-	//во всех остальных случаях, кажется, этого будет достаточно
-	const summaryUniqs = [...new Set(summary)];
-	const input = $('#intaro_crmbundle_ordertype_customFields_card');
-	const value = summaryUniqs.length < 1 ? '' : summaryUniqs.length == 1 ? summaryUniqs[0] : 'разные для букетов';
-	if (!summaryUniqs.length) return;
-	if (input.val() == value) return;
-	input.val(value);
-}
-
-function productsSummary() {
-	const summary = [];
-	$('#order-products-table tbody').each((_, product) => {
-		const $product = $(product);
-		if (!$product.is('.catalog')) return;
-		summary.push(`${$product.find('.title a').text()} (${parseFloat($product.find('.quantity input').val())} шт)`);
-	});
-	const input = $('#intaro_crmbundle_ordertype_customFields_bukety_v_zakaze');
-	const value = summary.join(',<br>');
-	input.parent().hide();
-	if (input.val() == value) return;
-	input.val(value);
-}
-
-async function purchaseDopnikPrice() {
-	const promises = $('#order-products-table tbody').toArray().map(async (product) => {
-		const $product = $(product);
-		if (!$product.is('.dopnik')) return;
-		const input = $product.find('td.purchase-price input.purchase-price');
-		if (parseInt(input.val() > 0)) return;
-		const productCrm = await retailcrm.get.product.byId(getProductId($product));
-		const requestData = {
-			request: 'products/get',
-			args: {
-				fields: [
-					'purchase_price'
-				],
-				where: {
-					id: productCrm.externalId,
-					shop_crm_id: productCrm.catalogId
-				},
-				limit: 1
-			}
-		}
-		const purchase_price = await db.request(requestData);
-		if (input.val() == purchase_price) return;
-		input.val(purchase_price).change();
-		$product.find('td.purchase-price button').trigger('click');
-	});
-	await Promise.all(promises);
 }
 
 function sebes() {
 	$('<a id="sebes">Посчитать по себесу</a>').on('click', e => {
 		e.preventDefault();
-		$('#order-list .order-products-tbody').each((_, product) => {
+		$table.find('tbody').each((_, product) => {
 			const $product = $(product);
-			$product.find('.order-price__initial-price__input').val($product.find('.wholesale-price__input').val()).change();
+			const $wholesalePrice = $product.find('.wholesale-price__input');
+			$product.find('.order-price__initial-price__input').val($wholesalePrice.val()).change();
 			$product.find('.order-price__apply').trigger('click');
 		});
 	}).prependTo($('#order-list .order-row__top:first-child'));
 }
 
 function dostavkaPrice() {
-	if ($('#delivery-cost').val() == '0,00') $('#order-delivery-cost__link-cost-manual').trigger('click');
-	if ($('#delivery-net-cost').val() == '0,00') $('#order-delivery-net-cost__link-cost-manual').trigger('click');
-}
-
-async function properties() {
-	const promises = $('#order-products-table tbody').toArray().map(async (product) => {
-		const $product = $(product);
-		if (!$product.is('.catalog')) return;
-
-		const tr = $product.children('tr');
-		const productId = tr.attr('data-product-id');
-		const productIndex = tr.attr('data-order-product-index');
-		const productTitle = $product.find('.title a').text().trim();
-		const block = $product.find('td.properties-td');
-
-		//проверям, есть ли у товара все поля
-		if (![
-			$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_for-mat_value`).length,
-			$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_artikul_value`).length,
-			$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_tsena_value`).length
-		].includes(0)) return;
-
-		let index = $product.find('.order-product-properties > span').length;
-
-		//если нет артикула или цены, нужно запрашивать у срм товар
-		const productCrm = await retailcrm.get.product.byId(productId);
-		//формат (for-mat)
-		if (!$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_for-mat_value`).length) {
-			index++;
-			let value = $product.find('.title a').text();
-			if (productCrm.offers.length > 1) value = value.split(' - ').pop();
-			addPproperty('for-mat', 'фор мат', value, index, productIndex, block);
-		}
-		//артикул (artikul)
-		if (!$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_artikul_value`).length) {
-			index++;
-			addPproperty('artikul', 'артикул', productCrm.offers.filter(offer => offer.name == productTitle)[0]['article'], index, productIndex, block);
-		}
-		//цена (tsena)
-		if (!$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_tsena_value`).length) {
-			index++;
-			addPproperty('tsena', 'цена', productCrm.offers.filter(offer => offer.name == productTitle)[0]['price'], index, productIndex, block);
-		}
-
-	});
-	await Promise.all(promises);
-
-	function addPproperty(code, name, value, index, productIndex, block) {
-		//code - код опции (for-mat)
-		//title - транслитерация field (фор мат)
-		//value - значение
-		//index - порядковый номер опции
-		//productIndex - какой-то непонятный индекс, который создает сама срм (как  понимаю, это идентификатор товара в плане за все время)
-		//block - родительский объект, к которому крепим
-
-		//невидимое
-		$(`
-		<div data-index="${index}" class="order-product-property-hidden" style="display:none">
-			<div class="property-field-code">
-				<input type="hidden" id="intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_${code}_code" name="intaro_crmbundle_ordertype[orderProducts][${productIndex}][properties][${code}][code]" autocomplete="disabled" value="${code}">
-			</div>
-			<div class="property-field-name">
-				<div class="value">
-					<input type="text" id="intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_${code}_name" name="intaro_crmbundle_ordertype[orderProducts][${productIndex}][properties][${code}][name]" required="required" autocomplete="disabled" value="${name}">
-				</div>
-			</div>
-			<div class="property-field-value">
-				<div class="value">
-					<input type="text" id="intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_${code}_value" name="intaro_crmbundle_ordertype[orderProducts][${productIndex}][properties][${code}][value]" required="required" autocomplete="disabled" value="${value}">
-				</div>
-			</div>
-		</div>`).appendTo(block);
-
-		//видимое
-		$(`
-		<span class="additional ellipsis edit" data-index="${index}" title="${name}: ${value}">
-			<span>${name}</span>
-			${value}
-    	</span>`).appendTo(block.find('.order-product-properties'));
-	}
+	if (!normalize.int($('#delivery-cost').val())) $('#order-delivery-cost__link-cost-manual').trigger('click');
+	if (!normalize.int($('#delivery-net-cost').val())) $('#order-delivery-net-cost__link-cost-manual').trigger('click');
 }
 
 //считаем расход денег на закуп цветков и остального

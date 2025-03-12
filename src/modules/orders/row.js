@@ -2,9 +2,10 @@ import { indexes, shops, noFlowers } from '@modules/orders/table/';
 import { shopIcon, iconsSVG, fakeClients } from '@src/mappings';
 import adres from '@modules/order/adres';
 import normalize from '@helpers/normalize';
-import { ctrlc } from '@helpers/clipboard';
+import copyBtn from '@helpers/clipboard';
 import retailcrm from '@helpers/retailcrm';
 import dates from '@helpers/dates';
+import { inlineTooltip } from '@src/helpers';
 import { RESERVED_ARTICLES } from '@root/config';
 
 export default async ($tr) => {
@@ -137,13 +138,7 @@ export default async ($tr) => {
 	function phoneZakazchika() {
 		const phone = get('Контактный телефон')
 		if (!phone) return;
-		const a = $(`<a class="phoneZakazchika">${phone.replace(/^\+7|8/, '')}</a>`);
-		a.appendTo(td('Покупатель'));
-		a.on('click', e => {
-			e.preventDefault();
-			e.stopPropagation();
-			ctrlc(get('Контактный телефон'));
-		});
+		copyBtn(phone.replace(/^\+7|8/, '')).addClass('phoneZakazchika').appendTo(td('Покупатель'));
 	}
 
 	/**
@@ -163,12 +158,8 @@ export default async ($tr) => {
 	 * создает кликабельную ссылку, добавляющую в буфер id заказа
 	 */
 	function orderIdClickable() {
-		const id = td('Номер').find('a');
-		id.on('click', e => {
-			e.preventDefault();
-			ctrlc(id.text());
-		});
-		id.parents('tr').children('td:first').append('<br>').append(id);
+		const $id = td('Номер').find('a');
+		$id.parents('tr').children('td:first').append('<br>').append(copyBtn($id));
 	}
 
 	/**
@@ -222,11 +213,8 @@ export default async ($tr) => {
 		const clickableAddress = makeAddressClickable(formattedAddress);
 		const finalAddress = formatMetro(clickableAddress);
 
-		td('Адрес доставки')
-			.children('.native')
-			.html(finalAddress)
-			.find('.yadres')
-			.on('click', handleAddressClick);
+		td('Адрес доставки').children('.native').html(finalAddress);
+		copyBtn(td('Адрес доставки').find('.yadres'));
 
 		//Форматирует исходный адрес, удаляя лишние пробелы и ненужные части
 		function formatAddress(address) {
@@ -247,13 +235,6 @@ export default async ($tr) => {
 		//Форматирует отображение метро в адресе
 		function formatMetro(address) {
 			return address.replace(/(.+)(?:,\sметро\s(.+))/, 'м. $2<br>$1');
-		}
-
-		//Обработчик клика по адресу - копирует адрес в буфер обмена
-		function handleAddressClick(e) {
-			e.preventDefault();
-			e.stopPropagation();
-			ctrlc($(e.target).text());
 		}
 	}
 
@@ -363,19 +344,12 @@ export default async ($tr) => {
 		 * добавляет кликабельные кнопки для помещения в буфер сводки о заказе для курьера
 		 */
 		function orderInfo() {
-			// данные для поиска курьера
 			if (get('Адрес доставки')) {
-				const $copyBtn = copyBtn(getData(false));
-				$copyBtn.appendTo(td('Курьер'));
+				// данные для поиска курьера
+				copyBtn(getData(false)).appendTo(td('Курьер'));
+				// полные данные для курьера
+				copyBtn(getData(true), td('Курьер').find('.native a'));
 			}
-
-			// полные данные для курьера
-			td('Курьер').find('.native').replaceWith(() => $('<a/>', { 'class': 'native', 'href': '#', 'text': getNative('Курьер') }));
-			td('Курьер').find('a.native').on('click', e => {
-				e.preventDefault();
-				e.stopPropagation();
-				ctrlc(getData(true));
-			});
 
 			/**
 			 * формирует своодку о заказе для курьера
@@ -630,41 +604,6 @@ export default async ($tr) => {
 		const $warnIcon = $(iconsSVG.warning);
 		$warnCont?.prepend($warnIcon);
 	}
-
-
-
-
-	// функции, использующиеся неоднократно в исполняющих функциях
-
-	/**
-	 * создает copyBtn
-	 * 
-	 * @param {string} str - текст, помещаемый в буфер
-	 * @returns {jquery}
-	 */
-	function copyBtn(str) {
-		const $btn = $('<a class="copyBtn"></a>');
-		$btn.on('click', e => {
-			e.preventDefault();
-			e.stopPropagation();
-			ctrlc(str);
-		});
-		return $btn;
-	}
-
-	/**
-	 * превращает объект в триггер, при наведении на который появляется тултип
-	 * использую css и js самой retailcrm
-	 * 
-	 * @param {jquery} $trigger - объект, к которому добавляется тултип 
-	 * @param {string} text - содердимое тултипа
-	 */
-	function inlineTooltip($trigger, text) {
-		$trigger.addClass('inline-tooltip-trigger');
-		$trigger.after(`<div class="inline-tooltip inline-tooltip_normal user_jscss_tooltip">${text}</div>`);
-	}
-
-
 
 
 	// базовые функции обращения к ячейкам и их данным

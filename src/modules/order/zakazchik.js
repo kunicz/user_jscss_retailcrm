@@ -9,13 +9,11 @@ export default () => {
 }
 
 function phones() {
-	const phoneFields = $('#intaro_crmbundle_ordertype_phone, #intaro_crmbundle_ordertype_additionalPhone, #intaro_crmbundle_ordertype_customFields_phone_poluchatelya');
-	phoneFields.each(function () {
-		$(this).val(normalize.phone($(this).val()));
-	});
-	phoneFields.on('change', function () {
-		$(this).val(normalize.phone($(this).val()));
-	});
+	const selector = '#intaro_crmbundle_ordertype_phone, #intaro_crmbundle_ordertype_additionalPhone, #intaro_crmbundle_ordertype_customFields_phone_poluchatelya';
+	const phoneFields = $(selector);
+	const normalizePhoneValue = field => $(field).val(normalize.phone($(field).val()));
+	phoneFields.each((_, field) => normalizePhoneValue(field));
+	phoneFields.on('change', e => normalizePhoneValue(e.target));
 }
 
 function isPoluchatel() {
@@ -29,20 +27,18 @@ function isPoluchatel() {
 	if (!zName.val() && !pName.val() && !zPhone.val() && !pPhone.val()) return;
 
 	const input = $('#intaro_crmbundle_ordertype_customFields_zakazchil_poluchatel');
-	input
-		.prop('checked', zName.val() == pName.val() && zPhone.val() == pPhone.val())
-		.on('change', () => {
-			switch (input.prop('checked')) {
-				case true:
-					pName.val(zName.val());
-					pPhone.val(zPhone.val());
-					break;
-				case false:
-					pName.val('');
-					pPhone.val('');
-					break;
-			}
-		});
+	const isEqual = zName.val() == pName.val() && zPhone.val() == pPhone.val();
+
+	input.prop('checked', isEqual);
+	input.on('change', () => {
+		if (!input.prop('checked')) {
+			pName.val('');
+			pPhone.val('');
+			return;
+		}
+		pName.val(zName.val());
+		pPhone.val(zPhone.val());
+	});
 }
 
 function telegram() {

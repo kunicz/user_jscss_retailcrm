@@ -1,4 +1,4 @@
-import { ctrlc } from '@helpers/clipboard';
+import { copy } from '@helpers/clipboard';
 
 export default {
 	parts: [
@@ -31,7 +31,7 @@ export default {
 			if ($(id + key).val() && ['city', 'street', 'building', 'housing', 'house'].includes(key)) copyValues[0] += `${a[key]} ${$(id + key).val()}, `;
 		});
 		copyValues.forEach((e, i) => copyValues[i] = e.slice(0, -2));
-		ctrlc(copyValues[type]);
+		copy(copyValues[type]);
 	},
 
 	clear: () => {
