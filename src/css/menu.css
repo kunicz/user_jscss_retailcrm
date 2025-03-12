@@ -1,12 +1,26 @@
 /* убираем плавное открытие меню */
 .menu-wrap,
+.menu-wrap *,
 .inner-wrapper__content,
-.toggle-btn[data-v-0c31c4ee],
-.nav-panel[data-v-0c31c4ee],
-.nav-panel__wrap[data-v-0c31c4ee]
-{transition: none !important;}
+.toggle-btn[data-v-0c31c4ee] {
+  transition: none !important;
+}
 
 /*buyTodayLinks*/
-#buyTodayLinks{margin:30px 0}
-#buyTodayLinks p{margin-top:14px;font-size:14px;opacity:.5}
-#buyTodayLinks p.title:first-child{opacity:1}
+#buyTodayLinks {
+  margin: 30px 0;
+}
+#buyTodayLinks p {
+  margin-top: 14px;
+  font-size: 14px;
+  opacity: 0.5;
+}
+#buyTodayLinks p.title:first-child {
+  opacity: 1;
+}
+
+#bundleVersion {
+  color: #fff;
+  text-align: center;
+  opacity: 0.5;
+}

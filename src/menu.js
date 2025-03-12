@@ -1,13 +1,15 @@
 import { iconsSVG } from './mappings.js';
 import wait from '@helpers/wait.js';
 import couriers from './modules/popup_couriers.js';
+import './css/menu.css';
 
-export default async () => {
-	const $navBar = $('#nav-bar .bar__inner');
-	const $navBarTop = $navBar.children().eq(0);
-	const $navBarBottom = $navBar.children().eq(1);
+const $navBar = $('#nav-bar .bar__inner');
+const $navBarTop = $navBar.children().eq(0);
+const $navBarBottom = $navBar.children().eq(1);
 
-	await addButton(couriers, $navBarTop);
+export default () => {
+	addButton(couriers, $navBarTop);
+	addVeriosn();
 }
 
 async function addButton({ id, title, callback }, $block, before = '') {
@@ -40,4 +42,8 @@ async function addButton({ id, title, callback }, $block, before = '') {
 	} else {
 		$block.append(btn);
 	}
+}
+
+function addVeriosn() {
+	$(`<div id="bundleVersion">${window.bundleVersion}</div>`).insertAfter($navBar.find('[data-menu-btn="profile"]'));
 }

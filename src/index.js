@@ -4,7 +4,7 @@ import * as pages from './pages/index.js';
 
 export let user = {};
 
-window.BUNDLE_VERSION = '2.4.0';
+window.BUNDLE_VERSION = '2.4.1';
 
 $(document).ready(async () => {
 	try {
