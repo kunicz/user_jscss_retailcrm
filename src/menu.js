@@ -32,16 +32,8 @@ async function addButton({ id, title, callback }, $block, before = '') {
 
 	btn.on('click', callback);
 
-	if (before) {
-		const $beforeElement = $block.children(`[data-menu-btn="${before}"]`);
-		if ($beforeElement.length) {
-			btn.insertBefore($beforeElement);
-		} else {
-			$block.append(btn);
-		}
-	} else {
-		$block.append(btn);
-	}
+	const $beforeElement = before ? $block.children(`[data-menu-btn="${before}"]`) : null;
+	$beforeElement?.length ? btn.insertBefore($beforeElement) : $block.append(btn);
 }
 
 function addVeriosn() {

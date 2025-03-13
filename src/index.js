@@ -1,10 +1,10 @@
 import retailcrm from '@helpers/retailcrm';
 import menu from '@src/menu';
-import * as pages from '@src/pages';
+import * as pages from './pages';
 
 export let user = {};
 
-window.BUNDLE_VERSION = '2.5.1';
+window.BUNDLE_VERSION = '2.5.2';
 
 $(document).ready(async () => {
 	try {
@@ -17,10 +17,10 @@ $(document).ready(async () => {
 			if ($('#main.user_jscss').length) return;
 			$('#main').addClass('user_jscss');
 
-			for (const [title, pattern] of pages.routes) {
-				if (!new RegExp(pattern).test(window.location.pathname)) continue;
-				console.log(`user_jscss : ${title}`);
-				if (pages[title]) pages[title]();
+			for (const [name, pattern] of pages.routes) {
+				if (!pattern.test(window.location.pathname)) continue;
+				console.log(`user_jscss : ${name}`);
+				if (pages[name]) pages[name]();
 				break;
 			}
 		})();

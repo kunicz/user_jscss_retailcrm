@@ -42,6 +42,17 @@ export default {
 	module: {
 		rules: [
 			{
+				test: /\.js$/,
+				type: 'javascript/auto',
+				resolve: {
+					fullySpecified: false
+				},
+				parser: {
+					dynamicImports: true,
+					importMeta: true // Включаем поддержку import.meta
+				}
+			},
+			{
 				test: /\.css$/,
 				use: [
 					'style-loader',
@@ -80,9 +91,9 @@ export default {
 			})
 		]
 	},
-	experiments: {
-		topLevelAwait: true // Позволяет использовать `await import()` без чанков
-	},
 	devtool: 'inline-source-map',
-	plugins: [sftpUploader, notifier]
+	plugins: [sftpUploader, notifier],
+	experiments: {
+		topLevelAwait: true
+	}
 };

@@ -1,4 +1,4 @@
-import popup from '@modules/order/products/popup';
+import productsPopup from '@modules/order/products/popup';
 import { vehicleFormats } from '@src/mappings';
 import { noFlowers, getOrderId } from '@src/pages/order';
 import db from '@helpers/db';
@@ -10,7 +10,7 @@ import fetch from '@helpers/fetch';
 import '@css/order_products.css';
 
 let watcher;
-const $table = $('#order-products-table');
+let $table;
 const money = {
 	flowers: 0, // закупочная стоимость цветов в заказе
 	noFlowers: 0, //закупочная стоимость нецветов и допников в заказе
@@ -22,13 +22,14 @@ const money = {
 }
 
 export default async () => {
+	$table = $('#order-products-table');
 	listen();
 	title();
 	dostavkaPrice();
 	hideInfiniteOstatki();
-	await products();
+	products();
 	sebes();
-	popup();
+	productsPopup();
 	availableInventory();
 	orderASC();
 	await addTransport();
@@ -43,7 +44,7 @@ function listen() {
 		.setSelector('tbody')
 		.setCallback(async () => {
 			hideInfiniteOstatki();
-			await products();
+			//products();
 			availableInventory();
 			orderASC();
 			addTransport();
@@ -56,15 +57,19 @@ async function products() {
 	const bukety = [];
 	const cards = [];
 	const $products = $table.find('tbody');
-	$products.each(async (_, product) => {
+
+	await Promise.all($products.map((_, product) => {
 		const $product = $(product);
-		await classes($product);
-		checkAuto($product);
-		checkBukety($product);
-		chaeckCards($product);
-		dopnikPurchasePrice($product);
-		properties($product);
-	});
+		return (async () => {
+			await classes($product);
+			checkAuto($product);
+			checkBukety($product);
+			chaeckCards($product);
+			dopnikPurchasePrice($product);
+			properties($product);
+		})();
+	}));
+
 	setAuto();
 	setBukety();
 	setCards();
@@ -125,7 +130,7 @@ async function products() {
 		const value = bukety.join(',<br>');
 		$input.parent().hide();
 		if ($input.val() === value) return;
-		$input.val(value);
+		$input.val(value).change();
 	}
 
 	function chaeckCards($product) {
@@ -352,13 +357,12 @@ async function rashod() {
 	let oldSum;
 	let newSum;
 	//как бы сильно мне не хотелось использовать mutationObserver, конкретно тут он не работает
-	const int = setInterval(() => {
-		if (!$('#order-total-summ').length) {
-			clearInterval(int);
-			return;
-		}
+	setInterval(() => {
+		if (!$('#order-total-summ').length) return;
 		newSum = $('#order-total-summ').text();
+		if (!oldSum) oldSum = newSum;
 		if (newSum === oldSum) return;
+		console.log(newSum, oldSum);
 		oldSum = newSum;
 		rashodNoFlowers();
 		calculator();
