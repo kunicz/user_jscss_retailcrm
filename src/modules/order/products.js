@@ -44,7 +44,7 @@ function listen() {
 		.setSelector('tbody')
 		.setCallback(async () => {
 			hideInfiniteOstatki();
-			//products();
+			products();
 			availableInventory();
 			orderASC();
 			addTransport();
@@ -53,7 +53,7 @@ function listen() {
 }
 
 async function products() {
-	const isAuto = false;
+	let isAuto = false;
 	const bukety = [];
 	const cards = [];
 	const $products = $table.find('tbody');
@@ -113,7 +113,7 @@ async function products() {
 		];
 		if (!conditions.includes(true)) return;
 		$('#intaro_crmbundle_ordertype_customFields_auto_courier').prop('checked', true);
-		isAutoCourier = true;
+		isAuto = true;
 	}
 	function setAuto() {
 		const $input = $('#intaro_crmbundle_ordertype_customFields_auto_courier');
@@ -182,7 +182,7 @@ async function products() {
 		const productId = $tr.attr('data-product-id');
 		const productIndex = $tr.attr('data-order-product-index');
 		const productTitle = $product.find('.title a').text().trim();
-		const block = $product.find('td.properties-td');
+		const $block = $product.find('td.properties-td');
 
 		//проверям, есть ли у товара все поля
 		if (![
@@ -200,17 +200,17 @@ async function products() {
 			index++;
 			let value = $product.find('.title a').text();
 			if (productCrm.offers.length > 1) value = value.split(' - ').pop();
-			addPproperty('for-mat', 'фор мат', value, index, productIndex, block);
+			addPproperty('for-mat', 'фор мат', value, index, productIndex, $block);
 		}
 		//артикул (artikul)
 		if (!$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_artikul_value`).length) {
 			index++;
-			addPproperty('artikul', 'артикул', productCrm.offers.filter(offer => offer.name == productTitle)[0]['article'], index, productIndex, block);
+			addPproperty('artikul', 'артикул', productCrm.offers.filter(offer => offer.name == productTitle)[0]['article'], index, productIndex, $block);
 		}
 		//цена (tsena)
 		if (!$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_tsena_value`).length) {
 			index++;
-			addPproperty('tsena', 'цена', productCrm.offers.filter(offer => offer.name == productTitle)[0]['price'], index, productIndex, block);
+			addPproperty('tsena', 'цена', productCrm.offers.filter(offer => offer.name == productTitle)[0]['price'], index, productIndex, $block);
 		}
 
 		function addPproperty(code, name, value, index, productIndex, block) {

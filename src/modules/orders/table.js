@@ -93,10 +93,7 @@ function handleThs() {
 function couriersSvodka() {
 	$(`<span><a id="couriersSvodka">Сводка по оплате курьерам</a></span>`)
 		.appendTo($('#list-total-wrapper'))
-		.on('click', () => {
-			const summary = generate(aggregate());
-			copy(summary);
-		});
+		.on('click', () => copy(generate(aggregate())));
 
 	function aggregate() {
 		const $tds = getTrs().find('td[type="курьер"]');
@@ -120,17 +117,12 @@ function couriersSvodka() {
 	function generate(data) {
 		const from = $('#filter_deliveryDate_gte_abs').val().split('-').reverse().slice(0, 2).join('.');
 		const to = $('#filter_deliveryDate_lte_abs').val().split('-').reverse().slice(0, 2).join('.');
-
-		let output = from && to ? `с ${from} по ${to}` : from ? `за ${from}` : '';
+		let output = '';
+		output += from && to ? `с ${from} по ${to}` : from ? `за ${from}` : '';
 		output += '\n-------\n';
-
-		output += data.map(c =>
-			`${c.name}${c.comments ? ` (${c.comments})` : ''}${c.phone ? ` / ${c.phone}` : ''}${c.bank ? ` (${c.bank})` : ''} / ${c.price} ₽`
-		).join('\n');
-
+		output += data.map(c => `${c.name}${c.comments ? ` (${c.comments})` : ''}${c.phone ? ` / ${c.phone}` : ''}${c.bank ? ` (${c.bank})` : ''} / ${c.price} ₽`).join('\n');
 		output += `\n-------\n`;
 		output += `скопировано в ${new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`;
-
 		return output;
 	}
 }

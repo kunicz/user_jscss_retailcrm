@@ -13,7 +13,7 @@ export default async ($tr) => {
 	const orderId = normalize.int($tr.data('url'));
 	const shopDb = shops.find(s => s.shop_title === getNative('Магазин'));
 	const order = await retailcrm.get.order.byId(orderId);
-	const artikul = order.items.find(item => typeof item.properties === 'object' && item.properties?.artikul?.value)?.properties.artikul.value;
+	const artikul = order?.items.find(item => typeof item.properties === 'object' && item.properties?.artikul?.value)?.properties.artikul.value;
 	const probableSku = parseInt(artikul?.match(/^\d+/)?.[0]);
 	const sku = RESERVED_ARTICLES.includes(probableSku) ? artikul : probableSku;
 
@@ -138,7 +138,7 @@ export default async ($tr) => {
 	function phoneZakazchika() {
 		const phone = get('Контактный телефон')
 		if (!phone) return;
-		copyBtn(phone.replace(/^\+7|8/, '')).addClass('phoneZakazchika').appendTo(td('Покупатель'));
+		copyBtn($(`<span>${phone.replace(/^\+7|8/, '')}</span>`)).addClass('phoneZakazchika').appendTo(td('Покупатель'));
 	}
 
 	/**

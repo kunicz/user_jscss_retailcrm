@@ -4,7 +4,7 @@ import * as pages from './pages';
 
 export let user = {};
 
-window.BUNDLE_VERSION = '2.5.2';
+window.BUNDLE_VERSION = '2.5.3';
 
 $(document).ready(async () => {
 	try {

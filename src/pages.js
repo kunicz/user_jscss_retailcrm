@@ -9,8 +9,8 @@ import product from '@src/pages/product';
 export { couriers, courier, customer, orders, order, products, product };
 export const routes = new Map([
 	['couriers', /admin\/couriers(?:[^\/]|$)/],
-	['courier', /admin\/couriers\/(\\d+|new)/],
-	['customer', /customers\/\\d+/],
+	['courier', /admin\/couriers\/(\d+|new)/],
+	['customer', /customers\/\d+/],
 	['orders', /orders\/$/],
 	['order', /orders\/\d+/],
 	['products', /products\/$/],
