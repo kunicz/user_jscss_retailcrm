@@ -1,4 +1,4 @@
-import wait from '@helpers/wait';
+import wait from '@helpers/wait.mjs';
 import '@css/product_editable.css';
 
 let blocks;

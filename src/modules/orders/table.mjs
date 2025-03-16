@@ -1,9 +1,9 @@
-import order from '@modules/orders/row';
-import finances from '@modules/orders/table/finances';
-import { copy } from '@helpers/clipboard';
-import retailcrm from '@helpers/retailcrm';
-import db from '@helpers/db';
-import dom from '@helpers/dom';
+import order from '@modules/orders/row.mjs';
+import finances from '@modules/orders/table/finances.mjs';
+import { copy } from '@helpers/clipboard.mjs';
+import retailcrm from '@helpers/retailcrm.mjs';
+import db from '@helpers/db.mjs';
+import dom from '@helpers/dom.mjs';
 import '@css/orders_table.css';
 
 export let shops = [];

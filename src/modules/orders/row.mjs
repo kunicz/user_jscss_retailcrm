@@ -1,12 +1,12 @@
-import { indexes, shops, noFlowers } from '@modules/orders/table/';
-import { shopIcon, iconsSVG, fakeClients } from '@src/mappings';
-import adres from '@modules/order/adres';
-import normalize from '@helpers/normalize';
-import copyBtn from '@helpers/clipboard';
-import retailcrm from '@helpers/retailcrm';
-import dates from '@helpers/dates';
-import { inlineTooltip } from '@src/helpers';
-import { RESERVED_ARTICLES } from '@root/config';
+import { indexes, shops, noFlowers } from '@modules/orders/table.mjs';
+import { shopIcon, iconsSVG, fakeClients } from '@src/mappings.mjs';
+import adres from '@modules/order/adres.mjs';
+import normalize from '@helpers/normalize.mjs';
+import copyBtn from '@helpers/clipboard.mjs';
+import retailcrm from '@helpers/retailcrm.mjs';
+import dates from '@helpers/dates.mjs';
+import { inlineTooltip } from '@src/helpers.mjs';
+import { RESERVED_ARTICLES } from '@root/config.mjs';
 
 export default async ($tr) => {
 
@@ -348,7 +348,7 @@ export default async ($tr) => {
 				// данные для поиска курьера
 				copyBtn(getData(false)).appendTo(td('Курьер'));
 				// полные данные для курьера
-				copyBtn(getData(true), td('Курьер').find('.native a'));
+				copyBtn(getData(true), td('Курьер').find('.native'));
 			}
 
 			/**

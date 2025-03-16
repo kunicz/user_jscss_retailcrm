@@ -1,10 +1,10 @@
-import { iconsSVG } from '@src/mappings';
-import products from '@modules/order/products';
-import dostavka from '@modules/order/dostavka';
-import zakazchik from '@modules/order/zakazchik';
-import retailcrm from '@helpers/retailcrm';
-import normalize from '@helpers/normalize';
-import { RESERVED_ARTICLES } from '@root/config';
+import { iconsSVG } from '@src/mappings.mjs';
+import products from '@modules/order/products.mjs';
+import dostavka from '@modules/order/dostavka.mjs';
+import zakazchik from '@modules/order/zakazchik.mjs';
+import retailcrm from '@helpers/retailcrm.mjs';
+import normalize from '@helpers/normalize.mjs';
+import { RESERVED_ARTICLES } from '@root/config.mjs';
 import '@css/order.css';
 
 export let noFlowers = [];

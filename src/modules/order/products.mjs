@@ -3,6 +3,7 @@ import { vehicleFormats } from '@src/mappings';
 import { noFlowers, getOrderId } from '@src/pages/order';
 import db from '@helpers/db';
 import dom from '@helpers/dom';
+import hash from '@helpers/hash';
 import retailcrm from '@helpers/retailcrm';
 import normalize from '@helpers/normalize';
 import wait from '@helpers/wait';
@@ -188,7 +189,8 @@ async function products() {
 		if (![
 			$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_for-mat_value`).length,
 			$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_artikul_value`).length,
-			$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_tsena_value`).length
+			$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_tsena_value`).length,
+			$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_moyskladid_value`).length
 		].includes(0)) return;
 
 		let index = $product.find('.order-product-properties > span').length;
@@ -212,13 +214,18 @@ async function products() {
 			index++;
 			addPproperty('tsena', 'цена', productCrm.offers.filter(offer => offer.name == productTitle)[0]['price'], index, productIndex, $block);
 		}
+		//идентификатор мойсклад (moyskladid)
+		if (!$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_msid_value`).length) {
+			index++;
+			addPproperty('moyskladid', 'мойсклад id', hash.timestamp(), index, productIndex, $block);
+		}
 
 		function addPproperty(code, name, value, index, productIndex, block) {
 			//code - код опции (for-mat)
 			//title - транслитерация field (фор мат)
 			//value - значение
 			//index - порядковый номер опции
-			//productIndex - какой-то непонятный индекс, который создает сама срм (как  понимаю, это идентификатор товара в плане за все время)
+			//productIndex - индекс продажи (aka покупки) среди всех товаров за все время
 			//block - родительский объект, к которому крепим
 
 			//невидимое

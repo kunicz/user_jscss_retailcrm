@@ -1,6 +1,6 @@
-import { iconsSVG } from '@src/mappings';
-import wait from '@helpers/wait';
-import couriers from '@modules/popup/couriers';
+import { iconsSVG } from '@src/mappings.mjs';
+import wait from '@helpers/wait.mjs';
+import couriers from '@modules/popup/couriers.mjs';
 import '@css/menu.css';
 
 const $navBar = $('#nav-bar .bar__inner');

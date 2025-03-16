@@ -1,4 +1,4 @@
-import { bankNames } from '@src/mappings';
+import { bankNames } from '@src/mappings.mjs';
 
 let descr = {};
 let descrBlock = '';

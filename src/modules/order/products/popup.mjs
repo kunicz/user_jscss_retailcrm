@@ -1,6 +1,6 @@
-import dom from '@helpers/dom';
-import wait from '@helpers/wait';
-import { calculator } from '@modules/order/products';
+import dom from '@helpers/dom.mjs';
+import wait from '@helpers/wait.mjs';
+import { calculator } from '@modules/order/products.mjs';
 import '@css/order_products_popup.css';
 
 let $popup;

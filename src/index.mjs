@@ -1,10 +1,10 @@
-import retailcrm from '@helpers/retailcrm';
-import menu from '@src/menu';
-import * as pages from './pages';
+import retailcrm from '@helpers/retailcrm.mjs';
+import menu from '@src/menu.mjs';
+import * as pages from '@src/pages.mjs';
 
 export let user = {};
 
-window.BUNDLE_VERSION = '2.5.3';
+window.BUNDLE_VERSION = '2.5.4';
 
 $(document).ready(async () => {
 	try {
