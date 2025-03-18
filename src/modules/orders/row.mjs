@@ -1,12 +1,12 @@
-import { indexes, shops, noFlowers } from '@modules/orders/table.mjs';
-import { shopIcon, iconsSVG, fakeClients } from '@src/mappings.mjs';
-import adres from '@modules/order/adres.mjs';
-import normalize from '@helpers/normalize.mjs';
-import copyBtn from '@helpers/clipboard.mjs';
-import retailcrm from '@helpers/retailcrm.mjs';
-import dates from '@helpers/dates.mjs';
-import { inlineTooltip } from '@src/helpers.mjs';
-import { RESERVED_ARTICLES } from '@root/config.mjs';
+import { indexes, shops, noFlowers } from '@modules/orders/table';
+import { shopIcon, iconsSVG, fakeClients } from '@src/mappings';
+import adres from '@modules/order/adres';
+import normalize from '@helpers/normalize';
+import copyBtn from '@helpers/clipboard';
+import retailcrm from '@helpers/retailcrm';
+import dates from '@helpers/dates';
+import { inlineTooltip } from '@src/helpers';
+import { RESERVED_ARTICLES } from '@root/config';
 
 export default async ($tr) => {
 
@@ -348,7 +348,9 @@ export default async ($tr) => {
 				// данные для поиска курьера
 				copyBtn(getData(false)).appendTo(td('Курьер'));
 				// полные данные для курьера
-				copyBtn(getData(true), td('Курьер').find('.native'));
+				const $a = $(`<a href="">${getNative('Курьер')}</a>`);
+				copyBtn(getData(true), $a);
+				td('Курьер').find('.native').html($a);
 			}
 
 			/**
@@ -619,6 +621,7 @@ export default async ($tr) => {
 	}
 	function gt(node) {
 		let content = node.clone();
+		content.find('.collapsable-text__button').remove(); // удаляем ссылку "показать" для комментариев оператора и менеджера
 		content.find('.list-status-comment').remove(); // удаляем комментарий к статусу
 		content.find('br').replaceWith("\n"); //заменяем переносы на новые строки
 		content = content.text().trim();

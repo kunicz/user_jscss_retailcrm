@@ -1,6 +1,7 @@
-import { iconsSVG } from '@src/mappings.mjs';
-import wait from '@helpers/wait.mjs';
-import couriers from '@modules/popup/couriers.mjs';
+import { iconsSVG } from '@src/mappings';
+import { bundleVersion } from '@bundle_loader';
+import wait from '@helpers/wait';
+import couriers from '@modules/popup/couriers';
 import '@css/menu.css';
 
 const $navBar = $('#nav-bar .bar__inner');
@@ -8,8 +9,8 @@ const $navBarTop = $navBar.children().eq(0);
 const $navBarBottom = $navBar.children().eq(1);
 
 export default () => {
+	bundleVersion().insertAfter($navBar.find('[data-menu-btn="profile"]'));
 	addButton(couriers, $navBarTop);
-	addVeriosn();
 }
 
 async function addButton({ id, title, callback }, $block, before = '') {
@@ -34,8 +35,4 @@ async function addButton({ id, title, callback }, $block, before = '') {
 
 	const $beforeElement = before ? $block.children(`[data-menu-btn="${before}"]`) : null;
 	$beforeElement?.length ? btn.insertBefore($beforeElement) : $block.append(btn);
-}
-
-function addVeriosn() {
-	$(`<div id="bundleVersion">${window.bundleVersion}</div>`).insertAfter($navBar.find('[data-menu-btn="profile"]'));
 }

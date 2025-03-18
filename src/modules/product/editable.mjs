@@ -1,12 +1,25 @@
-import wait from '@helpers/wait.mjs';
+import wait from '@helpers/wait';
 import '@css/product_editable.css';
 
-let blocks;
+let blocks = [];
 
 export default async () => {
+	/*
 	await wait.halfsec();
 	blocks = $('.warehouse-product .UiTabs-tabs-item-lNPO');
 	if (blocks.length < 4) return;
+	*/
+	const $cont = $('#omnica-tab-group-1-touchstone');
+	const $tabBtns = $cont.find('[role="tab"]');
+	console.log($tabBtns);
+	await Promise.all($tabBtns.map(async (_, btn) => {
+		console.log($(btn));
+		btn.dispatchEvent(new Event('click', { bubbles: true }));
+		await wait.halfsec();
+		blocks.push($cont.find('.omnica-tab-group__content').clone());
+	}));
+	console.log(blocks);
+	return;
 
 	blocksClasses();
 	reorganizeBlocks();
@@ -14,6 +27,7 @@ export default async () => {
 	background();
 	toggleProperties();
 	toggleBukets();
+	console.log('2');
 }
 
 /* добавляем классы к основным блокам */

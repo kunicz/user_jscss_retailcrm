@@ -1,4 +1,4 @@
-import dates from '@helpers/dates.mjs';
+import dates from '@helpers/dates';
 import '@css/orders_filters.css';
 
 export default () => {

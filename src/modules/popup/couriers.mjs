@@ -1,7 +1,7 @@
-import * as popup from '@src/popup.mjs';
+import * as popup from '@src/popup';
 import { user } from '@src';
-import { bankNames } from '@src/mappings.mjs';
-import retailcrm from '@helpers/retailcrm.mjs';
+import { bankNames } from '@src/mappings';
+import retailcrm from '@helpers/retailcrm';
 
 let couriers = [];
 const couriersMeta = {

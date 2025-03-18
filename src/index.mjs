@@ -1,10 +1,17 @@
-import retailcrm from '@helpers/retailcrm.mjs';
-import menu from '@src/menu.mjs';
-import * as pages from '@src/pages.mjs';
+import { init } from '@bundle_loader';
+import retailcrm from '@helpers/retailcrm';
+import menu from '@src/menu';
+import couriers from '@pages/couriers';
+import courier from '@pages/courier';
+import customer from '@pages/customer';
+import orders from '@pages/orders';
+import order from '@pages/order';
+import products from '@pages/products';
+import product from '@pages/product';
 
 export let user = {};
 
-window.BUNDLE_VERSION = '2.5.4';
+window.BUNDLE_VERSION = '2.5.5';
 
 $(document).ready(async () => {
 	try {
@@ -17,12 +24,15 @@ $(document).ready(async () => {
 			if ($('#main.user_jscss').length) return;
 			$('#main').addClass('user_jscss');
 
-			for (const [name, pattern] of pages.routes) {
-				if (!pattern.test(window.location.pathname)) continue;
-				console.log(`user_jscss : ${name}`);
-				if (pages[name]) pages[name]();
-				break;
-			}
+			init('retailcrm', new Map([
+				[/admin\/couriers(?:[^\/]|$)/, { couriers }],
+				[/admin\/couriers\/(\d+|new)/, { courier }],
+				[/customers\/\d+/, { customer }],
+				[/orders\/$/, { orders }],
+				[/orders\/\d+/, { order }],
+				[/products\/$/, { products }],
+				[/products\/\d+/, { product }],
+			]));
 		})();
 	} catch (error) {
 		console.error(error);
