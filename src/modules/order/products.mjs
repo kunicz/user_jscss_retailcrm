@@ -1,13 +1,13 @@
 import productsPopup from '@modules/order/products/popup';
 import { vehicleFormats } from '@src/mappings';
-import { noFlowers, getOrderId } from '@src/pages/order';
+import { noFlowers, getOrderId, getShopCode } from '@src/pages/order';
 import db from '@helpers/db';
 import dom from '@helpers/dom';
 import hash from '@helpers/hash';
-import retailcrm from '@helpers/retailcrm';
+import retailcrm from '@helpers/retailcrm_direct';
 import normalize from '@helpers/normalize';
 import wait from '@helpers/wait';
-import fetch from '@helpers/fetch';
+import { php2steblya } from '@helpers/fetch';
 import '@css/order_products.css';
 
 let watcher;
@@ -84,16 +84,14 @@ async function products() {
 			const productCrm = await retailcrm.get.product.byId(getProductId($product));
 			const requestData = {
 				request: 'products/get',
-				args: {
-					fields: [
-						'type'
-					],
-					where: {
-						id: productCrm.externalId,
-						shop_crm_id: productCrm.catalogId
-					},
-					limit: 1
-				}
+				fields: [
+					'type'
+				],
+				where: {
+					id: productCrm.externalId,
+					shop_crm_id: productCrm.catalogId
+				},
+				limit: 1
 			}
 			const type = await db.request(requestData);
 			if (type == 666) $product.addClass('podpiska');
@@ -159,16 +157,14 @@ async function products() {
 		const productCrm = await retailcrm.get.product.byId(getProductId($product));
 		const requestData = {
 			request: 'products/get',
-			args: {
-				fields: [
-					'purchase_price'
-				],
-				where: {
-					id: productCrm.externalId,
-					shop_crm_id: productCrm.catalogId
-				},
-				limit: 1
-			}
+			fields: [
+				'purchase_price'
+			],
+			where: {
+				id: productCrm.externalId,
+				shop_crm_id: productCrm.catalogId
+			},
+			limit: 1
 		}
 		const purchase_price = await db.request(requestData);
 		if ($input.val() == purchase_price) return;
@@ -268,7 +264,7 @@ async function addTransport() {
 
 	try {
 		const orderId = getOrderId();
-		await fetch.get('RetailCrm_AddTransport', { id: orderId });
+		await php2steblya.get('RetailCrm_AddTransport', { id: orderId });
 		window.location.reload();
 	} catch (error) {
 		console.error('Ошибка добавления транспортировочного:', error);
@@ -360,7 +356,7 @@ function dostavkaPrice() {
 
 //считаем расход денег на закуп цветков и остального
 async function rashod() {
-	noFlowers = await retailcrm.get.products.noFlowers();
+	noFlowers = await retailcrm.get.products.noFlowers(getShopCode());
 	let oldSum;
 	let newSum;
 	//как бы сильно мне не хотелось использовать mutationObserver, конкретно тут он не работает
@@ -369,7 +365,6 @@ async function rashod() {
 		newSum = $('#order-total-summ').text();
 		if (!oldSum) oldSum = newSum;
 		if (newSum === oldSum) return;
-		console.log(newSum, oldSum);
 		oldSum = newSum;
 		rashodNoFlowers();
 		calculator();

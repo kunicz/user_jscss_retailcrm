@@ -3,7 +3,7 @@ import { shopIcon, iconsSVG, fakeClients } from '@src/mappings';
 import adres from '@modules/order/adres';
 import normalize from '@helpers/normalize';
 import copyBtn from '@helpers/clipboard';
-import retailcrm from '@helpers/retailcrm';
+import retailcrm from '@helpers/retailcrm_direct';
 import dates from '@helpers/dates';
 import { inlineTooltip } from '@src/helpers';
 import { RESERVED_ARTICLES } from '@root/config';
@@ -348,9 +348,11 @@ export default async ($tr) => {
 				// данные для поиска курьера
 				copyBtn(getData(false)).appendTo(td('Курьер'));
 				// полные данные для курьера
-				const $a = $(`<a href="">${getNative('Курьер')}</a>`);
-				copyBtn(getData(true), $a);
-				td('Курьер').find('.native').html($a);
+				if (getNative('Курьер')) {
+					const $a = $(`<a href="">${getNative('Курьер')}</a>`);
+					copyBtn(getData(true), $a);
+					td('Курьер').find('.native').html($a);
+				}
 			}
 
 			/**

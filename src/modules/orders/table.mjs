@@ -1,7 +1,7 @@
 import order from '@modules/orders/row';
 import finances from '@modules/orders/table/finances';
 import { copy } from '@helpers/clipboard';
-import retailcrm from '@helpers/retailcrm';
+import retailcrm from '@helpers/retailcrm_direct';
 import db from '@helpers/db';
 import dom from '@helpers/dom';
 import '@css/orders_table.css';
@@ -149,7 +149,7 @@ function getIndexes() {
 	return ixs;
 }
 async function getShops() {
-	return await db.request({ request: 'shops/get' });
+	return await db.get.shops();
 }
 async function getProductsNoFlowers() {
 	return await retailcrm.get.products.noFlowers();

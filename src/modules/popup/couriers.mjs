@@ -1,7 +1,7 @@
 import * as popup from '@src/popup';
 import { user } from '@src';
 import { bankNames } from '@src/mappings';
-import retailcrm from '@helpers/retailcrm';
+import retailcrm from '@helpers/retailcrm_direct';
 
 let couriers = [];
 const couriersMeta = {
@@ -24,7 +24,6 @@ async function couriersLogic() {
 
 async function getCouriers(cities) {
 	const couriers = await retailcrm.get.couriers.all();
-	console.log(couriers);
 	return couriers.filter(courier => !courier.city || cities.includes(courier.city));
 }
 

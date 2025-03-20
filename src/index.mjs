@@ -1,5 +1,5 @@
 import { init } from '@bundle_loader';
-import retailcrm from '@helpers/retailcrm';
+import retailcrm from '@helpers/retailcrm_direct';
 import menu from '@src/menu';
 import couriers from '@pages/couriers';
 import courier from '@pages/courier';
@@ -11,7 +11,7 @@ import product from '@pages/product';
 
 export let user = {};
 
-window.BUNDLE_VERSION = '2.5.5';
+window.BUNDLE_VERSION = '2.5.6';
 
 $(document).ready(async () => {
 	try {

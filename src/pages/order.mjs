@@ -2,13 +2,14 @@ import { iconsSVG } from '@src/mappings';
 import products from '@modules/order/products';
 import dostavka from '@modules/order/dostavka';
 import zakazchik from '@modules/order/zakazchik';
-import retailcrm from '@helpers/retailcrm';
+import retailcrm from '@helpers/retailcrm_direct';
 import normalize from '@helpers/normalize';
 import { RESERVED_ARTICLES } from '@root/config';
 import '@css/order.css';
 
 export let noFlowers = [];
 export const getOrderId = () => normalize.int($('.order-num').text());
+export const getShopCode = () => $('#intaro_crmbundle_ordertype_site option:selected').val();
 export default async () => {
 	customFields();
 	comments();
