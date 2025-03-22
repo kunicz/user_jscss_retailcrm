@@ -4,6 +4,7 @@ import { copy } from '@helpers/clipboard';
 import retailcrm from '@helpers/retailcrm_direct';
 import db from '@helpers/db';
 import dom from '@helpers/dom';
+import normalize from '@helpers/normalize';
 import '@css/orders_table.css';
 
 export let shops = [];
@@ -14,72 +15,86 @@ export default async () => {
 	shops = await getShops();
 	noFlowers = await getProductsNoFlowers();
 
-	hiddenCols();
-	orders();
+	initHiddenCols();
 	listen();
+	await orders();
 	finances();
 	couriersSvodka();
 	handleThs();
 }
 
 const tableSelector = '.js-order-list';
+const hiddenColumns = [
+	'Дата и время',
+	'Тип доставки',
+	'Телефон получателя',
+	'Имя получателя',
+	'Себестоимость доставки',
+	'Аноним',
+	'Текст в карточку',
+	'Узнать адрес у получателя',
+	'Номер',
+	'Метро',
+	'Сумма оплаты',
+	'Оплачено',
+	'Телефон курьера',
+	'Примечания курьера',
+	'Автокурьер',
+	'Расходы на закуп цветка',
+	'Расходы на закуп нецветка',
+	'Откуда узнал о нас (в заказе)',
+	'Мессенджер заказчика (в заказе)',
+	'Скидка в процентах',
+	'Комментарий оператора',
+	'Комментарий клиента',
+	'Контактный телефон',
+	'Состав',
+	'Сумма по товарам/услугам',
+	'Добавить лубрикант Lovix',
+	'Пометить для флориста и/или администратора',
+	'Курьер оповещен'
+];
 
 async function listen() {
 	const table = getTable()[0];
-	dom.watcher().setSelector('tbody').setTarget(table).setCallback(($node) => orders($node)).start();
+	dom.watcher().setSelector('tbody').setTarget(table).setCallback((node) => orders($(node))).start();
 	dom.watcher().setSelector('tbody').setTarget(table).setCallback(couriersSvodka).setOnce().start();
 }
 
-function orders(trs = getTrs()) {
-	trs.each(function () {
-		const $row = $(this);
-		hiddenCols($row);
-		wrapNative($row);
-		order($row);
+async function orders($trs = getTrs()) {
+	if (!$trs.length) return;
+
+	const ordersCrm = await getOrdersCrm($trs);
+	$trs.each(function (i, tr) {
+		const $tr = $(tr);
+		hiddenCols($tr);
+		wrapNative($tr);
+		order($tr, ordersCrm[i]);
 	});
 }
 
-function hiddenCols(nodes = getTrs()) {
-	[
-		'Дата и время',
-		'Тип доставки',
-		'Телефон получателя',
-		'Имя получателя',
-		'Себестоимость доставки',
-		'Аноним',
-		'Текст в карточку',
-		'Узнать адрес у получателя',
-		'Номер',
-		'Метро',
-		'Сумма оплаты',
-		'Оплачено',
-		'Телефон курьера',
-		'Примечания курьера',
-		'Автокурьер',
-		'Расходы на закуп цветка',
-		'Расходы на закуп нецветка',
-		'Откуда узнал о нас (в заказе)',
-		'Мессенджер заказчика (в заказе)',
-		'Скидка в процентах',
-		'Комментарий оператора',
-		'Комментарий клиента',
-		'Контактный телефон',
-		'Состав',
-		'Сумма по товарам/услугам',
-		'Добавить лубрикант Lovix',
-		'Пометить для флориста и/или администратора',
-		'Курьер оповещен'
-	]
-		.forEach(title => {
-			const colIndex = indexes[title.toLowerCase()];
-			if (colIndex === undefined) return;
-			getThs().eq(colIndex).hide();
-			nodes.children(`:eq(${colIndex})`).hide();
-		});
+function initHiddenCols() {
+	hiddenCols(getThs());
 }
 
-function wrapNative(nodes = getTrs()) {
-	nodes.find('td').each((_, e) => {
+function hiddenCols($nodes = getTrs()) {
+	if (!$nodes.length) return;
+
+	hiddenColumns.forEach(title => {
+		const colIndex = indexes[title.toLowerCase()];
+		if (colIndex === undefined) return;
+
+		if ($nodes.is('th')) {
+			$nodes.eq(colIndex).hide();
+		} else {
+			$nodes.children(`:eq(${colIndex})`).hide();
+		}
+	});
+}
+
+function wrapNative($nodes = getTrs()) {
+	if (!$nodes.length) return;
+	$nodes.find('td').each((_, e) => {
 		const $e = $(e);
 		$e.html(`<span class="native">${$e.html()}</span>`);
 	});
@@ -127,9 +142,6 @@ function couriersSvodka() {
 	}
 }
 
-
-
-
 function getTable() {
 	return $(tableSelector);
 }
@@ -149,8 +161,13 @@ function getIndexes() {
 	return ixs;
 }
 async function getShops() {
-	return await db.get.shops();
+	return await db.table('shops').get();
 }
 async function getProductsNoFlowers() {
 	return await retailcrm.get.products.noFlowers();
+}
+async function getOrdersCrm(trs) {
+	const ordersCrmIds = $.map(trs, $tr => normalize.int($($tr).find('[href^="/order"]').text()));
+	const ordersCrm = await retailcrm.get.orders({ filter: { ids: ordersCrmIds } });
+	return ordersCrm;
 }

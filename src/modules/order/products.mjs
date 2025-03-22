@@ -7,10 +7,10 @@ import hash from '@helpers/hash';
 import retailcrm from '@helpers/retailcrm_direct';
 import normalize from '@helpers/normalize';
 import wait from '@helpers/wait';
-import { php2steblya } from '@helpers/fetch';
+import { php2steblya } from '@helpers/api';
 import '@css/order_products.css';
 
-let watcher;
+let watcher = dom.watcher();
 let $table;
 const money = {
 	flowers: 0, // закупочная стоимость цветов в заказе
@@ -28,7 +28,7 @@ export default async () => {
 	title();
 	dostavkaPrice();
 	hideInfiniteOstatki();
-	products();
+	await productsCatalog();
 	sebes();
 	productsPopup();
 	availableInventory();
@@ -38,14 +38,13 @@ export default async () => {
 }
 
 function listen() {
-	watcher = dom.watcher();
 	watcher
 		.setType('both')
 		.setTarget($table[0])
 		.setSelector('tbody')
 		.setCallback(async () => {
 			hideInfiniteOstatki();
-			products();
+			await productsCatalog();
 			availableInventory();
 			orderASC();
 			addTransport();
@@ -53,20 +52,29 @@ function listen() {
 		.start();
 }
 
-async function products() {
+async function productsCatalog() {
 	let isAuto = false;
 	const bukety = [];
 	const cards = [];
-	const $products = $table.find('tbody');
+	const $productsAll = $table.find('tbody');
+	const productCrmIds = $.map($productsAll, product => getProductId($(product)));
+	const productsCrm = await retailcrm.get.products({ filter: { ids: productCrmIds } });
+	const productsCatalog = productsCrm.filter(product => product.url && !product.url.includes('transportirovochnoe'));
+	const productsCatalogIds = productsCatalog.map(product => product.id);
+	const $productsCatalog = $productsAll.filter((_, product) => productsCatalogIds.includes(getProductId($(product))));
 
-	await Promise.all($products.map((_, product) => {
+	await Promise.all($productsCatalog.map((i, product) => {
 		const $product = $(product);
 		return (async () => {
-			await classes($product);
+			const productDb = await db.table('products').get({
+				where: { id: productsCatalog[i].externalId, shop_crm_id: productsCatalog[i].catalogId },
+				limit: 1
+			});
+			await classes($product, productDb);
 			checkAuto($product);
 			checkBukety($product);
 			chaeckCards($product);
-			dopnikPurchasePrice($product);
+			dopnikPurchasePrice($product, productDb);
 			properties($product);
 		})();
 	}));
@@ -76,27 +84,14 @@ async function products() {
 	setCards();
 
 	//определяем тип товаров (каталожный/с фоточкой и допник)
-	async function classes($product) {
+	async function classes($product, productDb) {
 		if ($product.is('.catalog')) return;
 		if (!$product.find('.image img').length) return;
 		$product.addClass('catalog');
 		try {
-			const productCrm = await retailcrm.get.product.byId(getProductId($product));
-			const requestData = {
-				request: 'products/get',
-				fields: [
-					'type'
-				],
-				where: {
-					id: productCrm.externalId,
-					shop_crm_id: productCrm.catalogId
-				},
-				limit: 1
-			}
-			const type = await db.request(requestData);
-			if (type == 666) $product.addClass('podpiska');
-			if (type == 888) $product.addClass('dopnik');
-			if (type == 1111) $product.addClass('donat');
+			if (productDb.type == 666) $product.addClass('podpiska');
+			if (productDb.type == 888) $product.addClass('dopnik');
+			if (productDb.type == 1111) $product.addClass('donat');
 		} catch (error) {
 			console.error(error);
 		}
@@ -150,25 +145,12 @@ async function products() {
 		$input.val(value);
 	}
 
-	async function dopnikPurchasePrice($product) {
+	async function dopnikPurchasePrice($product, productDb) {
 		if (!$product.is('.dopnik')) return;
 		const $input = $product.find('td.purchase-price input.purchase-price');
 		if (parseInt(normalize.int($input.val()) > 0)) return;
-		const productCrm = await retailcrm.get.product.byId(getProductId($product));
-		const requestData = {
-			request: 'products/get',
-			fields: [
-				'purchase_price'
-			],
-			where: {
-				id: productCrm.externalId,
-				shop_crm_id: productCrm.catalogId
-			},
-			limit: 1
-		}
-		const purchase_price = await db.request(requestData);
-		if ($input.val() == purchase_price) return;
-		$input.val(purchase_price).change();
+		if ($input.val() == productDb.purchase_price) return;
+		$input.val(productDb.purchase_price).change();
 		$product.find('td.purchase-price button').trigger('click');
 	}
 
@@ -263,8 +245,7 @@ async function addTransport() {
 	await prepareForTransportAdd();
 
 	try {
-		const orderId = getOrderId();
-		await php2steblya.get('RetailCrm_AddTransport', { id: orderId });
+		await php2steblya('retailcrm/AddTransport').get({ id: getOrderId() });
 		window.location.reload();
 	} catch (error) {
 		console.error('Ошибка добавления транспортировочного:', error);
@@ -315,25 +296,38 @@ function hideInfiniteOstatki() {
 
 function orderASC() {
 	watcher.stop();
-	const temp = {};
-	const tempCatalog = {};
-	const tempDopnik = {};
+
+	// Создаём временные массивы для каждой группы товаров
+	const catalogProducts = [];
+	const dopnikProducts = [];
+	const otherProducts = [];
+
+	// Распределяем товары по группам
 	$table.find('tbody').each((_, product) => {
 		const $product = $(product);
 		const title = $product.find('.title a').text();
-		if (!$product.is('.catalog')) {
-			temp[title] = $product.detach();
-		} else {
-			if ($(product).is('.dopnik')) {
-				tempDopnik[title] = $product.detach();
+
+		if ($product.is('.catalog')) {
+			if ($product.is('.dopnik')) {
+				dopnikProducts.push({ title, element: $product.detach() });
 			} else {
-				tempCatalog[title] = $product.detach();
+				catalogProducts.push({ title, element: $product.detach() });
 			}
+		} else {
+			otherProducts.push({ title, element: $product.detach() });
 		}
 	});
-	Object.keys(tempCatalog).sort().forEach(key => $table.append(tempCatalog[key]));
-	Object.keys(tempDopnik).sort().forEach(key => $table.append(tempDopnik[key]));
-	Object.keys(temp).sort().forEach(key => $table.append(temp[key]));
+
+	// Сортируем каждую группу по алфавиту
+	catalogProducts.sort((a, b) => a.title.localeCompare(b.title));
+	dopnikProducts.sort((a, b) => a.title.localeCompare(b.title));
+	otherProducts.sort((a, b) => a.title.localeCompare(b.title));
+
+	// Добавляем обратно в таблицу в нужном порядке
+	catalogProducts.forEach(item => $table.append(item.element));
+	dopnikProducts.forEach(item => $table.append(item.element));
+	otherProducts.forEach(item => $table.append(item.element));
+
 	watcher.start();
 }
 
@@ -469,5 +463,5 @@ function availableInventory() {
 }
 
 function getProductId($product) {
-	return $product.children().attr('data-product-id');
+	return Number($product.children().attr('data-product-id'));
 }

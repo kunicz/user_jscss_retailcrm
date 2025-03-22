@@ -8,11 +8,10 @@ import dates from '@helpers/dates';
 import { inlineTooltip } from '@src/helpers';
 import { RESERVED_ARTICLES } from '@root/config';
 
-export default async ($tr) => {
+export default async ($tr, order) => {
 
 	const orderId = normalize.int($tr.data('url'));
 	const shopDb = shops.find(s => s.shop_title === getNative('Магазин'));
-	const order = await retailcrm.get.order.byId(orderId);
 	const artikul = order?.items.find(item => typeof item.properties === 'object' && item.properties?.artikul?.value)?.properties.artikul.value;
 	const probableSku = parseInt(artikul?.match(/^\d+/)?.[0]);
 	const sku = RESERVED_ARTICLES.includes(probableSku) ? artikul : probableSku;

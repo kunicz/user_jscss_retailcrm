@@ -11,7 +11,7 @@ import product from '@pages/product';
 
 export let user = {};
 
-window.BUNDLE_VERSION = '2.5.6';
+window.BUNDLE_VERSION = '2.5.7';
 
 $(document).ready(async () => {
 	try {
@@ -28,7 +28,7 @@ $(document).ready(async () => {
 				[/admin\/couriers(?:[^\/]|$)/, { couriers }],
 				[/admin\/couriers\/(\d+|new)/, { courier }],
 				[/customers\/\d+/, { customer }],
-				[/orders\/$/, { orders }],
+				[/orders(?:\/)?(?:\?.*)?$/, { orders }],
 				[/orders\/\d+/, { order }],
 				[/products\/$/, { products }],
 				[/products\/\d+/, { product }],
