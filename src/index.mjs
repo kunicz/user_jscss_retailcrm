@@ -11,30 +11,35 @@ import product from '@pages/product';
 
 export let user = {};
 
-window.BUNDLE_VERSION = '2.5.7';
-
-$(document).ready(async () => {
-	try {
-		user = await retailcrm.get.user.byId($('head').data('user-id'));
-		menu();
-		(function update() {
-			// не использую setInterval, потому что он дает задержку даже при 0
-			requestAnimationFrame(update);
-
-			if ($('#main.user_jscss').length) return;
-			$('#main').addClass('user_jscss');
-
-			init('retailcrm', new Map([
-				[/admin\/couriers(?:[^\/]|$)/, { couriers }],
-				[/admin\/couriers\/(\d+|new)/, { courier }],
-				[/customers\/\d+/, { customer }],
-				[/orders(?:\/)?(?:\?.*)?$/, { orders }],
-				[/orders\/\d+/, { order }],
-				[/products\/$/, { products }],
-				[/products\/\d+/, { product }],
-			]));
-		})();
-	} catch (error) {
-		console.error(error);
-	}
+window.addEventListener('unhandledrejection', function (event) {
+	console.log('unhandledrejection');
+	console.error(event.reason);
+	event.preventDefault();
 });
+
+window.BUNDLE_VERSION = '2.5.8';
+
+try {
+	user = await retailcrm.get.user.byId($('head').data('user-id'));
+	menu();
+	(function update() {
+		// не использую setInterval, потому что он дает задержку даже при 0
+		requestAnimationFrame(update);
+
+		if ($('#main.user_jscss').length) return;
+		$('#main').addClass('user_jscss');
+
+		init('retailcrm', new Map([
+			[/admin\/couriers(?:[^\/]|$)/, { couriers }],
+			[/admin\/couriers\/(\d+|new)/, { courier }],
+			[/customers\/\d+/, { customer }],
+			[/orders\/\d+/, { order }],
+			[/orders(?:\/)?(?:\?.*)?$/, { orders }],
+			[/products\/$/, { products }],
+			[/products\/\d+/, { product }],
+		]));
+	})();
+} catch (error) {
+	console.log('index.mjs: ошибка');
+	console.error(error);
+}

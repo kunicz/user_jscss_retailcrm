@@ -6,6 +6,7 @@
 
 svg.lovixlube{width:14px;height:14px;margin-left:4px;}
 
+.js-order-list td{height:80px}
 .js-order-list th,.js-order-list td:not(#upload){position:relative;padding:8px;}
 .js-order-list td.addComment:after{display:block;font-size:.8em;margin-top:3px;opacity:.5}
 
@@ -14,32 +15,48 @@ svg.lovixlube{width:14px;height:14px;margin-left:4px;}
 .js-order-list td .warn .warn_icon_tooltip{display:inline-block}
 .js-order-list td .warn svg.warning{width:17px;height:17px;}
 
-.js-order-list td[type="чат"]{min-width:320px}
-.js-order-list td[type="покупатель"].addComment.onanim:after{content:'аноним'}
-.js-order-list td[type="выебри карточку"].addComment.customCardText:after{content:'+ свой текст'}
-.js-order-list td[type="выебри карточку"] a.print_card{z-index:10;position:absolute;bottom:4px;right:4px;text-decoration:none;font-size:1.5em}
-.js-order-list td[type="букеты в заказе"] svg.lovixlube{position:absolute;right:4px;bottom:4px}
-.js-order-list td[type="букеты в заказе"] .gamma{display:inline-block;top:0;right:0; padding:1px 6px 4px 6px; background-color: yellow; vertical-align: super;}
-.js-order-list td[type="букеты в заказе"] .gamma.soft{background-color:#FADADD;}
-.js-order-list td[type="букеты в заказе"] .gamma.light{background-color:#E0F7FA;}
-.js-order-list td[type="букеты в заказе"] .gamma.bright{background-color:#FF4500;color:#fff}
-.js-order-list td[type="букеты в заказе"] .gamma.dark{background-color:#1C1C1C;color:#fff}
-.js-order-list td[type="букеты в заказе"] .gamma.sunny{background-color:#FFD700;color:#fff}
-.js-order-list td[type="покупатель"] .telegram svg.telegram{display:inline-block;width:14px;height:14px;margin-right:5px;cursor:pointer;vertical-align:baseline;}
-.js-order-list td[type="покупатель"] .phoneZakazchika{display:block;font-size:.8em;opacity:.5;cursor:pointer;margin-top:5px}
-.js-order-list td[type="сумма"] .paid{font-size:.9em;opacity:.5}
-.js-order-list td[type="сумма"] .discount{position:absolute;top:0;right:0;font-size:10px;background:#ff7a93;color:#fff;line-height:15px;padding:0 4px}
-.js-order-list td[type="магазин"] .logo{width:30px;height:30px}
-.js-order-list td[type="адрес доставки"] .copyBtn:after{content:'☎'}
-.js-order-list td[type="адрес доставки"] .inline-tooltip.user_jscss_tooltip{left:auto;right:20px;}
-.js-order-list td[type="курьер"] .warn .inline-tooltip.user_jscss_tooltip{max-width:200px;width:200px;left:-4px;transform:translateX(-100%)}
-.js-order-list td[type="курьер"] .price{margin-top:4px}
-.js-order-list td[type="курьер"] .auto{width:18px;height:18px}
-.js-order-list td[type="курьер"] .warn .notify{vertical-align:top;display:inline-block;width:14px;height:14px;padding:0;margin:0;}
-.js-order-list td[type="курьер"][data-notified="false"] .warn .notify{cursor:pointer;}
-.js-order-list td[type="курьер"][data-notified="false"] .warn .notify::after{content:'🔕';}
-.js-order-list td[type="курьер"][data-notified="true"] .warn .notify{display:none;}
-.js-order-list td[type="оплата"] .pay-status.wait{background:#FF4500!important; border-radius: 50%; text-align:center}
-.js-order-list td[type="оплата"] .pay-status.wait:before{content:'!$'; color:#fff; vertical-align:middle}
+.js-order-list td#upload{display:none;}
+.js-order-list td[col="чат"]{min-width:320px}
+.js-order-list td[col="покупатель"].addComment.onanim:after{content:'аноним'}
+.js-order-list td[col="выебри карточку"].addComment.customCardText:after{content:'+ свой текст'}
+.js-order-list td[col="выебри карточку"].noIdentic .native{background-color: #f3ff92;}
+.js-order-list td[col="выебри карточку"] a.print_card{z-index:10;position:absolute;bottom:4px;right:4px;text-decoration:none;font-size:1.5em}
+.js-order-list td[col="букеты в заказе"]{width:240px}
+.js-order-list td[col="букеты в заказе"] svg.lovixlube{position:absolute;right:4px;bottom:4px}
+.js-order-list td[col="букеты в заказе"] .product{margin:8px 0;}
+.js-order-list td[col="букеты в заказе"] .color{width:16px;max-width:16px;height:16px;border-radius:4px;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;margin-right:2px;transition:all 0.3s ease-in-out;vertical-align:bottom;transform:translateY(-2px);}
+.js-order-list td[col="букеты в заказе"] .color span{font-size:11px;opacity:0;white-space:nowrap;padding:0 4px;transition:all 0.1s ease-in-out;margin-top:-2px;}
+.js-order-list td[col="букеты в заказе"]:hover .color{width:auto;max-width:200px;}
+.js-order-list td[col="букеты в заказе"]:hover .color span{opacity:1;padding:0 10px;}
+.js-order-list td[col="букеты в заказе"] .color.default{background-color:#bab6c5;color:#fff;}
+.js-order-list td[col="букеты в заказе"] .color.soft{background-color:#FADADD;color:#7a5c5c;}
+.js-order-list td[col="букеты в заказе"] .color.light{background-color:#E0F7FA;border:1px solid rgba(0,0,0,.2);}
+.js-order-list td[col="букеты в заказе"] .color.bright{background-color:#FF4500;color:#fff}
+.js-order-list td[col="букеты в заказе"] .color.dark{background-color:#5e565d;color:#fff}
+.js-order-list td[col="букеты в заказе"] .color.sunny{background-color:#FFD700;}
+.js-order-list td[col="букеты в заказе"] .color.yellow{background-color:yellow;color:#755818}
+.js-order-list td[col="букеты в заказе"] .color.orange{background-color:orange;color:#fff}
+.js-order-list td[col="букеты в заказе"] .color.red{background-color:red;color:#fff}
+.js-order-list td[col="букеты в заказе"] .color.pink{background-color:pink}
+.js-order-list td[col="букеты в заказе"] .color.purple{background-color:rgb(190, 49, 190);color:#fff}
+.js-order-list td[col="букеты в заказе"] .color.blue{background-color:rgb(97, 97, 214);color:#fff}
+.js-order-list td[col="букеты в заказе"] .color.green{background-color:rgb(12, 170, 97);color:#fff}
+.js-order-list td[col="букеты в заказе"] .color.white{background-color:white;border:1px solid rgba(0,0,0,.2);}
+.js-order-list td[col="покупатель"] .telegram svg.telegram{display:inline-block;width:14px;height:14px;margin-right:5px;cursor:pointer;vertical-align:baseline;}
+.js-order-list td[col="покупатель"] .phoneZakazchika{display:block;font-size:.8em;opacity:.5;cursor:pointer;margin-top:5px}
+.js-order-list td[col="сумма"] .paid{font-size:.9em;opacity:.5}
+.js-order-list td[col="сумма"] .discount{position:absolute;top:0;right:0;font-size:10px;background:#ff7a93;color:#fff;line-height:15px;padding:0 4px}
+.js-order-list td[col="магазин"] .logo{width:30px;height:30px}
+.js-order-list td[col="адрес доставки"] .copyBtn:after{content:'☎'}
+.js-order-list td[col="адрес доставки"] .inline-tooltip.user_jscss_tooltip{left:auto;right:20px;}
+.js-order-list td[col="курьер"] .warn .inline-tooltip.user_jscss_tooltip{max-width:200px;width:200px;left:-4px;transform:translateX(-100%)}
+.js-order-list td[col="курьер"] .price{margin-top:4px}
+.js-order-list td[col="курьер"] .auto{width:18px;height:18px}
+.js-order-list td[col="курьер"] .warn .notify{vertical-align:top;display:inline-block;width:14px;height:14px;padding:0;margin:0;}
+.js-order-list td[col="курьер"][data-notified="false"] .warn .notify{cursor:pointer;}
+.js-order-list td[col="курьер"][data-notified="false"] .warn .notify::after{content:'🔕';}
+.js-order-list td[col="курьер"][data-notified="true"] .warn .notify{display:none;}
+.js-order-list td[col="оплата"] .pay-status.wait{background:#FF4500!important; border-radius: 50%; text-align:center}
+.js-order-list td[col="оплата"] .pay-status.wait:before{content:'!$'; color:#fff; vertical-align:middle}
 
 #list-total-wrapper a{cursor:pointer;}

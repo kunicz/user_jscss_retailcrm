@@ -1,9 +1,9 @@
 import productsPopup from '@modules/order/products/popup';
+import { properties } from '@modules/order/products/properties';
 import { vehicleFormats } from '@src/mappings';
 import { noFlowers, getOrderId, getShopCode } from '@src/pages/order';
 import db from '@helpers/db';
 import dom from '@helpers/dom';
-import hash from '@helpers/hash';
 import retailcrm from '@helpers/retailcrm_direct';
 import normalize from '@helpers/normalize';
 import wait from '@helpers/wait';
@@ -47,7 +47,7 @@ function listen() {
 			await productsCatalog();
 			availableInventory();
 			orderASC();
-			addTransport();
+			await addTransport();
 		})
 		.start();
 }
@@ -72,8 +72,8 @@ async function productsCatalog() {
 			});
 			await classes($product, productDb);
 			checkAuto($product);
-			checkBukety($product);
-			chaeckCards($product);
+			//checkBukety($product);
+			//chaeckCards($product);
 			dopnikPurchasePrice($product, productDb);
 			properties($product);
 		})();
@@ -88,13 +88,9 @@ async function productsCatalog() {
 		if ($product.is('.catalog')) return;
 		if (!$product.find('.image img').length) return;
 		$product.addClass('catalog');
-		try {
-			if (productDb.type == 666) $product.addClass('podpiska');
-			if (productDb.type == 888) $product.addClass('dopnik');
-			if (productDb.type == 1111) $product.addClass('donat');
-		} catch (error) {
-			console.error(error);
-		}
+		if (productDb.type == 666) $product.addClass('podpiska');
+		if (productDb.type == 888) $product.addClass('dopnik');
+		if (productDb.type == 1111) $product.addClass('donat');
 	}
 
 	function checkAuto($product) {
@@ -121,8 +117,9 @@ async function productsCatalog() {
 	}
 	function setBukety() {
 		const $input = $('#intaro_crmbundle_ordertype_customFields_bukety_v_zakaze');
-		const value = bukety.join(',<br>');
 		$input.parent().hide();
+		return;
+		const value = bukety.join(',<br>');
 		if ($input.val() === value) return;
 		$input.val(value).change();
 	}
@@ -137,9 +134,11 @@ async function productsCatalog() {
 		//удаляем дубликаты
 		//исхожу из того, что не бывает такого, что есть в одном заказе два букета и оба со своим текстом, причем разным
 		//во всех остальных случаях, кажется, этого будет достаточно
+		const $input = $('#intaro_crmbundle_ordertype_customFields_card');
+		$input.parent().hide();
+		return;
 		const cardsUnique = [...new Set(cards)];
 		if (!cardsUnique.length) return;
-		const $input = $('#intaro_crmbundle_ordertype_customFields_card');
 		const value = cardsUnique.length === 1 ? cardsUnique[0] : 'разные для букетов';
 		if ($input.val() === value) return;
 		$input.val(value);
@@ -152,85 +151,6 @@ async function productsCatalog() {
 		if ($input.val() == productDb.purchase_price) return;
 		$input.val(productDb.purchase_price).change();
 		$product.find('td.purchase-price button').trigger('click');
-	}
-
-	async function properties($product) {
-		if (!$product.is('.catalog')) return;
-
-		const $tr = $product.children('tr');
-		const productId = $tr.attr('data-product-id');
-		const productIndex = $tr.attr('data-order-product-index');
-		const productTitle = $product.find('.title a').text().trim();
-		const $block = $product.find('td.properties-td');
-
-		//проверям, есть ли у товара все поля
-		if (![
-			$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_for-mat_value`).length,
-			$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_artikul_value`).length,
-			$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_tsena_value`).length,
-			$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_moyskladid_value`).length
-		].includes(0)) return;
-
-		let index = $product.find('.order-product-properties > span').length;
-
-		//если нет артикула или цены, нужно запрашивать у срм товар
-		const productCrm = await retailcrm.get.product.byId(productId);
-		//формат (for-mat)
-		if (!$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_for-mat_value`).length) {
-			index++;
-			let value = $product.find('.title a').text();
-			if (productCrm.offers.length > 1) value = value.split(' - ').pop();
-			addPproperty('for-mat', 'фор мат', value, index, productIndex, $block);
-		}
-		//артикул (artikul)
-		if (!$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_artikul_value`).length) {
-			index++;
-			addPproperty('artikul', 'артикул', productCrm.offers.filter(offer => offer.name == productTitle)[0]['article'], index, productIndex, $block);
-		}
-		//цена (tsena)
-		if (!$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_tsena_value`).length) {
-			index++;
-			addPproperty('tsena', 'цена', productCrm.offers.filter(offer => offer.name == productTitle)[0]['price'], index, productIndex, $block);
-		}
-		//идентификатор мойсклад (moyskladid)
-		if (!$product.find(`#intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_msid_value`).length) {
-			index++;
-			addPproperty('moyskladid', 'мойсклад id', hash.timestamp(), index, productIndex, $block);
-		}
-
-		function addPproperty(code, name, value, index, productIndex, block) {
-			//code - код опции (for-mat)
-			//title - транслитерация field (фор мат)
-			//value - значение
-			//index - порядковый номер опции
-			//productIndex - индекс продажи (aka покупки) среди всех товаров за все время
-			//block - родительский объект, к которому крепим
-
-			//невидимое
-			$(`
-			<div data-index="${index}" class="order-product-property-hidden" style="display:none">
-				<div class="property-field-code">
-					<input type="hidden" id="intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_${code}_code" name="intaro_crmbundle_ordertype[orderProducts][${productIndex}][properties][${code}][code]" autocomplete="disabled" value="${code}">
-				</div>
-				<div class="property-field-name">
-					<div class="value">
-						<input type="text" id="intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_${code}_name" name="intaro_crmbundle_ordertype[orderProducts][${productIndex}][properties][${code}][name]" required="required" autocomplete="disabled" value="${name}">
-					</div>
-				</div>
-				<div class="property-field-value">
-					<div class="value">
-						<input type="text" id="intaro_crmbundle_ordertype_orderProducts_${productIndex}_properties_${code}_value" name="intaro_crmbundle_ordertype[orderProducts][${productIndex}][properties][${code}][value]" required="required" autocomplete="disabled" value="${value}">
-					</div>
-				</div>
-			</div>`).appendTo(block);
-
-			//видимое
-			$(`
-			<span class="additional ellipsis edit" data-index="${index}" title="${name}: ${value}">
-				<span>${name}</span>
-				${value}
-			</span>`).appendTo(block.find('.order-product-properties'));
-		}
 	}
 }
 
@@ -393,13 +313,13 @@ function rashodNoFlowers() {
 
 	$('#flowersRashodValue').text(money.flowers);
 	$('#noflowersRashodValue').text(money.noFlowers);
-	const inputFlowers = $('#intaro_crmbundle_ordertype_customFields_flower_rashod');
-	const inputNoFlowers = $('#intaro_crmbundle_ordertype_customFields_noflower_rashod');
-	inputFlowers.parent().hide();
-	inputNoFlowers.parent().hide();
-	if (inputFlowers.val() == money.flowers && inputNoFlowers.val() == money.noFlowers) return;
-	inputFlowers.val(money.flowers);
-	inputNoFlowers.val(money.noFlowers);
+	const $inputFlowers = $('#intaro_crmbundle_ordertype_customFields_flower_rashod');
+	const $inputNoFlowers = $('#intaro_crmbundle_ordertype_customFields_noflower_rashod');
+	$inputFlowers.parent().hide();
+	$inputNoFlowers.parent().hide();
+	if ($inputFlowers.val() == money.flowers && $inputNoFlowers.val() == money.noFlowers) return;
+	$inputFlowers.val(money.flowers);
+	$inputNoFlowers.val(money.noFlowers);
 }
 
 //калькулятор в попапе
@@ -462,6 +382,6 @@ function availableInventory() {
 	});
 }
 
-function getProductId($product) {
+export function getProductId($product) {
 	return Number($product.children().attr('data-product-id'));
 }

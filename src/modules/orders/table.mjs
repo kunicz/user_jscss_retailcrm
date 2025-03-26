@@ -1,173 +1,167 @@
-import order from '@modules/orders/row';
+import order from '@modules/orders/tr';
+import { hiddenColumns } from '@modules/orders/cols';
 import finances from '@modules/orders/table/finances';
-import { copy } from '@helpers/clipboard';
+import couriersSvodka from '@modules/orders/table/couriers_svodka';
 import retailcrm from '@helpers/retailcrm_direct';
 import db from '@helpers/db';
 import dom from '@helpers/dom';
 import normalize from '@helpers/normalize';
 import '@css/orders_table.css';
 
-export let shops = [];
-export let indexes = {};
-export let noFlowers = [];
-export default async () => {
-	indexes = getIndexes();
-	shops = await getShops();
-	noFlowers = await getProductsNoFlowers();
+class OrdersTable {
+	constructor() {
+		this.$table = $('.js-order-list');
+		this.$ths = this.$table.find('tr:first th');
+		this.shops = [];
+		this.indexes = {};
+		this.noFlowers = [];
+		this.fakeCustomers = [];
+	}
 
-	initHiddenCols();
-	listen();
-	await orders();
-	finances();
-	couriersSvodka();
-	handleThs();
-}
+	async init() {
+		await this.getExportData(); // получаем данные для экспорта в дочерние модули
+		this.listen();
+		await this.orders(this.$trs());
+		this.initHiddenCols();
+		this.finances();
+		this.couriersSvodka();
+	}
 
-const tableSelector = '.js-order-list';
-const hiddenColumns = [
-	'Дата и время',
-	'Тип доставки',
-	'Телефон получателя',
-	'Имя получателя',
-	'Себестоимость доставки',
-	'Аноним',
-	'Текст в карточку',
-	'Узнать адрес у получателя',
-	'Номер',
-	'Метро',
-	'Сумма оплаты',
-	'Оплачено',
-	'Телефон курьера',
-	'Примечания курьера',
-	'Автокурьер',
-	'Расходы на закуп цветка',
-	'Расходы на закуп нецветка',
-	'Откуда узнал о нас (в заказе)',
-	'Мессенджер заказчика (в заказе)',
-	'Скидка в процентах',
-	'Комментарий оператора',
-	'Комментарий клиента',
-	'Контактный телефон',
-	'Состав',
-	'Сумма по товарам/услугам',
-	'Добавить лубрикант Lovix',
-	'Пометить для флориста и/или администратора',
-	'Курьер оповещен'
-];
+	async listen() {
+		const table = this.$table.get(0);
+		dom.watcher().setSelector('tbody').setTarget(table).setCallback((node) => this.orders(this.getTrs($(node)))).start();
+		dom.watcher().setSelector('tbody').setTarget(table).setCallback(this.couriersSvodka).setOnce().start();
+	}
 
-async function listen() {
-	const table = getTable()[0];
-	dom.watcher().setSelector('tbody').setTarget(table).setCallback((node) => orders($(node))).start();
-	dom.watcher().setSelector('tbody').setTarget(table).setCallback(couriersSvodka).setOnce().start();
-}
+	async orders($trs) {
+		if (!$trs.length) return;
 
-async function orders($trs = getTrs()) {
-	if (!$trs.length) return;
+		const ordersCrm = await this.getOrdersCrm($trs);
+		$trs.each((i, tr) => {
+			const $tr = $(tr);
+			this.hiddenCols($tr);
+			this.wrapNative($tr);
+			order($tr, ordersCrm[i]);
+		});
+	}
 
-	const ordersCrm = await getOrdersCrm($trs);
-	$trs.each(function (i, tr) {
-		const $tr = $(tr);
-		hiddenCols($tr);
-		wrapNative($tr);
-		order($tr, ordersCrm[i]);
-	});
-}
+	initHiddenCols() {
+		this.handleThs();
+		this.hiddenCols();
+	}
 
-function initHiddenCols() {
-	hiddenCols(getThs());
-}
+	hiddenCols($nodes = this.$ths) {
+		if (!$nodes.length) return;
 
-function hiddenCols($nodes = getTrs()) {
-	if (!$nodes.length) return;
+		hiddenColumns.forEach(title => {
+			const colIndex = this.indexes[title];
+			if (colIndex === undefined) return;
 
-	hiddenColumns.forEach(title => {
-		const colIndex = indexes[title.toLowerCase()];
-		if (colIndex === undefined) return;
-
-		if ($nodes.is('th')) {
-			$nodes.eq(colIndex).hide();
-		} else {
-			$nodes.children(`:eq(${colIndex})`).hide();
-		}
-	});
-}
-
-function wrapNative($nodes = getTrs()) {
-	if (!$nodes.length) return;
-	$nodes.find('td').each((_, e) => {
-		const $e = $(e);
-		$e.html(`<span class="native">${$e.html()}</span>`);
-	});
-}
-
-function handleThs() {
-	getThs().eq(indexes['магазин']).html('');
-	getThs().eq(indexes['чат']).children('a').text('Комментарии');
-}
-
-function couriersSvodka() {
-	$(`<span><a id="couriersSvodka">Сводка по оплате курьерам</a></span>`)
-		.appendTo($('#list-total-wrapper'))
-		.on('click', () => copy(generate(aggregate())));
-
-	function aggregate() {
-		const $tds = getTrs().find('td[type="курьер"]');
-		let data = $tds.map((_, e) => $(e).data('svodka')).get().reduce((acc, curr) => {
-			if (curr.name === 'Другой курьер') {
-				acc.push({ ...curr });
+			if ($nodes.is('th')) {
+				$nodes.eq(colIndex).hide();
 			} else {
-				const existing = acc.find(item => item.name === curr.name);
-				if (existing) {
-					existing.price += curr.price;
-				} else {
-					acc.push({ ...curr });
-				}
+				$nodes.children(`:eq(${colIndex})`).hide();
 			}
-			return acc;
-		}, []);
-		data = data.sort((a, b) => a.name.localeCompare(b.name));
-		return data;
+		});
 	}
 
-	function generate(data) {
-		const from = $('#filter_deliveryDate_gte_abs').val().split('-').reverse().slice(0, 2).join('.');
-		const to = $('#filter_deliveryDate_lte_abs').val().split('-').reverse().slice(0, 2).join('.');
-		let output = '';
-		output += from && to ? `с ${from} по ${to}` : from ? `за ${from}` : '';
-		output += '\n-------\n';
-		output += data.map(c => `${c.name}${c.comments ? ` (${c.comments})` : ''}${c.phone ? ` / ${c.phone}` : ''}${c.bank ? ` (${c.bank})` : ''} / ${c.price} ₽`).join('\n');
-		output += `\n-------\n`;
-		output += `скопировано в ${new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`;
-		return output;
+	handleThs() {
+		this.$ths.eq(this.indexes['магазин']).html('');
+		this.$ths.eq(this.indexes['чат']).children('a').text('Комментарии');
+	}
+
+	wrapNative($nodes = this.$trs()) {
+		if (!$nodes.length) return;
+		$nodes.find('td').each((_, e) => {
+			const $e = $(e);
+			$e.html(`<span class="native">${$e.html()}</span>`);
+		});
+	}
+
+	couriersSvodka() {
+		couriersSvodka(this.$trs());
+	}
+
+	finances() {
+		finances();
+	}
+
+	$trs() {
+		return this.getTrs(this.$table);
+	}
+
+	getTrs($node) {
+		return $node.find('tr[data-url*="orders"]');
+	}
+
+	getIndexes() {
+		const ixs = {};
+		this.$ths.each((i, _) => {
+			const text = this.$ths.eq(i).text()
+				.replace(/\s+/g, ' ')  // заменяем все пробельные символы на один пробел
+				.replace(/\n/g, '')    // удаляем переносы строк
+				.trim()                // удаляем пробелы в начале и конце
+				.toLowerCase();        // приводим к нижнему регистру
+
+			ixs[text] = this.$ths.eq(i).index();
+			ixs[this.$ths.eq(i).index()] = text;
+		});
+		return ixs;
+	}
+
+	async getShops() {
+		return await db.table('shops').get();
+	}
+
+	async getProductsNoFlowers() {
+		return await retailcrm.get.products.noFlowers();
+	}
+
+	async getfakeCustomers() {
+		return await retailcrm.get.customers.fake();
+	}
+
+	getOrderCrmId($tr) {
+		return normalize.int($($tr).find('[href^="/order"]').text());
+	}
+
+	async getOrdersCrm($trs) {
+		const ordersCrmIds = $.map($trs, $tr => this.getOrderCrmId($tr));
+		const ordersCrm = await retailcrm.get.orders({ filter: { ids: ordersCrmIds } });
+		return ordersCrm.sort((a, b) => {
+			const indexA = ordersCrmIds.indexOf(a.id);
+			const indexB = ordersCrmIds.indexOf(b.id);
+			return indexA - indexB;
+		});
+	}
+
+	async getExportData() {
+		const [shops, noFlowers, fakeCustomers] = await Promise.all([
+			this.getShops(),
+			this.getProductsNoFlowers(),
+			this.getfakeCustomers()
+		]);
+
+		this.shops = shops;
+		this.noFlowers = noFlowers;
+		this.fakeCustomers = fakeCustomers;
+		this.indexes = this.getIndexes();
 	}
 }
 
-function getTable() {
-	return $(tableSelector);
-}
-function getTrs() {
-	return getTable().find('tr[data-url*="orders"]');
-}
-function getThs() {
-	return getTable().find('tr:first th');
-}
-function getIndexes() {
-	const ixs = {};
-	const ths = getThs();
-	ths.each(i => {
-		ixs[ths.eq(i).text().trim().toLowerCase()] = ths.eq(i).index();
-		ixs[ths.eq(i).index()] = ths.eq(i).text().trim().toLowerCase();
-	});
-	return ixs;
-}
-async function getShops() {
-	return await db.table('shops').get();
-}
-async function getProductsNoFlowers() {
-	return await retailcrm.get.products.noFlowers();
-}
-async function getOrdersCrm(trs) {
-	const ordersCrmIds = $.map(trs, $tr => normalize.int($($tr).find('[href^="/order"]').text()));
-	const ordersCrm = await retailcrm.get.orders({ filter: { ids: ordersCrmIds } });
-	return ordersCrm;
-}
+let currentInstance = null;
+
+const getInstance = () => {
+	if (!currentInstance) currentInstance = new OrdersTable();
+	return currentInstance;
+};
+
+export default async () => {
+	currentInstance = new OrdersTable();
+	return currentInstance.init();
+};
+
+export const shops = () => getInstance().shops;
+export const indexes = () => getInstance().indexes;
+export const noFlowers = () => getInstance().noFlowers;
+export const fakeCustomers = () => getInstance().fakeCustomers;

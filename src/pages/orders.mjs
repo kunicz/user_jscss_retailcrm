@@ -1,7 +1,7 @@
-import ordersTable from '@modules/orders/table';
-import ordersFilters from '@modules/orders/filters';
+import table from '@modules/orders/table';
+import filters from '@modules/orders/filters';
 
 export default () => {
-	ordersFilters();
-	ordersTable();
+	filters();
+	table();
 }

@@ -4,7 +4,7 @@ import dostavka from '@modules/order/dostavka';
 import zakazchik from '@modules/order/zakazchik';
 import retailcrm from '@helpers/retailcrm_direct';
 import normalize from '@helpers/normalize';
-import { RESERVED_ARTICLES } from '@root/config';
+import { RESERVED_SKUS } from '@root/config';
 import '@css/order.css';
 
 export let noFlowers = [];
@@ -31,7 +31,7 @@ function printCard() {
 	const artikul = $product.find('[title^="артикул:"]')?.attr('title')?.replace('артикул: ', '');
 	if (!artikul) return;
 	const probableSku = parseInt(artikul.match(/^(\d+)/)?.[1]);
-	const sku = RESERVED_ARTICLES.includes(probableSku) ? artikul : probableSku;
+	const sku = RESERVED_SKUS.includes(probableSku) ? artikul : probableSku;
 	const shop = $('#intaro_crmbundle_ordertype_site option:selected').val();
 	$btn.attr('href', `https://php.2steblya.ru/print_card?order_id=${orderId}&sku=${sku}&shop_crm_id=${shop}`);
 }
