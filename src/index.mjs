@@ -17,7 +17,7 @@ window.addEventListener('unhandledrejection', function (event) {
 	event.preventDefault();
 });
 
-window.BUNDLE_VERSION = '2.5.8';
+window.BUNDLE_VERSION = '2.5.9';
 
 try {
 	user = await retailcrm.get.user.byId($('head').data('user-id'));

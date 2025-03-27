@@ -29,7 +29,7 @@ class CardTd extends OrderTd {
 
 	// помечает заказ без айдентики
 	noIdentic() {
-		if (this.type != 'без айдентики') return;
+		if (this.text != 'без айдентики') return;
 		this.$td.addClass('noIdentic');
 	}
 
@@ -46,6 +46,7 @@ class CardTd extends OrderTd {
 	// ссылка на печать карточки
 	printCard() {
 		if (!this.text || this.text === 'без карточки') return;
+		if (this.text === 'без айдентики' && !this.customText) return;
 		if (this.skus.length !== 1) return;
 		if ([SKU_DONAT, SKU_TRANSPORT].includes(this.skus[0])) return;
 		$(`<a class="print_card" href="https://php.2steblya.ru/print_card?order_id=${this.orderCrm.id}&sku=${this.skus[0]}&shop_crm_id=${this.row.shopDb?.shop_crm_id}" target="_blank">⎙</a>`).appendTo(this.$td);

@@ -1,52 +1,60 @@
 import { iconsSVG } from '@src/mappings';
 import normalize from '@helpers/normalize';
+import { Order } from '@pages/order';
 
-export default () => {
-	isPoluchatel();
-	telegram();
-	otkudaUznal();
-	phones();
-}
+export default (order) => new Zakazchik(order).init();
 
-function phones() {
-	const selector = '#intaro_crmbundle_ordertype_phone, #intaro_crmbundle_ordertype_additionalPhone, #intaro_crmbundle_ordertype_customFields_phone_poluchatelya';
-	const phoneFields = $(selector);
-	const normalizePhoneValue = field => $(field).val(normalize.phone($(field).val()));
-	phoneFields.each((_, field) => normalizePhoneValue(field));
-	phoneFields.on('change', e => normalizePhoneValue(e.target));
-}
+class Zakazchik {
+	constructor(order) {
+		this.order = order;
+	}
+	init() {
+		this.isPoluchatel();
+		this.telegram();
+		this.otkudaUznal();
+		this.phones();
+	}
 
-function isPoluchatel() {
-	//при клике на галочку берем имя и телефон и вставляем в поля получателя
-	//при повторном клике - обнуляем поля
-	const zName = $('#intaro_crmbundle_ordertype_firstName');
-	const pName = $('#intaro_crmbundle_ordertype_customFields_name_poluchatelya');
-	const zPhone = $('#intaro_crmbundle_ordertype_phone');
-	const pPhone = $('#intaro_crmbundle_ordertype_customFields_phone_poluchatelya');
+	phones() {
+		const selector = `#${Order.intaro}_phone, #${Order.intaro}_additionalPhone, #${Order.intaro}_customFields_phone_poluchatelya`;
+		const $phoneFields = $(selector);
+		const normalizePhoneValue = field => $(field).val(normalize.phone($(field).val()));
+		$phoneFields.each((_, field) => normalizePhoneValue(field));
+		$phoneFields.on('change', e => normalizePhoneValue(e.target));
+	}
 
-	if (!zName.val() && !pName.val() && !zPhone.val() && !pPhone.val()) return;
+	isPoluchatel() {
+		//при клике на галочку берем имя и телефон и вставляем в поля получателя
+		//при повторном клике - обнуляем поля
+		const $zName = $(`#${Order.intaro}_firstName`);
+		const $zPhone = $(`#${Order.intaro}_phone`);
+		const $pName = $(`#${Order.intaro}_customFields_name_poluchatelya`);
+		const $pPhone = $(`#${Order.intaro}_customFields_phone_poluchatelya`);
 
-	const input = $('#intaro_crmbundle_ordertype_customFields_zakazchil_poluchatel');
-	const isEqual = zName.val() == pName.val() && zPhone.val() == pPhone.val();
+		if (!$zName.val() && !$pName.val() && !$zPhone.val() && !$pPhone.val()) return;
 
-	input.prop('checked', isEqual);
-	input.on('change', () => {
-		if (!input.prop('checked')) {
-			pName.val('');
-			pPhone.val('');
-			return;
-		}
-		pName.val(zName.val());
-		pPhone.val(zPhone.val());
-	});
-}
+		const $input = $(`#${Order.intaro}_customFields_zakazchil_poluchatel`);
+		const isEqual = $zName.val() == $pName.val() && $zPhone.val() == $pPhone.val();
 
-function telegram() {
-	$('#intaro_crmbundle_ordertype_customFields_messenger_zakazchika')
-		.on('blur', e => $(e.target).val($(e.target).val().replace('@', '')))
-		.prev().html('Телеграм').prepend(iconsSVG.telegram);
-}
+		$input.prop('checked', isEqual);
+		$input.on('change', () => {
+			if (!$input.prop('checked')) {
+				$pName.val('');
+				$pPhone.val('');
+				return;
+			}
+			$pName.val($zName.val());
+			$pPhone.val($zPhone.val());
+		});
+	}
 
-function otkudaUznal() {
-	$('#intaro_crmbundle_ordertype_customFields_otkuda_o_nas_uznal').prev().text('Откуда узнал');
+	telegram() {
+		$(`#${Order.intaro}_customFields_messenger_zakazchika`)
+			.on('blur', e => $(e.target).val($(e.target).val().replace('@', '')))
+			.prev().html('Телеграм').prepend(iconsSVG.telegram);
+	}
+
+	otkudaUznal() {
+		$(`#${Order.intaro}_customFields_otkuda_o_nas_uznal`).prev().text('Откуда узнал');
+	}
 }
