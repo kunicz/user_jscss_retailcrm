@@ -122,6 +122,7 @@ export class ProductsRows {
 		if ($input.prop('checked') === isAuto) return;
 
 		$input.prop('checked', isAuto);
+		console.log('Автокурьер', isAuto);
 	}
 
 	// устанавливает значение поля "букеты в заказе"
@@ -172,11 +173,13 @@ export class ProductsRows {
 		if (!product.isDopnik) return;
 
 		const $input = product.$.find('td.purchase-price input.purchase-price');
-		if (parseInt(normalize.int($input.val()) > 0)) return;
-		if ($input.val() == product.db.purchase_price) return;
+		const value = normalize.int($input.val());
+		if (value > 0) return;
+		if (value == product.db.purchase_price) return;
 
 		$input.val(product.db.purchase_price).change();
 		product.$.find('td.purchase-price button').trigger('click');
+		console.log('Закупочная цена допника', value);
 	}
 
 	// логика в работе со свойствами товара

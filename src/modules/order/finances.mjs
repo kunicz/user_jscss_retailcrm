@@ -30,7 +30,6 @@ class Finances {
 			}
 		});
 
-		//console.log(this.money);
 		this.updateRashodDisplay();
 		this.updateRashodInputs();
 	}
@@ -62,10 +61,16 @@ class Finances {
 		$inputFlowers.parent().hide();
 		$inputNoFlowers.parent().hide();
 
-		if ($inputFlowers.val() == this.money.flowers && $inputNoFlowers.val() == this.money.noFlowers) return;
-
-		$inputFlowers.val(this.money.flowers);
-		$inputNoFlowers.val(this.money.noFlowers);
+		if (normalize.int($inputFlowers.val()) != this.money.flowers) {
+			const value = normalize.int($inputFlowers.val());
+			$inputFlowers.val(this.money.flowers);
+			console.log('Расход на цветы установлен', value, '->', this.money.flowers);
+		}
+		if (normalize.int($inputNoFlowers.val()) != this.money.noFlowers) {
+			const value = normalize.int($inputNoFlowers.val());
+			$inputNoFlowers.val(this.money.noFlowers);
+			console.log('Расход на нецветы установлен', value, '->', this.money.noFlowers);
+		}
 	}
 
 	// Рассчитывает общую сумму заказа
@@ -95,7 +100,7 @@ class Finances {
 
 	// Устанавливает текущую сумму заказа
 	setCurrentMoney() {
-		this.money.current = normalize.int($('order-total-summ').text());
+		this.money.current = normalize.int($('#order-total-summ').text());
 	}
 
 	// Устанавливает сумму оплаченных платежей
@@ -118,7 +123,7 @@ class Finances {
 
 	// Устанавливает стоимость доставки
 	setDostavkaMoney() {
-		this.money.dostavka = normalize.int($('delivery-cost').val());
+		this.money.dostavka = normalize.int($('#delivery-cost').val());
 	}
 
 	// Устанавливает общую стоимость товаров

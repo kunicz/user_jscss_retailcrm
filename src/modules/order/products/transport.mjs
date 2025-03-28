@@ -26,6 +26,7 @@ export default class Transport {
 		try {
 			await this.prepareForTransportAdd();
 			await php2steblya('retailcrm/AddTransport').get({ id: Order.id });
+			console.log('Транспортировочное добавлено');
 			window.location.reload();
 		} catch (error) {
 			console.error('Ошибка добавления транспортировочного:', error);

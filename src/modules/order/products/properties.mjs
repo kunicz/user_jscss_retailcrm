@@ -73,9 +73,8 @@ class Properties {
 
 		for (const config of propertyConfigs) {
 			const selector = `#${Order.intaro}_orderProducts_${this.product.index}_properties_${config.code}_value`;
-			console.log(selector);
 			if (this.product.$.find(selector).length) continue;
-			console.log('add');
+
 			index++;
 			addPproperty(
 				config.code, // код опции (for-mat)
@@ -85,6 +84,7 @@ class Properties {
 				this.product.index, // индекс продажи (aka покупки) среди всех товаров за все время
 				this.product.properties.$items.parent() // родительский объект, к которому крепим
 			);
+			console.log('Добавлено свойство', config.code)
 		}
 	}
 

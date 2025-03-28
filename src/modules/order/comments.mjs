@@ -32,7 +32,13 @@ class Comments {
 		const text = commentValue.split(devider).map(e => e.trim());
 
 		// Устанавливаем значения, но только если они существуют
-		if (text[1]) $floristField.val(text[1]);
-		if (text[2]) $courierField.val(text[2]);
+		if (text[1]) {
+			$floristField.val(text[1]);
+			console.log('Комментарий для флориста установлен', text[1]);
+		}
+		if (text[2]) {
+			$courierField.val(text[2]);
+			console.log('Комментарий для курьера установлен', text[2]);
+		}
 	}
 }

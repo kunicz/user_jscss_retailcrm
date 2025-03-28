@@ -8,6 +8,7 @@ class Zakazchik {
 	constructor(order) {
 		this.order = order;
 	}
+
 	init() {
 		this.isPoluchatel();
 		this.telegram();
@@ -18,7 +19,17 @@ class Zakazchik {
 	phones() {
 		const selector = `#${Order.intaro}_phone, #${Order.intaro}_additionalPhone, #${Order.intaro}_customFields_phone_poluchatelya`;
 		const $phoneFields = $(selector);
-		const normalizePhoneValue = field => $(field).val(normalize.phone($(field).val()));
+		const normalizePhoneValue = (field) => {
+			const $field = $(field);
+			const value = $field.val();
+			if (!value) return;
+
+			const normalizedValue = normalize.phone(value);
+			if (normalizedValue === value) return;
+
+			$field.val(normalizedValue);
+			console.log('Телефон нормализован', normalizedValue);
+		}
 		$phoneFields.each((_, field) => normalizePhoneValue(field));
 		$phoneFields.on('change', e => normalizePhoneValue(e.target));
 	}
@@ -34,9 +45,12 @@ class Zakazchik {
 		if (!$zName.val() && !$pName.val() && !$zPhone.val() && !$pPhone.val()) return;
 
 		const $input = $(`#${Order.intaro}_customFields_zakazchil_poluchatel`);
-		const isEqual = $zName.val() == $pName.val() && $zPhone.val() == $pPhone.val();
+		const isEqual = $zName.val() === $pName.val() && $zPhone.val() === $pPhone.val();
 
-		$input.prop('checked', isEqual);
+		if ($input.prop('checked') !== isEqual) {
+			$input.prop('checked', isEqual);
+			console.log('Заказчик = получатель', isEqual);
+		}
 		$input.on('change', () => {
 			if (!$input.prop('checked')) {
 				$pName.val('');

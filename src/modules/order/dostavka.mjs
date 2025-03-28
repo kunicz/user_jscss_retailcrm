@@ -48,8 +48,14 @@ class Dostavka {
 		$(`label[for="${this.order.intaro}_deliveryNetCost"]`).text('Стоимость для курьера');
 
 		//если стоимость доставки не указана, то эмулируем клик
-		if (!normalize.int($('#delivery-cost').val())) $('#order-delivery-cost__link-cost-manual').trigger('click');
-		if (!normalize.int($('#delivery-net-cost').val())) $('#order-delivery-net-cost__link-cost-manual').trigger('click');
+		if (!normalize.int($('#delivery-cost').val())) {
+			$('#order-delivery-cost__link-cost-manual').trigger('click');
+			console.log('Стоимость доставки не указана, эмулируем клик');
+		}
+		if (!normalize.int($('#delivery-net-cost').val())) {
+			$('#order-delivery-net-cost__link-cost-manual').trigger('click');
+			console.log('Себестоимость доставки не указана, эмулируем клик');
+		}
 	}
 }
 
