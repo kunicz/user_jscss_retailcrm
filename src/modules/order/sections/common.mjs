@@ -1,9 +1,7 @@
-import { Order } from '@pages/order';
+export default () => new Common().init();
 
-export default (order) => new Common(order).init();
 class Common {
-	constructor(order) {
-		this.order = order;
+	constructor() {
 		this.$container = $('#order-common');
 	}
 

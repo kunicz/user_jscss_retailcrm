@@ -2,13 +2,9 @@ import { iconsSVG } from '@src/mappings';
 import normalize from '@helpers/normalize';
 import { Order } from '@pages/order';
 
-export default (order) => new Zakazchik(order).init();
+export default () => new Zakazchik().init();
 
 class Zakazchik {
-	constructor(order) {
-		this.order = order;
-	}
-
 	init() {
 		this.isPoluchatel();
 		this.telegram();

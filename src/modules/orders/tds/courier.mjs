@@ -5,6 +5,7 @@ import dates from '@helpers/dates';
 import copyBtn from '@helpers/clipboard';
 import { inlineTooltip } from '@src/helpers';
 import retailcrm from '@helpers/retailcrm_direct';
+import normalize from '@helpers/normalize';
 
 export default (row, orderCrm) => {
 	new CourierTd(row, orderCrm).init();
@@ -89,14 +90,11 @@ class CourierTd extends OrderTd {
 
 	svodka() {
 		const name = this.getNative();
-		const price = this.row.get(cols.deliverySelfPrice);
+		const price = normalize.int(this.row.get(cols.deliverySelfPrice));
+		const phone = normalize.phone(this.row.getNative(cols.courierPhone));
 		if (!name || !price) return;
 
-		let data = {
-			name: name,
-			price: price,
-			phone: this.row.getNative(cols.courierPhone),
-		};
+		let data = { name, price, phone };
 		if (name == 'Другой курьер') {
 			data.comments = this.row.get(cols.commentsCourier);
 		}

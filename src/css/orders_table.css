@@ -6,7 +6,8 @@
 
 svg.lovixlube{width:14px;height:14px;margin-left:4px;}
 
-.js-order-list td{height:80px}
+/* .js-order-list:not(.loaded) tr[data-url^="/order"]{display:none} - вынесено в user_jscss */
+
 .js-order-list th,.js-order-list td:not(#upload){position:relative;padding:8px;}
 .js-order-list td.addComment:after{display:block;font-size:.8em;margin-top:3px;opacity:.5}
 

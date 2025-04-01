@@ -4,7 +4,7 @@ import finances from '@modules/orders/table/finances';
 import couriersSvodka from '@modules/orders/table/couriers_svodka';
 import retailcrm from '@helpers/retailcrm_direct';
 import db from '@helpers/db';
-import dom from '@helpers/dom';
+import observers from '@helpers/observers';
 import normalize from '@helpers/normalize';
 import '@css/orders_table.css';
 
@@ -23,14 +23,17 @@ class OrdersTable {
 		this.listen();
 		await this.orders(this.$trs());
 		this.initHiddenCols();
-		this.finances();
-		this.couriersSvodka();
+		finances();
+		couriersSvodka(this);
+		this.$table.addClass('loaded');
 	}
 
 	async listen() {
-		const table = this.$table.get(0);
-		dom.watcher().setSelector('tbody').setTarget(table).setCallback((node) => this.orders(this.getTrs($(node)))).start();
-		dom.watcher().setSelector('tbody').setTarget(table).setCallback(this.couriersSvodka).setOnce().start();
+		observers.orders.add('trs')
+			.setSelector('tbody')
+			.setTarget(this.$table)
+			.onMutation((node) => this.orders(this.getTrs($(node))))
+			.start();
 	}
 
 	async orders($trs) {
@@ -66,6 +69,7 @@ class OrdersTable {
 	}
 
 	handleThs() {
+		this.$ths.each((i, th) => $(th).attr('col', indexes()[i]));
 		this.$ths.eq(this.indexes['магазин']).html('');
 		this.$ths.eq(this.indexes['чат']).children('a').text('Комментарии');
 	}
@@ -76,14 +80,6 @@ class OrdersTable {
 			const $e = $(e);
 			$e.html(`<span class="native">${$e.html()}</span>`);
 		});
-	}
-
-	couriersSvodka() {
-		couriersSvodka(this.$trs());
-	}
-
-	finances() {
-		finances();
 	}
 
 	$trs() {

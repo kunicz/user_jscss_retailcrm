@@ -38,7 +38,7 @@ export const courierNotified = 'курьер оповещен';
 export const courierPhone = 'телефон курьера';
 export const courierInfo = 'примечания курьера';
 export const courierAuto = 'автокурьер';
-export const lovix = 'добавить лубрикант lovix';
+export const lovix = 'добавить лубрикант';
 export const otkudaUznal = 'откуда узнал о нас (в заказе)';
 
 export const hiddenColumns = [

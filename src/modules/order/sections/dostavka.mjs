@@ -1,13 +1,10 @@
 import adres from '@modules/order/adres';
 import normalize from '@helpers/normalize';
+import { Order } from '@pages/order';
 
-export default (order) => new Dostavka(order).init();
+export default () => new Dostavka().init();
 
 class Dostavka {
-	constructor(order) {
-		this.order = order;
-	}
-
 	init() {
 		this.address();
 		this.price();
@@ -16,16 +13,16 @@ class Dostavka {
 
 	time() {
 		//разблокируем поля для редактирования времени
-		$(`#${this.order.intaro}_deliveryTime_from, #${this.order.intaro}_deliveryTime_to`).removeAttr('readonly');
+		$(`#${Order.intaro}_deliveryTime_from, #${Order.intaro}_deliveryTime_to`).removeAttr('readonly');
 	}
 
 	address() {
 		//адрес из тильды
-		$(`#${this.order.intaro}_customFields_adres_poluchatelya`).parent().insertAfter($('#delivery-address-form'));
+		$(`#${Order.intaro}_customFields_adres_poluchatelya`).parent().insertAfter($('#delivery-address-form'));
 
 		//справка про автоматический парсинг адреса
 		let str = `Чтобы в таблице адрес стал кликабельным, соблюдай шаблон:<br>${adres.parts.map(item => `<b>${item[0]}</b> (${item[1]})`).join(", ")}<br>Например: ул. Тверская, ш. Энтузиастов`;
-		$(`#${this.order.intaro}_deliveryAddress_text`)
+		$(`#${Order.intaro}_deliveryAddress_text`)
 			.wrap(`<div class="adresTooltip tooltip"></div>`)
 			.parent().append(`<div class="tooltip__content"><div class="tooltip__inner">${str}</div></div>`);
 
@@ -45,7 +42,7 @@ class Dostavka {
 
 	price() {
 		//изменяем заголовок: себестоимость -> стоимость для курьера
-		$(`label[for="${this.order.intaro}_deliveryNetCost"]`).text('Стоимость для курьера');
+		$(`label[for="${Order.intaro}_deliveryNetCost"]`).text('Стоимость для курьера');
 
 		//если стоимость доставки не указана, то эмулируем клик
 		if (!normalize.int($('#delivery-cost').val())) {

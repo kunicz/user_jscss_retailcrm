@@ -106,8 +106,7 @@ function batchHide() {
 //показывать/скрывать откуда узнал
 function otkudaUznal() {
 	createToggleButton('Откуда узнал', () => {
-		$('[type*="узнал о нас"]').toggle();
-		$('.js-order-list th:last').toggle();
+		$('[col*="узнал о нас"]').toggle();
 	});
 }
 

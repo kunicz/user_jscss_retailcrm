@@ -1,12 +1,8 @@
 import { Order } from '@pages/order';
 
-export default (order) => new Comments(order).init();
+export default () => new Comments().init();
 
 class Comments {
-	constructor(order) {
-		this.order = order;
-	}
-
 	init() {
 		this.changeHeadings();
 		this.comments();

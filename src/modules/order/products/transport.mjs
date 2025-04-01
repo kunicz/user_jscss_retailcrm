@@ -2,15 +2,18 @@ import { Order } from '@pages/order';
 import { ProductsRows as Products } from '@modules/order/products/rows';
 import wait from '@helpers/wait';
 import { php2steblya } from '@helpers/api';
+import observers from '@helpers/observers';
 
-export default class Transport {
-	constructor({ product = null, watcher = null }) {
-		this.product = product;
-		this.watcher = watcher;
+export default () => new Transport().init();
+
+class Transport {
+	constructor() {
+		this.product = Products.get().find(p => p.isTransport);
+		this.observer = observers.order.get('products-rows');
 	}
 
 	async init() {
-		this.equalPrices();
+		!this.product ? this.add() : this.equalPrices();
 	}
 
 	// цена закупа и реализации всегда равны
@@ -24,14 +27,16 @@ export default class Transport {
 	async add() {
 		if (this.shouldSkip()) return;
 		try {
-			await this.prepareForTransportAdd();
-			await php2steblya('retailcrm/AddTransport').get({ id: Order.id });
+			this.observer.stop();
+			this.saveOrder();
+			this.toggleFreeze(true);
+			await php2steblya('retailcrm/AddTransport').get({ id: Order.getId() });
 			console.log('Транспортировочное добавлено');
 			window.location.reload();
 		} catch (error) {
 			console.error('Ошибка добавления транспортировочного:', error);
 			this.toggleFreeze(false);
-			this.watcher.start();
+			this.observer.start();
 		}
 	}
 
@@ -39,12 +44,12 @@ export default class Transport {
 	// проверяет, нужно ли добавлять транспортировочное
 	shouldSkip() {
 		// проверяем наличие товаров с картинкой
-		if (!Products.$table().find('.catalog').length) return true;
+		if (!Products.get().some(p => p.isCatalog)) return true;
 
 		// проверяем что есть не только допники/донаты
-		const catalogItems = Products.$table().find('.catalog').length;
-		const dopnikItems = Products.$table().find('.dopnik').length;
-		const donatItems = Products.$table().find('.donat').length;
+		const catalogItems = Products.get().filter(p => p.isCatalog).length;
+		const dopnikItems = Products.get().filter(p => p.isDopnik).length;
+		const donatItems = Products.get().filter(p => p.isDonat).length;
 		if (catalogItems === dopnikItems + donatItems) return true;
 
 		// проверяем назначен ли флорист
@@ -53,17 +58,10 @@ export default class Transport {
 		return false;
 	}
 
-	// подготавливает сайт к добавлению транспортировочного
-	async prepareForTransportAdd() {
-		this.saveOrder();
-		this.watcher.stop();
-		await wait.sec();
-		this.toggleFreeze(true);
-	}
-
 	// сохраняет заказ
-	saveOrder() {
+	async saveOrder() {
 		$('#main button[type="submit"]').trigger('click');
+		await wait.sec();
 	}
 
 	// замораживает/размораживает сайт

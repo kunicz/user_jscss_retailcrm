@@ -1,22 +1,21 @@
 import hash from '@helpers/hash';
 import retailcrm from '@helpers/retailcrm_direct';
-import propertiesPopup from '@modules/order/products/popup/properties';
+import propertiesPopup from '@modules/order/popups/popup_properties';
 import { Order } from '@pages/order';
 
 export default (product, order) => new Properties(product, order);
 
 class Properties {
-	static required = [
-		'for-mat',
-		'artikul',
-		'tsena',
-		'moyskladid'
-	];
-
 	constructor(product, order) {
 		this.product = product;
 		this.order = order;
 		this.productCrm = {};
+		this.required = [
+			'for-mat',
+			'artikul',
+			'tsena',
+			'moyskladid'
+		];
 	}
 
 	init() {
@@ -38,7 +37,7 @@ class Properties {
 
 	// проверяет, есть ли уже все обязательные для каталожного товара свойства
 	hasAllRequiredFields() {
-		return Properties.required.every(field => this.product.$.find(`#${Order.intaro}_orderProducts_${this.product.index}_properties_${field}_value`).length);
+		return this.required.every(field => this.product.$.find(`#${Order.intaro}_orderProducts_${this.product.index}_properties_${field}_value`).length);
 	}
 
 	// добавляет обязательныесвойства в каталожный товар
@@ -73,7 +72,10 @@ class Properties {
 
 		for (const config of propertyConfigs) {
 			const selector = `#${Order.intaro}_orderProducts_${this.product.index}_properties_${config.code}_value`;
-			if (this.product.$.find(selector).length) continue;
+
+			//пропускаем, если:
+			if (this.product.$.find(selector).length) continue; // свойство уже есть
+			if (this.product.isDonat || this.product.isDopnik) continue; // донат или допник
 
 			index++;
 			addPproperty(

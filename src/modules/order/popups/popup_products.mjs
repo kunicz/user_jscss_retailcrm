@@ -1,16 +1,16 @@
-import dom from '@helpers/dom';
+import observers from '@helpers/observers';
 import wait from '@helpers/wait';
-import { calculate } from '@modules/order/finances';
 import { ProductsRows as Products } from '@modules/order/products/rows';
 import { Order } from '@pages/order';
+import { Finances } from '@modules/order/finances';
 import '@css/order_products_popup.css';
 
 export default () => new ProductsPopup().init();
 
 class ProductsPopup {
 	constructor() {
-		this.$popup = null;
 		this.p = 'product-popup';
+		this.calсulatorSelector = 'popupCalculator';
 	}
 
 	init() {
@@ -18,26 +18,30 @@ class ProductsPopup {
 	}
 
 	listen() {
-		// открытие попапа
-		dom.watcher().setSelector(`#${this.p}`).setCallback(async (node) => {
-			this.$popup = $(node);
-			this.stripPrice();
-			this.popupLogic();
-		}).start();
-
-		// добавление контена в попап
-		dom.watcher().setSelector(`.${this.p}__container`).setCallback(async () => {
-			this.popupLogic();
-		}).start();
+		let int;
+		// создание попапа
+		observers.order.add('products-popup')
+			.setSelector(`#${this.p}`)
+			.onAdded(async () => {
+				this.stripPrice();
+				this.defualtShop();
+				int = setInterval(() => this.createCalculator(), 1000);
+			})
+			.onRemoved(() => clearInterval(int))
+			.start();
 	}
 
-	// логика работы попапа
-	popupLogic() {
-		this.calculatorPlaceholder();
-		this.defualtShop();
+	// создает калькулятор в заголовке попапа
+	async createCalculator() {
+		if (document.querySelector(`#${this.calсulatorSelector}`)) return;
+
+		const $header = $(`[class^="${this.p}__header"]`);
+		$header.find(`#${this.p}-title`).html(`<div id="${this.calсulatorSelector}" />`);
+		$header.children('p').hide();
+		Finances.calculator();
 	}
 
-
+	// выбирает магазин по умолчанию
 	async defualtShop() {
 		const shop = 'Остатки (мск)';
 		const blockSelector = `#${this.p} [class^="sidebar__form"] [id^="ui-select"]`;
@@ -80,29 +84,19 @@ class ProductsPopup {
 		//клик по магазину
 		targetOption.click();
 
-		await wait.halfsec();
+		await wait.sec();
 
 		//клик по кнопке "Найти"
-		const searchButton = this.$popup.find('[class^="sidebar__footer"] button.omnica-button_secondary')[0];
-		searchButton.click();
+		const searchButton = $(`#${this.p}`)?.find('[class^="sidebar__footer"] button.omnica-button_secondary')[0];
+		searchButton?.click();
 	}
 
 	//обнуляем стоимость каталожных товаров (не допников)
 	stripPrice() {
-		Products.$get().filter(p => p.isCatalog && !p.isDopnik).each((_, e) => {
-			$(e).find('.order-price__initial-price__input').val(0);
-			$(e).find('.order-price__button_submit').trigger('click');
+		Products.get().filter(p => p.isCatalog && !p.isDopnik).forEach(p => {
+			p.$.find('.order-price__initial-price__input').val(0);
+			p.$.find('.order-price__button_submit').trigger('click');
 		});
-	}
-
-	async calculatorPlaceholder() {
-		const selector = `[class^="${this.p}__header"]`;
-		const header = await wait.element(selector);
-		if (!header) throw new Error(`Не найден ${selector}`);
-		const $header = $(header);
-		$header.find(`#${this.p}-title`).html('<div id="popupCalculator" />');
-		$header.children('p').hide();
-		calculate();
 	}
 
 	// логика работы кнопки "Добавить товар"

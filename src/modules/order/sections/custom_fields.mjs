@@ -1,11 +1,10 @@
 import { iconsSVG } from '@src/mappings';
 import { Order } from '@pages/order';
 
-export default (order) => new CustomFields(order).init();
+export default () => new CustomFields().init();
 
 class CustomFields {
-	constructor(order) {
-		this.order = order;
+	constructor() {
 		this.intaro = `${Order.intaro}_customFields`;
 		this.$container = $('#order-custom-fields');
 	}

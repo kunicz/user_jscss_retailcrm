@@ -1,21 +1,15 @@
-import popup from '@modules/order/products/popup/products';
+import popupProducts from '@modules/order/popups/popup_products';
 import { default as products, ProductsRows as Products } from '@modules/order/products/rows';
-import { rashod } from '@modules/order/finances';
 import '@css/order_products.css';
 
-export default (order) => new ProductsTable(order).init();
+export default () => new ProductsTable().init();
 
 class ProductsTable {
-	constructor(order) {
-		this.order = order;
-	}
-
 	async init() {
 		this.fixTitle();
-		await this.products();
+		popupProducts();
+		await products();
 		this.sebes();
-		this.rashod();
-		this.popup();
 	}
 
 	// исправляет название столбца "Товар или услуга" -> "Товар"
@@ -34,20 +28,5 @@ class ProductsTable {
 				$product.find('.order-price__apply').trigger('click');
 			});
 		}).prependTo($('#order-list .order-row__top:first-child'));
-	}
-
-	// логика работы с самими товарами в заказе
-	async products() {
-		await products(this.order);
-	}
-
-	// добавляет данные и затратах на цветок и нецветок в подвал таблицы
-	rashod() {
-		rashod();
-	}
-
-	// логика работы попапа для добавления товаров в заказ
-	popup() {
-		popup();
 	}
 }
