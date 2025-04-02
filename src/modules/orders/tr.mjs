@@ -11,6 +11,8 @@ import shop from '@modules/orders/tds/shop';
 import summ from '@modules/orders/tds/summ';
 import zakazchik from '@modules/orders/tds/zakazchik';
 
+export default ($tr, order) => new OrdersRow($tr, order).init();
+
 class OrdersRow {
 	constructor($tr, orderCrm) {
 		this.$tr = $tr;
@@ -101,5 +103,3 @@ class OrdersRow {
 		return excludedValues.includes(content) ? null : content;
 	}
 }
-
-export default ($tr, order) => new OrdersRow($tr, order).init();

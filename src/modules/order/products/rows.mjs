@@ -16,22 +16,8 @@ export class ProductsRows {
 	async init() {
 		this.listen();
 		this.transport();
-		this.catalogProducts();
+		this.products();
 		this.sort();
-	}
-
-	// логика для каталожных товаров
-	catalogProducts() {
-		self.get().forEach(product => this.catalogProduct(product));
-	}
-	catalogProduct(product) {
-		if (product.isCatalog && !product.isTransport) {
-			this.classes(product);
-			this.auto(product);
-			this.bukety(product);
-			this.cards(product);
-		}
-		this.ostatki(product);
 	}
 
 	// слушает изменения в таблице (добавление/удаление товаров)
@@ -42,7 +28,7 @@ export class ProductsRows {
 			.onAdded(async (node) => {
 				const product = await ProductsData.add(node);
 				this.transport();
-				this.catalogProduct(product);
+				this.product(product);
 				this.sort();
 			})
 			.onRemoved((node) => {
@@ -52,6 +38,20 @@ export class ProductsRows {
 				this.sort();
 			})
 			.start();
+	}
+
+	// логика для товаров
+	products() {
+		self.get().forEach(product => this.product(product));
+	}
+	product(product) {
+		if (product.isCatalog && !product.isTransport) {
+			this.classes(product);
+			this.auto(product);
+			this.bukety(product);
+			this.cards(product);
+		}
+		this.ostatki(product);
 	}
 
 	// устанавливает классы для товаров
@@ -66,8 +66,6 @@ export class ProductsRows {
 
 	// проверяет, нужен ли курьер на автомобиле
 	isAuto(product) {
-		if (!product.isCatalog) return false;
-
 		const $format = product.properties.$items.filter('[title^="фор"]');
 		if (!$format.length) return false;
 
@@ -97,8 +95,6 @@ export class ProductsRows {
 		$input.parent().hide();
 		return;
 
-		if (!product.isCatalog) return;
-
 		const bukety = [];
 		bukety.push(`${product.title} (${product.quantity} шт)`);
 		const value = bukety.join(',<br>');
@@ -113,8 +109,6 @@ export class ProductsRows {
 		const $input = $(`#${Order.intaro}_customFields_card`);
 		$input.parent().hide();
 		return;
-
-		if (!product.isCatalog) return;
 
 		const card = product.properties.filter('[title*="карточк"]');
 		if (!card.length) return;

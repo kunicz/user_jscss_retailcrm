@@ -4,9 +4,7 @@ import { inlineTooltip } from '@src/helpers';
 import adres from '@modules/order/adres';
 import OrderTd from '@modules/orders/td';
 
-export default (row) => {
-	new AdresTd(row).init();
-}
+export default (row) => new AdresTd(row).init();
 
 class AdresTd extends OrderTd {
 	static columnName = 'adres';

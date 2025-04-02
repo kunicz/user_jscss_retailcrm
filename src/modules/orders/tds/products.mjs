@@ -7,9 +7,7 @@ import { noFlowers } from '@modules/orders/table';
 import OrderTd from '@modules/orders/td';
 import { SKU_TRANSPORT, SKU_DOPNIK } from '@root/config';
 
-export default (row, orderCrm) => {
-	new ProductsTd(row, orderCrm).init();
-}
+export default (row, orderCrm) => new ProductsTd(row, orderCrm).init();
 
 class ProductsTd extends OrderTd {
 	static columnName = 'products';

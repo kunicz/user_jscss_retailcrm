@@ -2,9 +2,7 @@ import * as cols from '@modules/orders/cols';
 import { iconsSVG } from '@src/mappings';
 import OrderTd from '@modules/orders/td';
 
-export default (row) => {
-	new CommentsTd(row).init();
-}
+export default (row) => new CommentsTd(row).init();
 
 class CommentsTd extends OrderTd {
 	static columnName = 'comments';

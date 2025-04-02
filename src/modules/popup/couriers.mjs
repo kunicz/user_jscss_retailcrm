@@ -1,55 +1,65 @@
-import * as popup from '@src/popup';
+import { Popup, default as popup } from '@src/popup';
 import { user } from '@src';
 import { bankNames } from '@src/mappings';
 import retailcrm from '@helpers/retailcrm_direct';
 
-let couriers = [];
-const couriersMeta = {
-	id: 'couriers',
-	title: 'Курьеры',
-	callback: () => couriersLogic()
-}
+class CouriersPopup {
+	constructor() {
+		this.couriers = [];
+		this.meta = {
+			id: 'couriers',
+			title: 'Курьеры',
+			callback: () => instance.init()
+		};
+		this.p = 'custom_popup';
+		this.$cont = $(`#${this.p}__content`);
+	}
 
-export default couriersMeta;
+	async init() {
+		console.log(this.meta);
+		popup(this.meta);
+		const cities = await this.getCities();
+		if (!this.couriers.length) this.couriers = await this.getCouriers(cities);
+		this.renderSearchForm();
+		this.renderList();
+		this.renderEditbox(cities);
+	}
 
-async function couriersLogic() {
-	popup.init(couriersMeta);
-	const $cont = $('#custom_popup__content');
-	const cities = await getCities();
-	if (!couriers.length) couriers = await getCouriers(cities);
-	searchForm();
-	list();
-	editbox(cities);
-}
+	// получает всех курьеров
+	async getCouriers(cities) {
+		const couriers = await retailcrm.get.couriers.all();
+		return couriers.filter(courier => !courier.city || cities.includes(courier.city));
+	}
 
-async function getCouriers(cities) {
-	const couriers = await retailcrm.get.couriers.all();
-	return couriers.filter(courier => !courier.city || cities.includes(courier.city));
-}
+	// получает все города
+	getCities() {
+		return user.groups
+			.filter(role => role.code.startsWith('manager-'))
+			.map(role => role.code.split('-')[1]);
+	}
 
-function getCities() {
-	return user.groups
-		.filter(role => role.code.startsWith('manager-')) // Оставляем только manager-*
-		.map(role => role.code.split('-')[1]); // Берём только часть после дефиса
-}
+	// рендерит форму поиска
+	renderSearchForm() {
+		if ($('#couriers_popup_search_form').length) return;
+		const $searchForm = $(Popup.searchForm('couriers', 'имя курьера'));
+		$searchForm.appendTo($(`#${this.p} #omnica-modal-window-title`));
+	}
 
-function searchForm() {
-	if ($('#couriers_popup_search_form').length) return;
-	const $searchForm = $(popup.searchForm('couriers', 'имя курьера'));
-	$searchForm.appendTo($('#custom_popup #omnica-modal-window-title'));
-}
+	// рендерит список курьеров
+	renderList() {
+		const block = $(`<div id="couriers_list"></div>`);
+		block.appendTo($(`#${this.p}__content`));
+	}
 
-function list() {
-	const block = $(`<div id="couriers_list"></div>`);
-	block.appendTo($('#custom_popup__content'));
-}
+	// рендерит форму для добавления курьера
+	renderEditbox(cities) {
+		const block = $(`<div id="couriers_editbox"></div>`);
+		block.append(this.createForm(cities));
+		block.appendTo($(`#${this.p}__content`));
+	}
 
-function editbox(cities) {
-	const block = $(`<div id="couriers_editbox"></div>`);
-	block.append(form());
-	block.appendTo($('#custom_popup__content'));
-
-	function form() {
+	// создает форму для добавления курьера
+	createForm(cities) {
 		const city = cities.length > 1 ? 'мск' : cities[0];
 		const banks = bankNames.map(bank => `<option value="${bank}">${bank}</option>`).join('');
 		return $(`
@@ -78,3 +88,6 @@ function editbox(cities) {
 		`);
 	}
 }
+
+const instance = new CouriersPopup();
+export default instance;

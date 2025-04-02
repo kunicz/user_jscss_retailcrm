@@ -4,9 +4,7 @@ import { inlineTooltip } from '@src/helpers';
 import OrderTd from '@modules/orders/td';
 import { SKU_DONAT, SKU_TRANSPORT } from '@root/config';
 
-export default (row, orderCrm) => {
-	new CardTd(row, orderCrm).init();
-}
+export default (row, orderCrm) => new CardTd(row, orderCrm).init();
 
 class CardTd extends OrderTd {
 	static columnName = 'card';

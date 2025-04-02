@@ -7,9 +7,7 @@ import { inlineTooltip } from '@src/helpers';
 import retailcrm from '@helpers/retailcrm_direct';
 import normalize from '@helpers/normalize';
 
-export default (row, orderCrm) => {
-	new CourierTd(row, orderCrm).init();
-}
+export default (row, orderCrm) => new CourierTd(row, orderCrm).init();
 
 class CourierTd extends OrderTd {
 	static columnName = 'courier';

@@ -145,19 +145,9 @@ class OrdersTable {
 	}
 }
 
-let currentInstance = null;
-
-const getInstance = () => {
-	if (!currentInstance) currentInstance = new OrdersTable();
-	return currentInstance;
-};
-
-export default async () => {
-	currentInstance = new OrdersTable();
-	return currentInstance.init();
-};
-
-export const shops = () => getInstance().shops;
-export const indexes = () => getInstance().indexes;
-export const noFlowers = () => getInstance().noFlowers;
-export const fakeCustomers = () => getInstance().fakeCustomers;
+const instance = new OrdersTable();
+export default async () => instance.init();
+export const shops = () => instance.shops;
+export const indexes = () => instance.indexes;
+export const noFlowers = () => instance.noFlowers;
+export const fakeCustomers = () => instance.fakeCustomers;

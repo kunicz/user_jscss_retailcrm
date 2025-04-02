@@ -4,9 +4,7 @@ import copyBtn from '@helpers/clipboard';
 import templates from '@modules/orders/tds/zakazchik_msg_templates';
 import OrderTd from '@modules/orders/td';
 
-export default (row) => {
-	new ZakazchikTd(row).init();
-};
+export default (row) => new ZakazchikTd(row).init();
 
 class ZakazchikTd extends OrderTd {
 	static columnName = 'zakazchikName';

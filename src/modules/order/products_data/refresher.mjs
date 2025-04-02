@@ -3,7 +3,6 @@ import is from '@helpers/is';
 import { ProductsData } from '@modules/order/products_data/data';
 
 export class ProductsDataRefresher {
-
 	// обновляет данные по товарам
 	static refresh(fields, nodes) {
 		fields = self.ensureFields(fields);
