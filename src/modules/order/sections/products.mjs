@@ -1,6 +1,6 @@
-import products from '@modules/order/products/table';
+import ProductsTable from '@modules/order/products/table';
 
-export default () => products();
+export default ProductsTable;
 
 /**
  * вынужденный уровень абстракции.

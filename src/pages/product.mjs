@@ -1,6 +1,9 @@
-import product_editable from '@modules/product/editable';
+import ProductEditable from '@modules/product/editable';
 
-export default () => {
-	console.log('productwqwqwqwq');
-	product_editable();
+export default class Product {
+	static moduleName = 'product';
+
+	init() {
+		new ProductEditable().init();
+	}
 }

@@ -1,28 +1,32 @@
 import normalize from '@helpers/normalize';
 import observers from '@helpers/observers';
-import { ProductsRows as Products } from '@modules/order/products/rows';
-import { ProductsData } from '@modules/order/products_data/data';
-import { Order } from '@pages/order';
+import ProductsRows from '@modules/order/products/rows';
+import ProductsData from '@modules/order/products_data/builder';
+import Order from '@pages/order';
 
-export class Finances {
+export default class Finances {
 	static observer = observers.order.add('finances');
-	static money = {
-		flowers: 0,      // закупочная стоимость цветов в заказе
-		noFlowers: 0,    // закупочная стоимость нецветов и допников в заказе
-		zakup: 0,        // реализационная стоимость цветов и нецветов в заказе
-		dostavka: 0,     // стоимость доставки
-		total: 0,        // стоимость каталожных товаров в заказе
-		paid: 0,         // сколько оплачено
-		current: 0       // сколько потрачено на данный момент
-	};
+	static money = {};
 
 	static init() {
+		self.moneyDrop();
 		self.listen();
 		self.rashod();
 	}
 
-	// следим за изменениями в финансовой информации
-	// retailcrm учтиво все изменения реактивно аккумулирует в подвале таблицы,
+	// обнуляет все финансовые данные
+	static moneyDrop() {
+		self.money.flowers = 0; // закупочная стоимость цветов в заказе
+		self.money.noFlowers = 0; // закупочная стоимость нецветов и допников в заказе
+		self.money.zakup = 0; // реализационная стоимость цветов и нецветов в заказе
+		self.money.dostavka = 0; // стоимость доставки
+		self.money.total = 0; // стоимость каталожных товаров в заказе
+		self.money.paid = 0; // сколько оплачено
+		self.money.current = 0; // сколько потрачено на данный момент
+	}
+
+	// следит за изменениями в финансовой информации
+	// retailcrm все изменения реактивно аккумулирует в подвале таблицы,
 	// поэтому достаточно просто подписаться на его изменения
 	static listen() {
 		self.observer
@@ -36,12 +40,12 @@ export class Finances {
 			.start();
 	}
 
-	// Рассчитывает расходы на цветы и нецветы
+	// рассчитывает расходы на цветы и нецветы
 	static async rashod() {
 		self.money.flowers = 0;
 		self.money.noFlowers = 0;
 
-		const products = Products.get();
+		const products = ProductsRows.get();
 		products.forEach(product => {
 			const sum = product.purchasePrice * product.quantity;
 			if (product.isFlower) {
@@ -69,8 +73,8 @@ export class Finances {
 			Стоимость закупа (цветок / нецветок)
 			</p>
                 <p class="order-table-footer__text order-table-footer__text_price">
-				<span id="flowersRashodValue">${this.money.flowers}</span>&nbsp;<span class="currency-symbol rub">₽</span> / 
-				<span id="noflowersRashodValue">${this.money.noFlowers}</span>&nbsp;<span class="currency-symbol rub">₽</span>
+				<span id="flowersRashodValue">${self.money.flowers}</span>&nbsp;<span class="currency-symbol rub">₽</span> / 
+				<span id="noflowersRashodValue">${self.money.noFlowers}</span>&nbsp;<span class="currency-symbol rub">₽</span>
                 </p>
 				</li>
 				`).prependTo('#order-list .order-table-footer__list');
@@ -86,15 +90,15 @@ export class Finances {
 		$inputFlowers.parent().hide();
 		$inputNoFlowers.parent().hide();
 
-		if (normalize.int($inputFlowers.val()) != this.money.flowers) {
+		if (!isNaN(self.money.flowers) && normalize.int($inputFlowers.val()) != self.money.flowers) {
 			const value = normalize.int($inputFlowers.val());
-			$inputFlowers.val(this.money.flowers);
-			console.log('Расход на цветы установлен', value, '->', this.money.flowers);
+			$inputFlowers.val(self.money.flowers);
+			console.log('Расход на цветы установлен', value, '->', self.money.flowers);
 		}
-		if (normalize.int($inputNoFlowers.val()) != this.money.noFlowers) {
+		if (!isNaN(self.money.noFlowers) && normalize.int($inputNoFlowers.val()) != self.money.noFlowers) {
 			const value = normalize.int($inputNoFlowers.val());
-			$inputNoFlowers.val(this.money.noFlowers);
-			console.log('Расход на нецветы установлен', value, '->', this.money.noFlowers);
+			$inputNoFlowers.val(self.money.noFlowers);
+			console.log('Расход на нецветы установлен', value, '->', self.money.noFlowers);
 		}
 	}
 
@@ -157,8 +161,8 @@ export class Finances {
 	static setTotalMoney() {
 		self.money.total = 0;
 
-		if (Products.$table().find('.catalog').length) {
-			Products.$table().find('.catalog').each((_, product) => {
+		if (ProductsRows.$table().find('.catalog').length) {
+			ProductsRows.$table().find('.catalog').each((_, product) => {
 				self.money.total += normalize.int($(product).find('[id$="properties_tsena_value"]').val());
 			});
 		} else {

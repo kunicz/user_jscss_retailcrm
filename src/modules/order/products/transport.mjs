@@ -1,14 +1,12 @@
-import { Order } from '@pages/order';
-import { ProductsRows as Products } from '@modules/order/products/rows';
+import Order from '@pages/order';
+import ProductsRows from '@modules/order/products/rows';
 import wait from '@helpers/wait';
 import { php2steblya } from '@helpers/api';
 import observers from '@helpers/observers';
 
-export default () => new Transport().init();
-
-class Transport {
+export default class Transport {
 	constructor() {
-		this.product = Products.get().find(p => p.isTransport);
+		this.product = ProductsRows.get().find(p => p.isTransport);
 		this.observer = observers.order.get('products-rows');
 	}
 
@@ -44,12 +42,12 @@ class Transport {
 	// проверяет, нужно ли добавлять транспортировочное
 	shouldSkip() {
 		// проверяем наличие товаров с картинкой
-		if (!Products.get().some(p => p.isCatalog)) return true;
+		if (!ProductsRows.get().some(p => p.isCatalog)) return true;
 
 		// проверяем что есть не только допники/донаты
-		const catalogItems = Products.get().filter(p => p.isCatalog).length;
-		const dopnikItems = Products.get().filter(p => p.isDopnik).length;
-		const donatItems = Products.get().filter(p => p.isDonat).length;
+		const catalogItems = ProductsRows.get().filter(p => p.isCatalog).length;
+		const dopnikItems = ProductsRows.get().filter(p => p.isDopnik).length;
+		const donatItems = ProductsRows.get().filter(p => p.isDonat).length;
 		if (catalogItems === dopnikItems + donatItems) return true;
 
 		// проверяем назначен ли флорист

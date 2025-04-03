@@ -1,11 +1,9 @@
 import hash from '@helpers/hash';
 import retailcrm from '@helpers/retailcrm_direct';
-import propertiesPopup from '@modules/order/popups/popup_properties';
-import { Order } from '@pages/order';
+import Popup from '@modules/popup/popup_order_properties';
+import Order from '@pages/order';
 
-export default (product, order) => new Properties(product, order);
-
-class Properties {
+export default class Properties {
 	constructor(product, order) {
 		this.product = product;
 		this.order = order;
@@ -20,7 +18,7 @@ class Properties {
 
 	init() {
 		this.addMissingProperties();
-		this.prepertiesPopup();
+		new Popup().init();
 	}
 
 	// проверяет, необходимо ли добавлять свойства в каталожный товар
@@ -78,15 +76,16 @@ class Properties {
 			if (this.product.isDonat || this.product.isDopnik) continue; // донат или допник
 
 			index++;
-			addPproperty(
+			const value = config.getValue();
+			this.addPproperty(
 				config.code, // код опции (for-mat)
 				config.name, // название опции (фор мат)
-				config.getValue(), // значение опции
+				value, // значение опции
 				index, // порядковый номер опции
 				this.product.index, // индекс продажи (aka покупки) среди всех товаров за все время
-				this.product.properties.$items.parent() // родительский объект, к которому крепим
+				this.product.properties.$td // родительский объект, к которому крепим
 			);
-			console.log('Добавлено свойство', config.code)
+			console.log('Добавлено свойство', config.code, ':', value);
 		}
 	}
 
@@ -116,10 +115,5 @@ class Properties {
 			<span>${name}</span>
 			${value}
 		</span>`).appendTo(block.find('.order-product-properties'));
-	}
-
-	// логика для всплывающего окна свойств
-	async prepertiesPopup() {
-		propertiesPopup();
 	}
 }

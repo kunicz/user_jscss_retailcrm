@@ -1,8 +1,6 @@
-import { Order } from '@pages/order';
+import Order from '@pages/order';
 
-export default () => new Comments().init();
-
-class Comments {
+export default class Comments {
 	init() {
 		this.changeHeadings();
 		this.comments();

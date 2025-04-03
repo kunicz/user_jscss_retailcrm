@@ -1,44 +1,78 @@
-import { init } from '@bundle_loader';
+import BundleLoader from '@bundle_loader';
 import retailcrm from '@helpers/retailcrm_direct';
-import menu from '@src/menu';
-import couriers from '@pages/couriers';
-import courier from '@pages/courier';
-import customer from '@pages/customer';
-import orders from '@pages/orders';
-import order from '@pages/order';
-import products from '@pages/products';
-import product from '@pages/product';
+import Menu from '@src/menu';
+import Couriers from '@pages/couriers';
+import Courier from '@pages/courier';
+import Customer from '@pages/customer';
+import Orders from '@pages/orders';
+import Order from '@pages/order';
+import Products from '@pages/products';
+import Product from '@pages/product';
 
-export let user = {};
+window.BUNDLE_VERSION = '2.5.15';
 
-window.addEventListener('unhandledrejection', function (event) {
-	console.log('unhandledrejection');
-	console.error(event.reason);
-	event.preventDefault();
-});
+export default class App {
+	static user = null;
 
-window.BUNDLE_VERSION = '2.5.13';
+	constructor() {
+		this.menu = new Menu();
+	}
 
-try {
-	user = await retailcrm.get.user.byId($('head').data('user-id'));
-	menu();
-	(function update() {
-		// не использую setInterval, потому что он дает задержку даже при 0
-		requestAnimationFrame(update);
+	async init() {
+		await self.getUser();
+		this.menu.init();
+		this.listen();
+	}
 
-		if ($('#main.user_jscss').length) return;
-		$('#main').addClass('user_jscss');
+	// следит за изменениями открытой страницы в приложении retailcrm (vue)
+	// не использую setInterval, потому что он дает задержку даже при 0
+	listen() {
+		const loop = () => {
+			requestAnimationFrame(loop);
+			this.update();
+		};
+		loop();
+	}
 
-		init('retailcrm', new Map([
-			[/admin\/couriers(?:[^\/]|$)/, { couriers }],
-			[/admin\/couriers\/(\d+|new)/, { courier }],
-			[/customers\/\d+/, { customer }],
-			[/orders\/\d+/, { order }],
-			[/orders(?:\/)?(?:\?.*)?$/, { orders }],
-			[/products\/$/, { products }],
-			[/products\/\d+/, { product }],
+	// накатывает мои скрипты на страницу
+	update() {
+		if (this.isLoaded()) return;
+
+		BundleLoader.init('retailcrm', new Map([
+			[/admin\/couriers(?:[^\/]|$)/, new Couriers()],
+			[/admin\/couriers\/(\d+|new)/, new Courier()],
+			[/customers\/\d+/, new Customer()],
+			[/orders\/\d+/, new Order()],
+			[/orders(?:\/)?(?:\?.*)?$/, new Orders()],
+			[/products\/[$|\?]/, new Products()],
+			[/products\/\d+/, new Product()],
 		]));
-	})();
+
+		self.$main().addClass('user_jscss');
+	}
+
+	// проверяет, загружена ли страница
+	isLoaded() {
+		return self.$main().hasClass('user_jscss');
+	}
+
+	static $main() {
+		return $('#main');
+	}
+
+	// получает текущего пользователя
+	static async getUser() {
+		if (self.user) return self.user;
+		const userId = $('head').data('user-id');
+		self.user = await retailcrm.get.user.byId(userId);
+		return self.user;
+	}
+}
+
+const self = App;
+const app = new App();
+try {
+	app.init();
 } catch (error) {
 	console.log('index.mjs: ошибка');
 	console.error(error);

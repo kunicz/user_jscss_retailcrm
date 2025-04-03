@@ -1,7 +1,8 @@
 import { copy } from '@helpers/clipboard';
 
-export default {
-	parts: [
+export default class Adres {
+	// части адреса
+	static parts = [
 		['ул', 'улица'],
 		['наб', 'набережная'],
 		['бул', 'бульвар'],
@@ -11,9 +12,10 @@ export default {
 		['пер', 'переулок'],
 		['пл', 'площадь'],
 		['алл', 'аллея']
-	],
+	]
 
-	ctrlc: (type) => {
+	// копирует адрес в буфер обмена
+	static ctrlc(type) {
 		const id = '#intaro_crmbundle_ordertype_deliveryAddress_';
 		const copyValues = ['', ''];
 		const a = {
@@ -32,9 +34,10 @@ export default {
 		});
 		copyValues.forEach((e, i) => copyValues[i] = e.slice(0, -2));
 		copy(copyValues[type]);
-	},
+	}
 
-	clear: () => {
+	// очищает адрес
+	static clear() {
 		$('#delivery-address-form textarea, #delivery-address-form input').val('');
 	}
 }

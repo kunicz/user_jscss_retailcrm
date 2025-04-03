@@ -3,13 +3,11 @@ import { iconsSVG } from '@src/mappings';
 import copyBtn from '@helpers/clipboard';
 import nbsp from '@helpers/nbsp';
 import { inlineTooltip } from '@src/helpers';
-import { noFlowers } from '@modules/orders/table';
+import OrdersTable from '@modules/orders/table';
 import OrderTd from '@modules/orders/td';
 import { SKU_TRANSPORT, SKU_DOPNIK } from '@root/config';
 
-export default (row, orderCrm) => new ProductsTd(row, orderCrm).init();
-
-class ProductsTd extends OrderTd {
+export default class ProductsTd extends OrderTd {
 	static columnName = 'products';
 	static colorClasses = new Map([
 		[/ярк/i, 'bright'],
@@ -29,12 +27,12 @@ class ProductsTd extends OrderTd {
 	static propsColor = ['gamma', 'viebri-gammu', 'tsvet', 'viebri-tsvet', 'kakoy-tsvet'];
 	static propsToExclude = ['artkul', 'viebri-kartochku', 'tsena', 'moyskladid', 'for-mat'];
 
-	constructor(row, orderCrm) {
-		super(row, orderCrm);
-		this.productsAll = orderCrm?.items || [];
+	constructor(row) {
+		super(row);
+		this.productsAll = this.orderCrm?.items || [];
 		this.productsNoCatalog = this.productsAll.filter(p => !p.offer?.article);
 		this.productsCatalog = this.productsAll.filter(p => p.offer?.article && p.offer.article != SKU_TRANSPORT);
-		this.productsNoFlowers = noFlowers();
+		this.productsNoFlowers = OrdersTable.noFlowers;
 		this.productsFlowers = this.getFlowers();
 	}
 

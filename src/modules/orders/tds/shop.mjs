@@ -2,9 +2,7 @@ import * as cols from '@modules/orders/cols';
 import { shopIcon } from '@src/mappings';
 import OrderTd from '@modules/orders/td';
 
-export default (row) => new ShopTd(row).init();
-
-class ShopTd extends OrderTd {
+export default class ShopTd extends OrderTd {
 	static columnName = 'shop';
 	constructor(row) {
 		super(row);

@@ -1,13 +1,11 @@
 import observers from '@helpers/observers';
 import wait from '@helpers/wait';
-import { ProductsRows as Products } from '@modules/order/products/rows';
-import { Order } from '@pages/order';
-import { Finances } from '@modules/order/finances';
+import ProductsRows from '@modules/order/products/rows';
+import Order from '@pages/order';
+import Finances from '@modules/order/finances';
 import '@css/order_products_popup.css';
 
-export default () => new ProductsPopup().init();
-
-class ProductsPopup {
+export default class OrderProductsPopup {
 	constructor() {
 		this.p = 'product-popup';
 		this.calсulatorSelector = 'popupCalculator';
@@ -93,7 +91,7 @@ class ProductsPopup {
 
 	//обнуляем стоимость каталожных товаров (не допников)
 	stripPrice() {
-		Products.get().filter(p => p.isCatalog && !p.isDopnik).forEach(p => {
+		ProductsRows.get().filter(p => p.isCatalog && !p.isDopnik).forEach(p => {
 			p.$.find('.order-price__initial-price__input').val(0);
 			p.$.find('.order-price__button_submit').trigger('click');
 		});

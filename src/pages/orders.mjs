@@ -1,7 +1,11 @@
-import table from '@modules/orders/table';
-import filters from '@modules/orders/filters';
+import OrdersTable from '@modules/orders/table';
+import OrdersFilters from '@modules/orders/filters';
 
-export default () => {
-	filters();
-	table();
+export default class Orders {
+	static moduleName = 'orders';
+
+	init() {
+		new OrdersFilters().init();
+		new OrdersTable().init();
+	}
 }

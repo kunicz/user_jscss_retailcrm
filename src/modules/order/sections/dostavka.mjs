@@ -1,10 +1,8 @@
 import adres from '@modules/order/adres';
 import normalize from '@helpers/normalize';
-import { Order } from '@pages/order';
+import Order from '@pages/order';
 
-export default () => new Dostavka().init();
-
-class Dostavka {
+export default class Dostavka {
 	init() {
 		this.address();
 		this.price();

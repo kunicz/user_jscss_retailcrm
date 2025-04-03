@@ -2,9 +2,7 @@ import * as cols from '@modules/orders/cols';
 import normalize from '@helpers/normalize';
 import OrderTd from '@modules/orders/td';
 
-export default (row) => new SummTd(row).init();
-
-class SummTd extends OrderTd {
+export default class SummTd extends OrderTd {
 	static columnName = 'summ';
 
 	constructor(row) {

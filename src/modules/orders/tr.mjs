@@ -1,22 +1,23 @@
 import * as cols from '@modules/orders/cols';
-import { indexes, shops, fakeCustomers } from '@modules/orders/table';
+import OrdersTable from '@modules/orders/table';
 import { SKU_DONAT } from '@root/config';
-import adres from '@modules/orders/tds/adres';
-import card from '@modules/orders/tds/card';
-import checkbox from '@modules/orders/tds/checkbox';
-import comments from '@modules/orders/tds/comments';
-import courier from '@modules/orders/tds/courier';
-import products from '@modules/orders/tds/products';
-import shop from '@modules/orders/tds/shop';
-import summ from '@modules/orders/tds/summ';
-import zakazchik from '@modules/orders/tds/zakazchik';
+import AdresTd from '@modules/orders/tds/adres';
+import CardTd from '@modules/orders/tds/card';
+import CheckboxTd from '@modules/orders/tds/checkbox';
+import CommentsTd from '@modules/orders/tds/comments';
+import CourierTd from '@modules/orders/tds/courier';
+import ProductsTd from '@modules/orders/tds/products';
+import ShopTd from '@modules/orders/tds/shop';
+import SummTd from '@modules/orders/tds/summ';
+import ZakazchikTd from '@modules/orders/tds/zakazchik';
 
-export default ($tr, order) => new OrdersRow($tr, order).init();
-
-class OrdersRow {
+export default class OrdersRow {
 	constructor($tr, orderCrm) {
 		this.$tr = $tr;
 		this.orderCrm = orderCrm;
+		this.fakeCustomers = OrdersTable.fakeCustomers;
+		this.indexes = OrdersTable.indexes;
+		this.shops = OrdersTable.shops;
 		this.shopDb = this.getShop();
 	}
 
@@ -24,21 +25,21 @@ class OrdersRow {
 		this.markCols();
 		this.coloredRow();
 		this.batchHideRow();
-		// импорты дл ячеек
-		checkbox(this);
-		shop(this);
-		zakazchik(this);
-		products(this, this.orderCrm);
-		card(this, this.orderCrm);
-		comments(this);
-		adres(this);
-		summ(this);
-		courier(this, this.orderCrm, this.hasDonat());
+		// импорты для ячеек
+		new CheckboxTd(this).init();
+		new ShopTd(this).init();
+		new ZakazchikTd(this).init();
+		new ProductsTd(this).init();
+		new CardTd(this).init();
+		new CommentsTd(this).init();
+		new AdresTd(this).init();
+		new SummTd(this).init();
+		new CourierTd(this).init();
 	}
 
 	// устанавлевает метку с названием колонки в каждой ячейке
 	markCols() {
-		this.$tr.children('td').each((i, td) => $(td).attr('col', indexes()[i]));
+		this.$tr.children('td').each((i, td) => $(td).attr('col', this.indexes[i]));
 	}
 
 	// меняет цвет ряда в зависимости от условий
@@ -69,7 +70,7 @@ class OrdersRow {
 
 	// проверяет, является ли клиент фейковым
 	isFakeCustomer() {
-		return fakeCustomers().some(customer => customer.id === this.orderCrm.customer.id);
+		return this.fakeCustomers.some(customer => customer.id === this.orderCrm.customer.id);
 	}
 
 	// проверяет, является ли заказ оконченным
@@ -78,11 +79,11 @@ class OrdersRow {
 	}
 
 	getShop() {
-		return shops().find(s => s.shop_title === this.getNative(cols.shop));
+		return this.shops.find(s => s.shop_title === this.getNative(cols.shop));
 	}
 
 	td(title) {
-		return this.$tr.children('td').eq(indexes()[title]);
+		return this.$tr.children('td').eq(this.indexes[title]);
 	}
 
 	get(title) {

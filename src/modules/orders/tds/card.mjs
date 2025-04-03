@@ -4,15 +4,13 @@ import { inlineTooltip } from '@src/helpers';
 import OrderTd from '@modules/orders/td';
 import { SKU_DONAT, SKU_TRANSPORT } from '@root/config';
 
-export default (row, orderCrm) => new CardTd(row, orderCrm).init();
-
-class CardTd extends OrderTd {
+export default class CardTd extends OrderTd {
 	static columnName = 'card';
 
-	constructor(row, orderCrm) {
-		super(row, orderCrm);
-		this.products = orderCrm?.items;
-		this.customText = row.get(cols.cardText);
+	constructor(row) {
+		super(row);
+		this.products = this.orderCrm?.items;
+		this.customText = this.row.get(cols.cardText);
 		this.skus = this.getSkus();
 		this.types = this.getTypes();
 		this.text = this.getText();

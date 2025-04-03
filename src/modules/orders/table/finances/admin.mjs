@@ -1,6 +1,4 @@
-export default () => new AdminFinances().init();
-
-class AdminFinances {
+export default class AdminFinances {
 	init() {
 		const filtersFromUrl = this.getFiltersFromUrl();
 		const filtersForApi = this.transformFiltersForApi(filtersFromUrl);

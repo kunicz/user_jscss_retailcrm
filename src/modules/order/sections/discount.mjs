@@ -1,9 +1,7 @@
 import retailcrm from '@helpers/retailcrm_direct';
-import { Order } from '@pages/order';
+import Order from '@pages/order';
 
-export default () => new Discount().init();
-
-class Discount {
+export default class Discount {
 	init() {
 		this.checkDiscount();
 	}

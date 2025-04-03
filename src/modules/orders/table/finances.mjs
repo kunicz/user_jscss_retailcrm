@@ -1,12 +1,11 @@
-import { user } from '@src';
-import financesAdmin from './finances/admin.mjs';
-import financesManager from './finances/manager.mjs';
+import App from '@src';
+import Admin from './finances/admin.mjs';
+import Manager from './finances/manager.mjs';
 
-export default () => new Finances().init();
-
-class Finances {
+export default class Finances {
 	init() {
-		user?.isAdmin ? financesAdmin() : financesManager();
+		const module = App.user?.isAdmin ? Admin : Manager;
+		new module().init();
 	}
 }
 

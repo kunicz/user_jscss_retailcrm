@@ -1,12 +1,10 @@
 import { RESERVED_SKUS, SKU_DONAT } from '@root/config';
-import { Order } from '@pages/order';
-import { ProductsRows as Products } from '@modules/order/products/rows';
+import Order from '@pages/order';
+import ProductsRows from '@modules/order/products/rows';
 
-export default () => new PrintCard().init();
-
-class PrintCard {
+export default class PrintCard {
 	async init() {
-		const productsPrintable = Products.get().filter(product => product.isCatalog);
+		const productsPrintable = ProductsRows.get().filter(product => product.isCatalog);
 		if (!productsPrintable.length) return;
 
 		const printable = [];
@@ -23,6 +21,7 @@ class PrintCard {
 		this.addPrintableButtons(printable);
 	}
 
+	// добавляет кнопки для печати карточек
 	addPrintableButtons(printable) {
 		if (!this.needPrint(printable)) return;
 
@@ -36,12 +35,14 @@ class PrintCard {
 		});
 	}
 
+	// возвращает SKU
 	getSku(artikul) {
 		if (!artikul) return null;
 		const probableSku = parseInt(artikul.match(/^(\d+)/)?.[1]);
 		return RESERVED_SKUS.includes(probableSku) ? artikul : probableSku;
 	}
 
+	// проверяет, нужно ли печатать карточки
 	needPrint(printable) {
 		if (!printable.length) return false;
 		if (printable.every(item => item.sku == SKU_DONAT)) return false;

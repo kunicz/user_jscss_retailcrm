@@ -1,10 +1,7 @@
 import '@css/popup.css';
 
-export default (meta) => new Popup(meta).init();
-
-export class Popup {
+export default class Popup {
 	constructor(meta) {
-		console.log(meta);
 		this.$popup = null;
 		this.meta = meta;
 	}
@@ -13,6 +10,7 @@ export class Popup {
 		!this.$popup ? this.create() : this.update();
 	}
 
+	// создает popup
 	create() {
 		this.$popup = $(`
 			<div id="custom_popup" data-page="${this.meta.id}" aria-hidden="false" aria-modal="true" role="dialog" class="popup_VIxGl omnica-modal">
@@ -44,12 +42,14 @@ export class Popup {
 		this.$popup.find('.omnica-modal-window__close').on('click', () => this.$popup.hide());
 	}
 
+	// обновляет popup
 	update() {
 		this.$popup.data('page', this.meta.id);
 		this.$popup.find('#custom_popup_title').text(this.meta.title);
 		this.$popup.show();
 	}
 
+	// рендерит форму поиска
 	static searchForm(target, placeholder) {
 		const id = `${target}_popup_search`;
 		return $(`

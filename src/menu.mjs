@@ -1,21 +1,20 @@
 import { iconsSVG } from '@src/mappings';
-import { bundleVersion } from '@bundle_loader';
+import BundleLoader from '@bundle_loader';
 import wait from '@helpers/wait';
-import couriers from '@modules/popup/couriers';
+import CouriersPopup from '@modules/popup/popup_couriers';
 import '@css/menu.css';
 
-export default () => new Menu().init();
-
-class Menu {
+export default class Menu {
 	constructor() {
 		this.$navBar = $('#nav-bar .bar__inner');
 		this.$navBarTop = this.$navBar.children().eq(0);
 		this.$navBarBottom = this.$navBar.children().eq(1);
+		this.couriersMeta = new CouriersPopup().meta;
 	}
 
 	init() {
-		bundleVersion().insertAfter(this.$navBar.find('[data-menu-btn="profile"]'));
-		this.addButton(couriers.meta, this.$navBarTop);
+		BundleLoader.version().insertAfter(this.$navBar.find('[data-menu-btn="profile"]'));
+		this.addButton(this.couriersMeta, this.$navBarTop);
 	}
 
 	// добавляет кнопку в меню

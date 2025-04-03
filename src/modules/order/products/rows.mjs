@@ -1,22 +1,21 @@
-import properties from '@modules/order/products/properties';
-import transport from '@modules/order/products/transport';
-import { ProductsData } from '@modules/order/products_data/data';
-import { Order } from '@pages/order';
+import Properties from '@modules/order/products/properties';
+import Transport from '@modules/order/products/transport';
+import ProductsData from '@modules/order/products_data/builder';
+import Order from '@pages/order';
 import { vehicleFormats } from '@src/mappings';
 import normalize from '@helpers/normalize';
 import observers from '@helpers/observers';
 
-export class ProductsRows {
-	static $tableNode = null;
-
+export default class ProductsRows {
 	constructor() {
 		this.observer = observers.order.add('products-rows');
+		this.transport = new Transport();
 	}
 
 	async init() {
 		this.listen();
-		this.transport();
-		this.products();
+		this.transport.init();
+		this.productsTable();
 		this.sort();
 	}
 
@@ -26,32 +25,38 @@ export class ProductsRows {
 			.setTarget(self.$table())
 			.setSelector('tbody')
 			.onAdded(async (node) => {
-				const product = await ProductsData.add(node);
-				this.transport();
-				this.product(product);
+				this.transport.init();
+				this.productsRow(node);
 				this.sort();
 			})
 			.onRemoved((node) => {
-				console.log('onRemoved', node);
-				ProductsData.delete(node);
-				this.transport();
+				this.transport.init();
 				this.sort();
 			})
 			.start();
 	}
 
 	// логика для товаров
-	products() {
-		self.get().forEach(product => this.product(product));
+	productsTable() {
+		self.$get().each((_, node) => this.productsRow(node));
 	}
-	product(product) {
-		if (product.isCatalog && !product.isTransport) {
-			this.classes(product);
-			this.auto(product);
-			this.bukety(product);
-			this.cards(product);
-		}
+	async productsRow(node) {
+		// собирает все данные по товару и сохраняет их в .data('product')
+		const product = await ProductsData.add(node);
+
+		this.classes(product);
+		this.catalog(product);
 		this.ostatki(product);
+	}
+
+	// логика для каталожных товаров
+	catalog(product) {
+		if (!product.isCatalog || product.isTransport) return;
+
+		this.auto(product);
+		this.bukety(product);
+		this.cards(product);
+		new Properties(product, Order.crm).init();
 	}
 
 	// устанавливает классы для товаров
@@ -140,16 +145,6 @@ export class ProductsRows {
 		console.log('Закупочная цена допника', value);
 	}
 
-	// логика в работе со свойствами товара
-	properties(product) {
-		properties(product);
-	}
-
-	// логика в работе с транспортировочным товаром
-	async transport() {
-		transport();
-	}
-
 	// сортирует товары по алфавиту
 	sort() {
 		this.observer.stop();
@@ -202,20 +197,20 @@ export class ProductsRows {
 	}
 
 
-	// получает актуальные товары в заказе
+	// возвращает таблицу товаров
 	static $table() {
-		if (!self.$tableNode) self.$tableNode = $('#order-products-table');
-		return self.$tableNode;
+		return $('#order-products-table');
 	}
 
+	// возвращает контейнеры товаровов
 	static $get() {
 		return self.$table().find('tbody');
 	}
 
+	// возвращает коллекцию данных о всех товарах в заказе
 	static get() {
 		return ProductsData.get();
 	}
 }
 
 const self = ProductsRows;
-export default (order) => new self(order).init();

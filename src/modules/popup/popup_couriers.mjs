@@ -1,23 +1,23 @@
-import { Popup, default as popup } from '@src/popup';
-import { user } from '@src';
+import Popup from '@src/popup';
+import App from '@src';
 import { bankNames } from '@src/mappings';
 import retailcrm from '@helpers/retailcrm_direct';
 
-class CouriersPopup {
+export default class CouriersPopup {
 	constructor() {
 		this.couriers = [];
 		this.meta = {
 			id: 'couriers',
 			title: 'Курьеры',
-			callback: () => instance.init()
+			callback: () => this.init()
 		};
 		this.p = 'custom_popup';
 		this.$cont = $(`#${this.p}__content`);
+		this.popup = new Popup(this.meta);
 	}
 
 	async init() {
-		console.log(this.meta);
-		popup(this.meta);
+		this.popup.init();
 		const cities = await this.getCities();
 		if (!this.couriers.length) this.couriers = await this.getCouriers(cities);
 		this.renderSearchForm();
@@ -32,8 +32,8 @@ class CouriersPopup {
 	}
 
 	// получает все города
-	getCities() {
-		return user.groups
+	async getCities() {
+		return App.user?.groups
 			.filter(role => role.code.startsWith('manager-'))
 			.map(role => role.code.split('-')[1]);
 	}
@@ -88,6 +88,3 @@ class CouriersPopup {
 		`);
 	}
 }
-
-const instance = new CouriersPopup();
-export default instance;

@@ -2,9 +2,7 @@ import * as cols from '@modules/orders/cols';
 import copyBtn from '@helpers/clipboard';
 import OrderTd from '@modules/orders/td';
 
-export default (row) => new CheckboxTd(row).init();
-
-class CheckboxTd extends OrderTd {
+export default class CheckboxTd extends OrderTd {
 	static columnName = 'checkbox';
 
 	constructor(row) {
