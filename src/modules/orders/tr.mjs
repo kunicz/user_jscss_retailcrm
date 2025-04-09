@@ -95,12 +95,12 @@ export default class OrdersRow {
 	}
 
 	gt(node) {
-		let content = node.clone();
-		content.find('.collapsable-text__button').remove();
-		content.find('.list-status-comment').remove();
-		content.find('br').replaceWith("\n");
-		content = content.text().trim();
+		let $content = node.clone();
+		$content.find('.collapsable-text__button').remove();
+		$content.find('.list-status-comment').remove();
+		$content.find('br').replaceWith("\n");
+		$content = $content.text().trim();
 		const excludedValues = ['—', 'Нет', '0 ₽', ''];
-		return excludedValues.includes(content) ? null : content;
+		return excludedValues.includes($content) ? null : $content;
 	}
 }

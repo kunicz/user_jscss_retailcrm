@@ -43,4 +43,3 @@ export default class Menu {
 		$beforeElement?.length ? btn.insertBefore($beforeElement) : $block.append(btn);
 	}
 }
-

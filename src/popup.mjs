@@ -45,7 +45,7 @@ export default class Popup {
 	// обновляет popup
 	update() {
 		this.$popup.data('page', this.meta.id);
-		this.$popup.find('#custom_popup_title').text(this.meta.title);
+		this.$popup.find('#custom_popup__title').text(this.meta.title);
 		this.$popup.show();
 	}
 
