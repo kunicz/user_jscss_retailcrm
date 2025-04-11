@@ -1,7 +1,7 @@
 import * as cols from '@modules/orders/cols';
 import { iconsSVG } from '@src/mappings';
 import copyBtn from '@helpers/clipboard';
-import templates from '@modules/orders/tds/zakazchik_msg_templates';
+import Reply from '@modules/orders/reply';
 import OrderTd from '@modules/orders/td';
 
 export default class ZakazchikTd extends OrderTd {
@@ -15,7 +15,7 @@ export default class ZakazchikTd extends OrderTd {
 		this.onanim();
 		this.telegram();
 		this.phone();
-		this.replyMessage();
+		this.reply();
 	}
 
 	// помечает ячейку, если клиент анонимный
@@ -43,10 +43,8 @@ export default class ZakazchikTd extends OrderTd {
 	}
 
 	// добавляет сообщение для заказчика
-	replyMessage() {
-		if (!this.row.shopDb || !(this.row.shopDb.shop_crm_code in templates)) return;
-
-		const template = templates[this.row.shopDb.shop_crm_code];
+	reply() {
+		if (this.row.isFakeCustomer || this.row.isDonat || this.row.isDone) return;
 		const data = {
 			orderId: String(this.row.orderCrm.id),
 			date: this.row.get(cols.date),
@@ -55,9 +53,8 @@ export default class ZakazchikTd extends OrderTd {
 			phone: this.row.get(cols.poluchatelPhone),
 			name: this.row.get(cols.poluchatelName)
 		}
-		data.poluchatel = data.phone ? `🙎 \*\*получатель\*\*:\n${data.name ? data.name + ' / ' : ''}${data.phone}\n\n` : '';
-
-		const output = template.replace(/\{\{(\w+)\}\}/g, (match, key) => data[key] || '');
+		const reply = new Reply(this.row, data);
+		const output = reply.init();
 		copyBtn(output).appendTo(this.$td);
 	}
 }

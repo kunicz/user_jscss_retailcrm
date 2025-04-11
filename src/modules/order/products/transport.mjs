@@ -6,11 +6,12 @@ import observers from '@helpers/observers';
 
 export default class Transport {
 	constructor() {
-		this.product = ProductsRows.get().find(p => p.isTransport);
+		this.product = null;
 		this.observer = observers.order.get('products-rows');
 	}
 
 	async init() {
+		this.product = ProductsRows.get().find(p => p.isTransport);
 		!this.product ? this.add() : this.equalPrices();
 	}
 

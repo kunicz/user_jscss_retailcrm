@@ -19,6 +19,9 @@ export default class OrdersRow {
 		this.indexes = OrdersTable.indexes;
 		this.shops = OrdersTable.shops;
 		this.shopDb = this.getShop();
+		this.isFakeCustomer = this.hasFakeCustomer();
+		this.isDonat = this.hasDonat();
+		this.isDone = this.hasDone();
 	}
 
 	init() {
@@ -48,7 +51,7 @@ export default class OrdersRow {
 		if (this.get(cols.shop) == 'STAY TRUE Flowers') color = 'fffaff';
 		if (this.get(cols.zakazchikName) == 'списание') color = 'fff3ee';
 		if (this.get(cols.zakazchikName) == 'наличие') color = 'e6fff1';
-		if (this.hasDonat()) color = 'ffffe9';
+		if (this.isDonat) color = 'ffffe9';
 		if (!color) return;
 		this.$tr.children().css('background-color', '#' + color);
 	}
@@ -56,8 +59,8 @@ export default class OrdersRow {
 	// помечает ряд для скрытия в пакетной операции
 	batchHideRow() {
 		if (
-			this.isFakeCustomer() ||
-			this.hasDonat() ||
+			this.isFakeCustomer ||
+			this.isDonat ||
 			this.get(cols.status) === 'разобран'
 		) this.$tr.addClass('batchHide');
 	}
@@ -69,12 +72,12 @@ export default class OrdersRow {
 	}
 
 	// проверяет, является ли клиент фейковым
-	isFakeCustomer() {
+	hasFakeCustomer() {
 		return this.fakeCustomers.some(customer => customer.id === this.orderCrm.customer.id);
 	}
 
 	// проверяет, является ли заказ оконченным
-	isDone() {
+	hasDone() {
 		return (['Витрина', 'Разобран', 'Отменен'].includes(this.get(cols.status)));
 	}
 

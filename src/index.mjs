@@ -9,7 +9,7 @@ import Order from '@pages/order';
 import Products from '@pages/products';
 import Product from '@pages/product';
 
-window.BUNDLE_VERSION = '2.5.16';
+window.BUNDLE_VERSION = '2.5.20';
 
 export default class App {
 	static user = null;
@@ -37,7 +37,8 @@ export default class App {
 
 	// накатывает мои скрипты на страницу
 	update() {
-		if (!this.shouldUpdate()) return;
+		const main = document.querySelector('#main');
+		if (!main || main.hasAttribute('loaded')) return;
 
 		BundleLoader.init('retailcrm', new Map([
 			[/admin\/couriers(?:[^\/]|$)/, new Couriers()],
@@ -49,20 +50,7 @@ export default class App {
 			[/products\/\d+/, new Product()],
 		]));
 
-		self.$main().addClass('loaded');
-	}
-
-	// проверяет, нужно ли обновлять страницу
-	shouldUpdate() {
-		const currentPath = window.location.href;
-		if (this.lastPath === currentPath || this.isLoaded()) return false;
-		this.lastPath = currentPath;
-		return true;
-	}
-
-	// проверяет, загружена ли страница
-	isLoaded() {
-		return self.$main().hasClass('loaded');
+		main.setAttribute('loaded', '');
 	}
 
 	// получает текущего пользователя
@@ -71,11 +59,6 @@ export default class App {
 		const userId = document.querySelector('head').getAttribute('data-user-id');
 		const user = await retailcrm.get.user.byId(userId);
 		return user;
-	}
-
-	// возвращает элемент #main
-	static $main() {
-		return $('#main');
 	}
 }
 

@@ -18,7 +18,8 @@ export default class CourierTd extends OrderTd {
 	init() {
 		this.auto();
 		if (this.isSamovyvoz()) return;
-		if (this.row.isDone()) return;
+		if (this.row.isDone) return;
+
 		this.price();
 		this.orderInfo();
 		this.svodka();
@@ -125,8 +126,8 @@ export default class CourierTd extends OrderTd {
 
 	warning() {
 		if (
-			this.row.isFakeCustomer() ||
-			this.row.hasDonat() ||
+			this.row.isFakeCustomer ||
+			this.row.isDonat ||
 			this.row.$tr.is('.batchHide') ||
 			this.row.get(cols.deliveryType) != 'Доставка курьером'
 		) return;
@@ -156,8 +157,8 @@ export default class CourierTd extends OrderTd {
 	needNotify() {
 		if (
 			['Выполнен', 'Разобран'].includes(this.row.get(cols.status)) ||
-			this.row.isFakeCustomer() ||
-			this.row.hasDonat() ||
+			this.row.isFakeCustomer ||
+			this.row.isDonat ||
 			!this.orderCrm.delivery.data.id ||
 			this.orderCrm.customFields.courier_notified
 		) return false;
