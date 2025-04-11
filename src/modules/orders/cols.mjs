@@ -40,6 +40,7 @@ export const courierInfo = 'примечания курьера';
 export const courierAuto = 'автокурьер';
 export const lovix = 'добавить лубрикант';
 export const otkudaUznal = 'откуда узнал о нас (в заказе)';
+export const domofon = 'домофон';
 
 export const hiddenColumns = [
 	number,
@@ -68,5 +69,6 @@ export const hiddenColumns = [
 	courierInfo,
 	courierAuto,
 	lovix,
-	otkudaUznal
+	otkudaUznal,
+	domofon
 ];

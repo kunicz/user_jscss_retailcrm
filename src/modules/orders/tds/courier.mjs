@@ -65,6 +65,7 @@ export default class CourierTd extends OrderTd {
 		const comment = this.row.get(cols.commentsCourier);
 		const phone = this.row.get(cols.poluchatelPhone);
 		const name = this.row.get(cols.poluchatelName);
+		const domofon = this.row.get(cols.domofon);
 
 		let output = '';
 		if (deliveryDate.isToday || deliveryDate.daysTo <= 2) {
@@ -75,6 +76,7 @@ export default class CourierTd extends OrderTd {
 		output += ` ${time}`;
 		if (auto) output += `\nДоставка на своем автомобиле или на такси!`;
 		if (adres) output += '\n' + (!full ? adres.replace(/(,\s(?:кв|эт|под)\..+$)/, '') : adres);
+		if (domofon && full) output += `, код домофона: ${domofon}`;
 		if (full) {
 			if (comment) output += ` ${comment}`;
 			if (phone) output += `\n${phone}`;

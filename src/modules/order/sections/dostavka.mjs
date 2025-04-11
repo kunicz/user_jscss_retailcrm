@@ -7,6 +7,7 @@ export default class Dostavka {
 		this.address();
 		this.price();
 		this.time();
+		this.domofon();
 	}
 
 	time() {
@@ -51,6 +52,10 @@ export default class Dostavka {
 			$('#order-delivery-net-cost__link-cost-manual').trigger('click');
 			console.log('Себестоимость доставки не указана, эмулируем клик');
 		}
+	}
+
+	domofon() {
+		$(`#${Order.intaro}_customFields_domofon`).parent().insertBefore($('#date-text'));
 	}
 }
 

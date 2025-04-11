@@ -51,7 +51,8 @@ export default class ZakazchikTd extends OrderTd {
 			time: this.row.get(cols.time),
 			adres: this.row.getNative(cols.adres),
 			phone: this.row.get(cols.poluchatelPhone),
-			name: this.row.get(cols.poluchatelName)
+			name: this.row.get(cols.poluchatelName),
+			domofon: this.row.get(cols.domofon),
 		}
 		const reply = new Reply(this.row, data);
 		const output = reply.init();
