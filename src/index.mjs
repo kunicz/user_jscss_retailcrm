@@ -9,7 +9,7 @@ import Order from '@pages/order';
 import Products from '@pages/products';
 import Product from '@pages/product';
 
-window.BUNDLE_VERSION = '2.5.21';
+window.BUNDLE_VERSION = '2.5.22';
 
 export default class App {
 	static user = null;

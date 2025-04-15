@@ -56,8 +56,8 @@ export default class CourierTd extends OrderTd {
 	}
 
 	getData(full = false) {
-		const m = this.row.get(cols.date).match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
-		const deliveryDate = dates.create(new Date(m[3], m[2] - 1, m[1]));
+		const m = this.row.get(cols.date)?.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+		const deliveryDate = m ? dates.create(new Date(m[3], m[2] - 1, m[1])) : null;
 		const auto = this.row.get(cols.courierAuto);
 		const adres = this.row.getNative(cols.adres);
 		const time = this.row.get(cols.time);
@@ -68,10 +68,10 @@ export default class CourierTd extends OrderTd {
 		const domofon = this.row.get(cols.domofon);
 
 		let output = '';
-		if (deliveryDate.isToday || deliveryDate.daysTo <= 2) {
-			output += `${deliveryDate.title} (${deliveryDate.strRu})`;
+		if (deliveryDate?.isToday || deliveryDate?.daysTo <= 2) {
+			output += `${deliveryDate?.title} (${deliveryDate?.strRu})`;
 		} else {
-			output += deliveryDate.strRu;
+			output += deliveryDate?.strRu;
 		}
 		output += ` ${time}`;
 		if (auto) output += `\nДоставка на своем автомобиле или на такси!`;
