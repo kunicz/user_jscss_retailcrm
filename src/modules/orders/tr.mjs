@@ -31,8 +31,8 @@ export default class OrdersRow {
 		// импорты для ячеек
 		new CheckboxTd(this).init();
 		new ShopTd(this).init();
-		new ZakazchikTd(this).init();
 		new ProductsTd(this).init();
+		new ZakazchikTd(this).init();
 		new CardTd(this).init();
 		new CommentsTd(this).init();
 		new AdresTd(this).init();

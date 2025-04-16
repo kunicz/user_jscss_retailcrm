@@ -45,16 +45,8 @@ export default class ZakazchikTd extends OrderTd {
 	// добавляет сообщение для заказчика
 	reply() {
 		if (this.row.isFakeCustomer || this.row.isDonat || this.row.isDone) return;
-		const data = {
-			orderId: String(this.row.orderCrm.id),
-			date: this.row.get(cols.date),
-			time: this.row.get(cols.time),
-			adres: this.row.getNative(cols.adres),
-			phone: this.row.get(cols.poluchatelPhone),
-			name: this.row.get(cols.poluchatelName),
-			domofon: this.row.get(cols.domofon),
-		}
-		const reply = new Reply(this.row, data);
+
+		const reply = new Reply(this.row);
 		const output = reply.init();
 		copyBtn(output).appendTo(this.$td);
 	}

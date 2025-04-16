@@ -1,17 +1,26 @@
 import dates from '@helpers/dates';
+import * as cols from '@modules/orders/cols';
 
 export default class Reply {
-	constructor(row, data) {
-		this.row = row;
-		this.data = data;
-		this.formalityLevel = row?.shopDb?.formality_level || 'вы';
-		this.deliveryDate = dates.add(row.orderCrm.delivery.date);
+	constructor(row) {
+		this.id = row.orderCrm.id;
+		this.date = row.get(cols.date);
+		this.time = row.get(cols.time);
+		this.adres = row.getNative(cols.adres);
+		this.phone = row.get(cols.poluchatelPhone);
+		this.name = row.get(cols.poluchatelName);
+		this.domofon = row.get(cols.domofon);
+		this.products = $.map(row.td(cols.products).find('.name'), el => el.textContent);
+
+		this.deliveryDate = dates.create(row.orderCrm.delivery.date);
 		this.isSpecialDate = this.defineSpecialDate();
+		this.formalityLevel = row?.shopDb?.formality_level || 'вы';
 	}
 
 	init() {
 		return [
 			this._order(),
+			this._products(),
 			this._dostavka(),
 			this._adres(),
 			this._poluchatel(),
@@ -21,24 +30,32 @@ export default class Reply {
 	}
 
 	defineSpecialDate() {
-		return dates.special.some(date => date.d === this.deliveryDate.d && date.m === this.deliveryDate.m);
+		return dates.special.some(date => date.d === this.deliveryDate?.d && date.m === this.deliveryDate?.m);
 	}
 
 	_order = () => {
 		const data = {
-			'ты': `📦 зоказек \*\*#${this.data.orderId}\*\* принят! проверь!`,
-			'вы': `📦 ваш заказ \*\*#${this.data.orderId}\*\* принят! проверьте!`,
-			'Вы': `📦 Ваш заказ \*\*#${this.data.orderId}\*\* принят! Проверьте!`
+			'ты': `📦 зоказек \*\*#${this.id}\*\* принят! проверь!`,
+			'вы': `📦 ваш заказ \*\*#${this.id}\*\* принят! проверьте!`,
+			'Вы': `📦 Ваш заказ \*\*#${this.id}\*\* принят! Проверьте!`
 		}
 		return data[this.formalityLevel] || '';
 	}
 
-	_dostavka = () => {
-		if (!this.data.date) return '';
+	_products = () => {
+		const title = this.formalityLevel === 'Вы' ? 'Товары' : 'товары';
+		let output = `🌸  \*\*${title}\*\*:\n`;
+		output += this.products.join('\n');
+		return output;
+	}
 
-		let output = `📅 \*\* ${this.formalityLevel === 'Вы' ? 'Д' : 'д'}оставка\*\*:\n`;
-		output += `${this.data.date}`;
-		if (this.data.time) output += ` ${this.data.time}`;
+	_dostavka = () => {
+		if (!this.date) return '';
+
+		const title = this.formalityLevel === 'Вы' ? 'Доставка' : 'доставка';
+		let output = `📅 \*\*${title}\*\*:\n`;
+		output += `${this.date}`;
+		if (this.time) output += ` ${this.time}`;
 		return output + this._dateTimeComment();
 	}
 
@@ -55,21 +72,23 @@ export default class Reply {
 	}
 
 	_adres = () => {
-		if (!this.data.adres) return '';
+		if (!this.adres) return '';
 
-		let output = `🏠 \*\*${this.formalityLevel === 'Вы' ? 'П' : 'п'}о адресу\*\*:\n`;
-		output += `${this.data.adres}`;
-		if (this.data.domofon) output += `\nкод домофона: ${this.data.domofon}`;
+		const title = this.formalityLevel === 'Вы' ? 'По адресу' : 'по адресу';
+		let output = `🏠 \*\*${title}\*\*:\n`;
+		output += `${this.adres}`;
+		if (this.domofon) output += `\nкод домофона: ${this.domofon}`;
 		return output;
 	}
 
 	_poluchatel = () => {
-		if (!this.data.name && !this.data.phone) return '';
+		if (!this.name && !this.phone) return '';
 
-		let output = `🙎 \*\*${this.formalityLevel === 'Вы' ? 'П' : 'п'}олучатель\*\*:\n`;
-		if (this.data.name && this.data.phone) output += `${this.data.name} (${this.data.phone})`;
-		else if (this.data.name) output += `${this.data.name}`;
-		else if (this.data.phone) output += `(${this.data.phone})`;
+		const title = this.formalityLevel === 'Вы' ? 'Получатель' : 'получатель';
+		let output = `🙎 \*\*${title}\*\*:\n`;
+		if (this.name && this.phone) output += `${this.name} (${this.phone})`;
+		else if (this.name) output += `${this.name}`;
+		else if (this.phone) output += `(${this.phone})`;
 		return output;
 	};
 
