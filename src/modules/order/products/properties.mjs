@@ -73,6 +73,7 @@ export default class Properties {
 
 			//пропускаем, если:
 			if (this.product.$.find(selector).length) continue; // свойство уже есть
+			console.log(this.product);
 			if (this.product.isDonat || this.product.isDopnik) continue; // донат или допник
 
 			index++;

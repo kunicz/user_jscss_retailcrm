@@ -80,9 +80,9 @@ export default class ProductsData {
 		// DB
 		if (!productDb) productDb = await self.getProductDb(productCrm);
 		data.db = productDb;
-		data.isPodpiska = productDb?.type === SKU_PODPISKA;
-		data.isDopnik = productDb?.type === SKU_DOPNIK;
-		data.isDonat = productDb?.type === SKU_DONAT;
+		data.isPodpiska = productDb?.type == SKU_PODPISKA;
+		data.isDopnik = productDb?.type == SKU_DOPNIK;
+		data.isDonat = productDb?.type == SKU_DONAT;
 
 		return data;
 	}
