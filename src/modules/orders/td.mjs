@@ -7,7 +7,7 @@ export default class OrderTd {
 		this.row = row;
 		this.orderCrm = row.orderCrm;
 		this.col = this.constructor.columnName;
-		this.$td = this.row.td(cols[this.col]);
+		this.$td = this.row.$td(cols[this.col]);
 		this.$native = this.$td.children('.native');
 	}
 
@@ -19,5 +19,13 @@ export default class OrderTd {
 	// возвращает оригинальное содержимое ячейки
 	getNative() {
 		return this.row.getNative(cols[this.col]);
+	}
+
+	destroy() {
+		this.row = null;
+		this.orderCrm = null;
+		this.col = null;
+		this.$td = null;
+		this.$native = null;
 	}
 }

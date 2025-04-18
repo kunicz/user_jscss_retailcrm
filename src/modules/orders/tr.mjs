@@ -22,22 +22,40 @@ export default class OrdersRow {
 		this.isFakeCustomer = this.hasFakeCustomer();
 		this.isDonat = this.hasDonat();
 		this.isDone = this.hasDone();
+		this.tds = [];
 	}
 
 	init() {
 		this.markCols();
 		this.coloredRow();
 		this.batchHideRow();
+
 		// импорты для ячеек
-		new CheckboxTd(this).init();
-		new ShopTd(this).init();
-		new ProductsTd(this).init();
-		new ZakazchikTd(this).init();
-		new CardTd(this).init();
-		new CommentsTd(this).init();
-		new AdresTd(this).init();
-		new SummTd(this).init();
-		new CourierTd(this).init();
+		this.tds.push(new CheckboxTd(this));
+		this.tds.push(new ShopTd(this));
+		this.tds.push(new ProductsTd(this));
+		this.tds.push(new ZakazchikTd(this));
+		this.tds.push(new CardTd(this));
+		this.tds.push(new CommentsTd(this));
+		this.tds.push(new AdresTd(this));
+		this.tds.push(new SummTd(this));
+		this.tds.push(new CourierTd(this));
+
+		this.tds.forEach(td => td.init());
+	}
+
+	destroy() {
+		this.tds.forEach(td => td.destroy());
+		this.tds = null;
+		this.orderCrm = null;
+		this.$tr = null;
+		this.fakeCustomers = null;
+		this.indexes = null;
+		this.shops = null;
+		this.shopDb = null;
+		this.isFakeCustomer = null;
+		this.isDonat = null;
+		this.isDone = null;
 	}
 
 	// устанавлевает метку с названием колонки в каждой ячейке
@@ -85,16 +103,16 @@ export default class OrdersRow {
 		return this.shops.find(s => s.shop_title === this.getNative(cols.shop));
 	}
 
-	td(title) {
+	$td(title) {
 		return this.$tr.children('td').eq(this.indexes[title]);
 	}
 
 	get(title) {
-		return this.gt(this.td(title));
+		return this.gt(this.$td(title));
 	}
 
 	getNative(title) {
-		return this.gt(this.td(title).children('.native'));
+		return this.gt(this.$td(title).children('.native'));
 	}
 
 	gt(node) {

@@ -1,7 +1,8 @@
 import { bankNames } from '@src/mappings';
 
 export default class Courier {
-	static moduleName = 'courier';
+	static name = 'courier';
+
 	constructor() {
 		this.descr = {
 			bank: '',

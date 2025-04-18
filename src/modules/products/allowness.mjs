@@ -19,6 +19,12 @@ export default class Allowness {
 		this.addAvailabilitySelects(availabilityData);
 	}
 
+	destroy() {
+		this.$ths = null;
+		this.$trs = null;
+		this.indexes = null;
+	}
+
 	// определяет по индексам нужные столбцы
 	defineIndexes() {
 		this.$ths.each((index, th) => {

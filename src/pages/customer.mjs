@@ -1,7 +1,7 @@
 import '@css/customer.css';
 
 export default class Customer {
-	static moduleName = 'customer';
+	static name = 'customer';
 
 	init() {
 		this.preferedName();

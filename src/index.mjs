@@ -1,4 +1,3 @@
-import BundleLoader from '@bundle_loader';
 import retailcrm from '@helpers/retailcrm_direct';
 import Menu from '@src/menu';
 import Couriers from '@pages/couriers';
@@ -9,10 +8,15 @@ import Order from '@pages/order';
 import Products from '@pages/products';
 import Product from '@pages/product';
 
-window.BUNDLE_VERSION = '2.6.1';
+import observers from '@helpers/observers';
+import intervals from '@helpers/intervals';
+import timeouts from '@helpers/timeouts';
+
+window.BUNDLE_VERSION = '2.7.1';
 
 export default class App {
 	static user = null;
+	static page = null;
 
 	constructor() {
 		this.menu = new Menu();
@@ -36,21 +40,43 @@ export default class App {
 	}
 
 	// накатывает мои скрипты на страницу
-	update() {
+	async update() {
 		const main = document.querySelector('#main');
 		if (!main || main.hasAttribute('loaded')) return;
 
-		BundleLoader.init('retailcrm', new Map([
-			[/admin\/couriers(?:[^\/]|$)/, new Couriers()],
-			[/admin\/couriers\/(\d+|new)/, new Courier()],
-			[/customers\/\d+/, new Customer()],
-			[/orders\/\d+/, new Order()],
-			[/orders(?:\/)?(?:\?.*)?$/, new Orders()],
-			[/products\/[$|\?]/, new Products()],
-			[/products\/\d+/, new Product()],
-		]));
+		const pages = new Map([
+			[/admin\/couriers(?:[^\/]|$)/, Couriers],
+			[/admin\/couriers\/(\d+|new)/, Courier],
+			[/customers\/\d+/, Customer],
+			[/orders\/\d+/, Order],
+			[/orders(?:\/)?(?:\?.*)?$/, Orders],
+			[/products\/($|\?)/, Products],
+			[/products\/\d+/, Product],
+		]);
+		for (const [pattern, module] of pages) {
+			if (!pattern.test(window.location.href)) continue;
 
-		main.setAttribute('loaded', '');
+			// выводит в консоль имя модуля
+			console.log(`user_jscss : retailcrm/${module.name}`);
+
+			// отмечает страницу как загруженную
+			main.setAttribute('loaded', '');
+
+			// уничтожает предыдущий модуль
+			if (App.page) {
+				observers.clear(App.page.name);
+				intervals.clear(App.page.name);
+				timeouts.clear(App.page.name);
+				App.page.destroy();
+			}
+
+			// создает новый модуль
+			App.page = new module();
+
+			// инициализирует модуль
+			await Promise.resolve(App.page.init());
+		}
+
 	}
 
 	// получает текущего пользователя

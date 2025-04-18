@@ -7,7 +7,7 @@ import OrdersTable from '@modules/orders/table';
 import OrderTd from '@modules/orders/td';
 import { SKU_TRANSPORT, SKU_DOPNIK } from '@root/config';
 import { moysklad } from '@src/mappings';
-import ProductsData from '@modules/order/products_data/builder';
+import ProductsData from '@modules/order/products/data';
 
 export default class ProductsTd extends OrderTd {
 	static columnName = 'products';
@@ -41,6 +41,15 @@ export default class ProductsTd extends OrderTd {
 		this.products();
 		this.sostav();
 		this.lovix();
+	}
+
+	destroy() {
+		this.productsAll = null;
+		this.productsNoCatalog = null;
+		this.productsCatalog = null;
+		this.productsNoFlowers = null;
+		this.productsFlowers = null;
+		super.destroy();
 	}
 
 	// выводит каталожные товары в заказе
@@ -82,7 +91,7 @@ export default class ProductsTd extends OrderTd {
 			$a.on('mouseenter', async () => {
 				if (loaded) return;
 				loaded = true;
-				const orderMs = await ProductsData.getProductMs(item.props.moyskladid);
+				const orderMs = await ProductsData.productMs(item.props.moyskladid);
 				const msId = orderMs?.id;
 				if (!msId) {
 					const text = $a.text();

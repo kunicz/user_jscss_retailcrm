@@ -15,7 +15,7 @@ export default class CheckboxTd extends OrderTd {
 
 	// кликабельный номер заказа под чекбокс
 	orderId() {
-		const $id = this.row.td(cols.number).find('a');
+		const $id = this.row.$td(cols.number).find('a');
 		this.$td.append('<br>').append(copyBtn($id));
 	}
 }

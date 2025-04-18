@@ -27,6 +27,11 @@ export default class CourierTd extends OrderTd {
 		this.notifyIndicator();
 	}
 
+	destroy() {
+		this.$warn = null;
+		super.destroy();
+	}
+
 	isSamovyvoz() {
 		if (this.row.get(cols.deliveryType) == 'Самовывоз') {
 			this.$native.text('Самовывоз');

@@ -3,29 +3,33 @@ import wait from '@helpers/wait';
 import ProductsRows from '@modules/order/products/rows';
 import Order from '@pages/order';
 import Finances from '@modules/order/finances';
+import intervals from '@helpers/intervals';
 import '@css/order_products_popup.css';
 
 export default class OrderProductsPopup {
 	constructor() {
 		this.p = 'product-popup';
 		this.calсulatorSelector = 'popupCalculator';
+		this.observer = observers.add('order', 'products-popup');
 	}
 
 	init() {
 		this.listen();
 	}
 
+	destroy() {
+		this.observer = null;
+	}
+
 	listen() {
-		let int;
-		// создание попапа
-		observers.order.add('products-popup')
+		this.observer
 			.setSelector(`#${this.p}`)
 			.onAdded(async () => {
 				this.stripPrice();
 				this.defualtShop();
-				int = setInterval(() => this.createCalculator(), 1000);
+				intervals.add('order', 'createCalculator', () => this.createCalculator(), 1000);
 			})
-			.onRemoved(() => clearInterval(int))
+			.onRemoved(() => intervals.clear('order', 'createCalculator'))
 			.start();
 	}
 
@@ -91,7 +95,7 @@ export default class OrderProductsPopup {
 
 	//обнуляем стоимость каталожных товаров (не допников)
 	stripPrice() {
-		ProductsRows.get().filter(p => p.isCatalog && !p.isDopnik).forEach(p => {
+		ProductsRows.products().filter(p => p.isCatalog && !p.isDopnik).forEach(p => {
 			p.$.find('.order-price__initial-price__input').val(0);
 			p.$.find('.order-price__button_submit').trigger('click');
 		});
@@ -100,7 +104,7 @@ export default class OrderProductsPopup {
 	// логика работы кнопки "Добавить товар"
 	async popupOpenButton() {
 		//скрываем кнопку, если нет магазина и менеджера
-		setInterval(() => {
+		intervals.add('order', 'popupOpenButton', () => {
 			const conditions = [
 				$(`#${Order.intaro}_manager`).val(),
 				$(`#${Order.intaro}_site`).val(),

@@ -1,4 +1,5 @@
 import wait from '@helpers/wait';
+import observers from '@helpers/observers';
 import '@css/product_editable.css';
 
 export default class ProductEditable {
@@ -6,24 +7,14 @@ export default class ProductEditable {
 		this.blocks = [];
 		this.$cont = $('#omnica-tab-group-1-touchstone');
 		this.$tabBtns = this.$cont.find('[role="tab"]');
-		this.mutators = { rows: new MutationObserver(), offers: new MutationObserver() };
+		this.observerRows = observers.add('product', 'rows');
+		this.observerOffers = observers.add('product', 'offers');
 	}
 
 	async init() {
-		/*
 		await wait.halfsec();
 		blocks = $('.warehouse-product .UiTabs-tabs-item-lNPO');
 		if (blocks.length < 4) return;
-		*/
-
-		await Promise.all(this.$tabBtns.map(async (_, btn) => {
-			console.log($(btn));
-			btn.dispatchEvent(new Event('click', { bubbles: true }));
-			await wait.halfsec();
-			this.blocks.push(this.$cont.find('.omnica-tab-group__content').clone());
-		}));
-		console.log(this.blocks);
-		return;
 
 		blocksClasses();
 		reorganizeBlocks();
@@ -31,7 +22,13 @@ export default class ProductEditable {
 		background();
 		toggleProperties();
 		toggleBukets();
-		console.log('2');
+	}
+
+	destroy() {
+		this.observerRows = null;
+		this.observerOffers = null;
+		this.blocks = null;
+		$('.ostatki[amount] section button.omnica-button_primary').off();
 	}
 
 	// добавляем классы к основным блокам
@@ -48,34 +45,6 @@ export default class ProductEditable {
 			this.ostatkiAmountEnhanced(rows.eq(i));
 		}
 		this.orderVariantsASC();
-
-		// следим за добавлениями офферов
-		this.mutators.rows = new MutationObserver((mutationsList, observer) => {
-			if (!mutationsList[0].addedNodes.length) return;
-			$(mutationsList[0].addedNodes[0]).children('td:first').html($('.ostatki[variants] section'));
-			this.mutators.rows.disconnect();
-			this.offerPrice($(mutationsList[0].addedNodes[0]));
-			this.ostatkiAmountEnhanced($(mutationsList[0].addedNodes[0]));
-			this.orderVariantsASC();
-			this.listen();
-		});
-
-		// следим за изменениями офферов
-		this.mutators.offers = new MutationObserver((mutations) => {
-			mutations.forEach((mutation) => {
-				if (mutation.addedNodes) {
-					Array.from(mutation.addedNodes).forEach((node) => {
-						if ($(node).is('.ostatki[amount] section button.omnica-button_primary')) {
-							node.addEventListener('click', () => {
-								this.offerChangedPrice($(node.closest('tr')));
-								this.orderVariantsASC();
-							});
-						}
-					});
-				}
-			});
-		});
-
 		this.listen();
 	}
 
@@ -86,16 +55,40 @@ export default class ProductEditable {
 		if (initialPriceInput.is(':checked') && purchasePriceInput.is(':checked')) return;
 
 		if (!initialPriceInput.is(':checked')) initialPriceInput.parents('label').trigger('click');
-		await new Promise(resolve => setTimeout(resolve, 100));
+		await wait.halfsec();
 		if (!purchasePriceInput.is(':checked')) purchasePriceInput.parents('label').trigger('click');
-		await new Promise(resolve => setTimeout(resolve, 100));
+		await wait.halfsec();
 		$('.ostatki[properties] .save-box button').trigger('click');
 	}
 
 	// следим за добавлениями офферов
 	listen() {
-		rowsMutator.observe(document.querySelector('.ostatki[amount] tbody'), { childList: true, subtree: false });
-		offersMutator.observe(document.body, { childList: true, subtree: true });
+		this.observerRows
+			.setTarget('.ostatki[amount] tbody')
+			.setOptions({ subtree: false })
+			.onAdded(row => {
+				const $row = $(row);
+				$row.children('td:first').html($('.ostatki[variants] section'));
+				this.observerRows.stop();
+				this.offerPrice($row);
+				this.ostatkiAmountEnhanced($row);
+				this.orderVariantsASC();
+				this.observerRows.start();
+			})
+			.start();
+
+		this.observerOffers
+			.setSelector('.ostatki[amount] section button.omnica-button_primary')
+			.setTarget('.ostatki[amount] tbody')
+			.setOptions({ subtree: false })
+			.onAdded(node => {
+				const $node = $(node);
+				$node.on('click', () => {
+					this.offerChangedPrice($(node.closest('tr')));
+					this.orderVariantsASC();
+				});
+			})
+			.start();
 	}
 
 	// торговые предложения по алфавиту

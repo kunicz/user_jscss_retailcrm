@@ -3,32 +3,40 @@ import Order from '@pages/order';
 import ProductsRows from '@modules/order/products/rows';
 
 export default class PrintCard {
+	constructor() {
+		this.products = null;
+		this.printable = [];
+	}
+
 	async init() {
-		const productsPrintable = ProductsRows.get().filter(product => product.isCatalog);
-		if (!productsPrintable.length) return;
+		this.products = ProductsRows.products();
+		if (!this.products.length) return;
 
-		const printable = [];
-
-		productsPrintable.forEach(product => {
-			const card = product.$.find('[title^="выебри карточку:"]');
-			const artikul = product.$.find('[title^="артикул:"]')?.attr('title')?.replace('артикул: ', '');
+		this.products.forEach(product => {
+			const card = product.properties.items.find(i => i.name === 'выебри карточку')?.value;
+			const artikul = product.properties.items.find(i => i.name === 'артикул')?.value;
 			const sku = this.getSku(artikul);
 			if (!card || !sku) return;
 
-			printable.push({ product, card, sku });
+			this.printable.push({ product, card, sku });
 		});
 
-		this.addPrintableButtons(printable);
+		this.addPrintableButtons();
+	}
+
+	destroy() {
+		this.products = null;
+		this.printable = null;
 	}
 
 	// добавляет кнопки для печати карточек
-	addPrintableButtons(printable) {
-		if (!this.needPrint(printable)) return;
+	addPrintableButtons() {
+		if (!this.needPrint()) return;
 
 		const $origBtn = $('a[href$="print/16"]');
 		$origBtn.hide();
 
-		printable.forEach(item => {
+		this.printable.forEach(item => {
 			const url = `https://php.2steblya.ru/print_card?order_id=${Order.getId()}&sku=${item.sku}&shop_crm_id=${Order.getShop().id}`;
 			const $btn = $(`<li><a href="${url}" target="_blank">${item.product.title}</a></li>`);
 			$btn.appendTo($origBtn.parents('ul').get(0));
@@ -43,9 +51,9 @@ export default class PrintCard {
 	}
 
 	// проверяет, нужно ли печатать карточки
-	needPrint(printable) {
-		if (!printable.length) return false;
-		if (printable.every(item => item.sku == SKU_DONAT)) return false;
+	needPrint() {
+		if (!this.printable.length) return false;
+		if (this.printable.every(item => item.sku == SKU_DONAT)) return false;
 		return true;
 	}
 }

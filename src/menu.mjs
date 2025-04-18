@@ -13,8 +13,8 @@ export default class Menu {
 	}
 
 	init() {
-		BundleLoader.version().insertAfter(this.$navBar.find('[data-menu-btn="profile"]'));
 		this.addButton(this.couriersMeta, this.$navBarTop);
+		this.version();
 	}
 
 	// добавляет кнопку в меню
@@ -41,5 +41,10 @@ export default class Menu {
 
 		const $beforeElement = before ? $block.children(`[data-menu-btn="${before}"]`) : null;
 		$beforeElement?.length ? btn.insertBefore($beforeElement) : $block.append(btn);
+	}
+
+	// добавляет версию в меню
+	version() {
+		$(`<div id="bundleVersion">v${window.BUNDLE_VERSION}</div>`).insertAfter(this.$navBar.find('[data-menu-btn="profile"]'));
 	}
 }

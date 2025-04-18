@@ -1,11 +1,19 @@
 import Allowness from '@modules/products/allowness';
 
 export default class Products {
-	static moduleName = 'products';
+	static name = 'products';
+
+	constructor() {
+		this.allowness = new Allowness();
+	}
 
 	init() {
 		this.links();
-		new Allowness().init();
+		this.allowness.init();
+	}
+
+	destroy() {
+		this.allowness.destroy();
 	}
 
 	//укорачиваем ссылку на товар

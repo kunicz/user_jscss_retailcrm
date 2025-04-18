@@ -6,33 +6,49 @@ import Products from '@modules/order/sections/products';
 import Dostavka from '@modules/order/sections/dostavka';
 import Zakazchik from '@modules/order/sections/zakazchik';
 import PrintCard from '@modules/order/print_card';
-import ProductsData from '@modules/order/products_data/builder';
 import Finances from '@modules/order/finances';
 import normalize from '@helpers/normalize';
 import retailcrm from '@helpers/retailcrm_direct';
 import '@css/order.css';
 
 export default class Order {
-	static moduleName = 'order';
+	static name = 'order';
 	static intaro = 'intaro_crmbundle_ordertype';
 	static crm = null;
+	static flowersCrm = null;
+
+	constructor() {
+		this.sections = [
+			new Common(),
+			new CustomFields(),
+			new Comments(),
+			new Dostavka(),
+			new Zakazchik(),
+			new Discount(),
+			new Products(),
+			new PrintCard(),
+		];
+	}
 
 	async init() {
 		// получаем данные о заказе из CRM один раз до конца сессии
-		await self.getCrm();
-		// собираем данные по всем товарам в заказе
-		await ProductsData.init();
+		self.crm = await self.getCrm();
+
+		// получаем данные о товарах-цветах из CRM один раз до конца сессии
+		self.flowersCrm = await self.getFlowersCrm();
+
+		// инициализируем секции
+		for (const section of this.sections) {
+			await Promise.resolve(section.init());
+		}
+
 		// инициализируем финансы
 		Finances.init();
+	}
 
-		new Common().init();
-		new CustomFields().init();
-		new Comments().init();
-		new Dostavka().init();
-		new Zakazchik().init();
-		new Discount().init();
-		new Products().init();
-		new PrintCard().init();
+	destroy() {
+		this.sections?.forEach(s => s.destroy?.());
+		this.sections = null;
 	}
 
 	// возвращает id заказа
@@ -57,9 +73,14 @@ export default class Order {
 
 	// возвращает объект заказа из CRM
 	static async getCrm() {
-		if (self.crm) return self.crm;
-		self.crm = await retailcrm.get.order.byId(self.getId());
-		return self.crm;
+		const crm = await retailcrm.get.order.byId(self.getId());
+		return crm;
+	}
+
+	// получает данные о товарах-цветах из CRM один раз до конца сессии
+	static async getFlowersCrm() {
+		const flowersCrm = await retailcrm.get.products.flowers();
+		return flowersCrm;
 	}
 }
 

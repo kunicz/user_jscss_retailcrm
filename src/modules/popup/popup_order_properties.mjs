@@ -4,4 +4,6 @@ export default class OrderPropertiesPopup {
 
 	init() {
 	}
+
+	destroy() { }
 }

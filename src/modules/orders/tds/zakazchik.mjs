@@ -3,19 +3,27 @@ import { iconsSVG } from '@src/mappings';
 import copyBtn from '@helpers/clipboard';
 import Reply from '@modules/orders/reply';
 import OrderTd from '@modules/orders/td';
+import wait from '@helpers/wait';
 
 export default class ZakazchikTd extends OrderTd {
 	static columnName = 'zakazchikName';
 
 	constructor(row) {
 		super(row);
+		this.reply = null;
 	}
 
 	init() {
 		this.onanim();
 		this.telegram();
 		this.phone();
-		this.reply();
+		this.telegramReply();
+	}
+
+	destroy() {
+		this.reply?.destroy?.();
+		this.reply = null;
+		super.destroy();
 	}
 
 	// помечает ячейку, если клиент анонимный
@@ -43,11 +51,12 @@ export default class ZakazchikTd extends OrderTd {
 	}
 
 	// добавляет сообщение для заказчика
-	reply() {
-		if (this.row.isFakeCustomer || this.row.isDonat || this.row.isDone) return;
+	async telegramReply() {
+		if (this.row.isFakeCustomer || this.row.isDonat || this.row.isDone || !this.row) return;
+		await wait.check(() => this.row.$td(cols.products).find('.name').length);
 
-		const reply = new Reply(this.row);
-		const output = reply.init();
+		this.reply = new Reply(this.row);
+		const output = this.reply.init();
 		copyBtn(output).appendTo(this.$td);
 	}
 }

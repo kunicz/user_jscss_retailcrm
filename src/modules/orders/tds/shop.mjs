@@ -4,6 +4,7 @@ import OrderTd from '@modules/orders/td';
 
 export default class ShopTd extends OrderTd {
 	static columnName = 'shop';
+
 	constructor(row) {
 		super(row);
 	}

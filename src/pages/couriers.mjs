@@ -1,7 +1,8 @@
 import '@css/couriers.css';
 
 export default class Couriers {
-	static moduleName = 'couriers';
+	static name = 'couriers';
+
 	init() {
 		this.description();
 	}

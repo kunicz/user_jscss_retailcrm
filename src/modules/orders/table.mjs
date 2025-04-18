@@ -16,26 +16,44 @@ export default class OrdersTable {
 	static $table = null;
 	static $ths = [];
 
+	constructor() {
+		this.finances = new Finances();
+		this.couriersSvodka = new CouriersSvodka();
+		this.trs = new Map();
+	}
+
 	async init() {
 		self.$table = $('.js-order-list');
 		self.$ths = self.$table.find('tr:first th');
 		self.indexes = self.getIndexes(self.$ths);
 		self.shops = await self.getShops();
 		self.noFlowers = await self.getProductsNoFlowers();
-		self.fakeCustomers = await self.getfakeCustomers();
+		self.fakeCustomers = await self.getFakeCustomers();
 
 		this.listen();
 		await this.orders(self.$trs());
 		this.handleThs();
 		this.hiddenCols(self.$ths);
-		new Finances().init();
-		new CouriersSvodka().init();
+		this.finances.init();
+		this.couriersSvodka.init();
 		self.$table.addClass('loaded');
 	}
 
+	destroy() {
+		self.$table = null;
+		self.$ths = null;
+		this.finances?.destroy?.();
+		this.finances = null;
+		this.couriersSvodka?.destroy?.();
+		this.couriersSvodka = null;
+		for (const tr of this.trs.keys()) this.trs.get(tr).destroy();
+		this.trs.clear();
+		this.trs = null;
+	}
+
 	// слушает изменения в таблице
-	async listen() {
-		observers.orders.add('trs')
+	listen() {
+		observers.add('orders', 'trs')
 			.setSelector('tbody')
 			.setTarget(self.$table)
 			.onMutation((node) => this.orders(self.$trs($(node))))
@@ -51,7 +69,13 @@ export default class OrdersTable {
 			const $tr = $(tr);
 			this.hiddenCols($tr);
 			this.wrapNative($tr);
-			new OrdersRow($tr, ordersCrm[i]).init();
+			if (this.trs.has(tr)) {
+				this.trs.get(tr).init();
+			} else {
+				const orderRow = new OrdersRow($tr, ordersCrm[i]);
+				this.trs.set(tr, orderRow);
+				orderRow.init();
+			}
 		});
 	}
 
@@ -138,7 +162,7 @@ export default class OrdersTable {
 	}
 
 	// возвращает все фейковые клиенты из CRM
-	static async getfakeCustomers() {
+	static async getFakeCustomers() {
 		if (self.fakeCustomers.length) return self.fakeCustomers;
 		const fakeCustomers = await retailcrm.get.customers.fake();
 		self.fakeCustomers = fakeCustomers;

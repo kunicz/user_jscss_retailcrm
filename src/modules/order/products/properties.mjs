@@ -1,24 +1,39 @@
 import hash from '@helpers/hash';
-import retailcrm from '@helpers/retailcrm_direct';
 import Popup from '@modules/popup/popup_order_properties';
 import Order from '@pages/order';
+import observers from '@helpers/observers';
 
 export default class Properties {
-	constructor(product, order) {
+	constructor(product) {
 		this.product = product;
-		this.order = order;
-		this.productCrm = {};
+		this.popup = new Popup();
 		this.required = [
 			'for-mat',
 			'artikul',
 			'tsena',
 			'moyskladid'
 		];
+		this.observer = observers.add('order', 'properties');
 	}
 
 	init() {
+		this.listen();
 		this.addMissingProperties();
-		new Popup().init();
+		this.popup.init();
+	}
+
+	destroy() {
+		this.observer = null;
+		this.product = null;
+		this.popup.destroy();
+	}
+
+	listen() {
+		this.observer
+			.setTarget(this.product.properties.$td)
+			.onMutation(() => this.product.update())
+			.once()
+			.start();
 	}
 
 	// проверяет, необходимо ли добавлять свойства в каталожный товар
@@ -26,9 +41,6 @@ export default class Properties {
 	async addMissingProperties() {
 		if (!this.product.isCatalog) return;
 		if (this.hasAllRequiredFields()) return;
-
-		this.productCrm = await retailcrm.get.product.byId(this.product.id);
-		if (!this.productCrm) return;
 
 		this.addProperties();
 	}
@@ -47,19 +59,19 @@ export default class Properties {
 				name: 'фор мат',
 				getValue: () => {
 					let value = this.product.title;
-					if (this.productCrm.offers.length > 1) value = value.split(' - ').pop();
+					if (this.product.crm.offers.length > 1) value = value.split(' - ').pop();
 					return value;
 				}
 			},
 			{
 				code: 'artikul',
 				name: 'артикул',
-				getValue: () => this.productCrm.offers.find(offer => offer.name === this.product.title)?.article
+				getValue: () => this.product.crm.offers.find(offer => offer.name === this.product.title)?.article
 			},
 			{
 				code: 'tsena',
 				name: 'цена',
-				getValue: () => this.productCrm.offers.find(offer => offer.name === this.product.title)?.price
+				getValue: () => this.product.crm.offers.find(offer => offer.name === this.product.title)?.price
 			},
 			{
 				code: 'moyskladid',

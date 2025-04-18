@@ -3,9 +3,18 @@ import Admin from './finances/admin.mjs';
 import Manager from './finances/manager.mjs';
 
 export default class Finances {
+	constructor() {
+		this.module = null;
+	}
+
 	init() {
 		const module = App.user?.isAdmin ? Admin : Manager;
-		new module().init();
+		this.module = new module();
+		this.module.init();
+	}
+
+	destroy() {
+		this.module?.destroy?.();
 	}
 }
 

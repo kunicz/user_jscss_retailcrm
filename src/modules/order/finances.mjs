@@ -1,11 +1,10 @@
 import normalize from '@helpers/normalize';
 import observers from '@helpers/observers';
 import ProductsRows from '@modules/order/products/rows';
-import ProductsData from '@modules/order/products_data/builder';
 import Order from '@pages/order';
 
 export default class Finances {
-	static observer = observers.order.add('finances');
+	static observer = observers.add('order', 'finances');
 	static money = {};
 
 	static init() {
@@ -32,7 +31,7 @@ export default class Finances {
 		self.observer
 			.setTarget('.order-table-footer')
 			.onMutation(async () => {
-				ProductsData.refresh(['price, purchasePrice', 'quantity']);
+				ProductsRows.products().forEach(product => product.update());
 				self.rashod();
 				self.calculator();
 			})
@@ -45,8 +44,7 @@ export default class Finances {
 		self.money.flowers = 0;
 		self.money.noFlowers = 0;
 
-		const products = ProductsRows.get();
-		products.forEach(product => {
+		ProductsRows.products().forEach(product => {
 			const sum = product.purchasePrice * product.quantity;
 			if (product.isFlower) {
 				self.money.flowers += sum;
@@ -161,9 +159,10 @@ export default class Finances {
 	static setTotalMoney() {
 		self.money.total = 0;
 
-		if (ProductsRows.$table().find('.catalog').length) {
-			ProductsRows.$table().find('.catalog').each((_, product) => {
-				self.money.total += normalize.int($(product).find('[id$="properties_tsena_value"]').val());
+		const $catalogProducts = ProductsRows.products().find(product => product.isCatalog);
+		if ($catalogProducts?.length) {
+			$catalogProducts.forEach(product => {
+				self.money.total += normalize.int(product.price);
 			});
 		} else {
 			self.money.total = self.money.paid;

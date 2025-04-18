@@ -10,7 +10,7 @@ export default class Reply {
 		this.phone = row.get(cols.poluchatelPhone);
 		this.name = row.get(cols.poluchatelName);
 		this.domofon = row.get(cols.domofon);
-		this.products = $.map(row.td(cols.products).find('.name'), el => el.textContent);
+		this.products = $.map(row.$td(cols.products).find('.name'), el => $(el).text());
 
 		this.deliveryDate = dates.create(row.orderCrm.delivery.date);
 		this.isSpecialDate = this.defineSpecialDate();
@@ -29,22 +29,36 @@ export default class Reply {
 		].filter(Boolean).join('\n\n');
 	}
 
+	destroy() {
+		this.id = null;
+		this.date = null;
+		this.time = null;
+		this.adres = null;
+		this.phone = null;
+		this.name = null;
+		this.domofon = null;
+		this.products = null;
+		this.deliveryDate = null;
+		this.isSpecialDate = null;
+		this.formalityLevel = null;
+	}
+
 	defineSpecialDate() {
 		return dates.special.some(date => date.d === this.deliveryDate?.d && date.m === this.deliveryDate?.m);
 	}
 
 	_order = () => {
 		const data = {
-			'ты': `📦 зоказек \*\*#${this.id}\*\* принят! проверь!`,
-			'вы': `📦 ваш заказ \*\*#${this.id}\*\* принят! проверьте!`,
-			'Вы': `📦 Ваш заказ \*\*#${this.id}\*\* принят! Проверьте!`
+			'ты': `📦 зоказек ${b('#' + this.id)} принят! проверь!`,
+			'вы': `📦 ваш заказ ${b('#' + this.id)} принят! проверьте!`,
+			'Вы': `📦 Ваш заказ ${b('#' + this.id)} принят! Проверьте!`
 		}
 		return data[this.formalityLevel] || '';
 	}
 
 	_products = () => {
 		const title = this.formalityLevel === 'Вы' ? 'Товары' : 'товары';
-		let output = `🌸  \*\*${title}\*\*:\n`;
+		let output = `${b(title)}:\n`;
 		output += this.products.join('\n');
 		return output;
 	}
@@ -53,7 +67,7 @@ export default class Reply {
 		if (!this.date) return '';
 
 		const title = this.formalityLevel === 'Вы' ? 'Доставка' : 'доставка';
-		let output = `📅 \*\*${title}\*\*:\n`;
+		let output = `${b(title)}:\n`;
 		output += `${this.date}`;
 		if (this.time) output += ` ${this.time}`;
 		return output + this._dateTimeComment();
@@ -75,7 +89,7 @@ export default class Reply {
 		if (!this.adres) return '';
 
 		const title = this.formalityLevel === 'Вы' ? 'По адресу' : 'по адресу';
-		let output = `🏠 \*\*${title}\*\*:\n`;
+		let output = `${b(title)}:\n`;
 		output += `${this.adres}`;
 		if (this.domofon) output += `\nкод домофона: ${this.domofon}`;
 		return output;
@@ -85,7 +99,7 @@ export default class Reply {
 		if (!this.name && !this.phone) return '';
 
 		const title = this.formalityLevel === 'Вы' ? 'Получатель' : 'получатель';
-		let output = `🙎 \*\*${title}\*\*:\n`;
+		let output = `${b(title)}:\n`;
 		if (this.name && this.phone) output += `${this.name} (${this.phone})`;
 		else if (this.name) output += `${this.name}`;
 		else if (this.phone) output += `(${this.phone})`;
@@ -118,3 +132,6 @@ export default class Reply {
 		return data[this.formalityLevel] || '';
 	}
 }
+
+// жирный текст для телеграмм (markdown v2)
+function b(str) { return `\*\*${str}\*\*`; }
