@@ -2,7 +2,7 @@ import Properties from '@modules/order/products/properties';
 import Transport from '@modules/order/products/transport';
 import ProductsData from '@modules/order/products_data/builder';
 import Order from '@pages/order';
-import { vehicleFormats } from '@src/mappings';
+import { vehicleFormats, moysklad } from '@src/mappings';
 import normalize from '@helpers/normalize';
 import observers from '@helpers/observers';
 
@@ -56,6 +56,7 @@ export default class ProductsRows {
 		this.auto(product);
 		this.bukety(product);
 		this.cards(product);
+		this.moysklad(product);
 		new Properties(product, Order.crm).init();
 	}
 
@@ -67,6 +68,14 @@ export default class ProductsRows {
 		if (product.isDonat) product.$.addClass('donat');
 		if (product.isTransport) product.$.addClass('transport');
 		product.isFlower ? product.$.addClass('flower') : product.$.addClass('noflower');
+	}
+
+	// добавляет ссылку на переход в мойсклад
+	moysklad(product) {
+		if (!product.ms) return;
+		const $img = $(`<img src="${moysklad.logo}" alt="мойсклад" />`);
+		const $a = $(`<a class="moysklad" href="${moysklad.orderUrl}${product.ms.id}" target="_blank"></a>`);
+		$a.append($img).appendTo(product.$.find('.title'));
 	}
 
 	// проверяет, нужен ли курьер на автомобиле

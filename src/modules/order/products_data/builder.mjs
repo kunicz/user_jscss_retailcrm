@@ -6,6 +6,7 @@ import db from '@helpers/db';
 import retailcrm from '@helpers/retailcrm_direct';
 import normalize from '@helpers/normalize';
 import ensure from '@helpers/ensure';
+import { php2steblya } from '@helpers/api';
 
 export default class ProductsData {
 	static flowersCrm = [];
@@ -40,7 +41,7 @@ export default class ProductsData {
 	}
 
 	// Собирает объект с данными по товару
-	static async build($product, { productCrm = null, productDb = null } = {}) {
+	static async build($product, { productCrm = null, productDb = null, productMs = null } = {}) {
 		if (!$product) throw new Error('Не передан аргумент $product');
 
 		const data = {
@@ -83,6 +84,12 @@ export default class ProductsData {
 		data.isPodpiska = productDb?.type == SKU_PODPISKA;
 		data.isDopnik = productDb?.type == SKU_DOPNIK;
 		data.isDonat = productDb?.type == SKU_DONAT;
+
+		if (data.isDonat || data.isDopnik) return data;
+
+		// Moysklad
+		if (!productMs) productMs = await self.getProductMs(self.getMsId(data.properties));
+		data.ms = productMs;
 
 		return data;
 	}
@@ -135,6 +142,19 @@ export default class ProductsData {
 			},
 			limit: 1
 		});
+	}
+
+	static getMsId(properties) {
+		const $property = properties.$items.filter((_, el) => $(el).text().includes('мойсклад'));
+		if (!$property.length) return null;
+
+		return $property.text().replace('мойсклад id', '').trim();
+	}
+
+	static async getProductMs(moyskladid) {
+		const data = { filter: { externalCode: moyskladid } };
+		const orderMs = await php2steblya('Moysklad', 'orders/get').fetch(data);
+		return orderMs?.rows[0];
 	}
 
 	static async initFlowersCrm() {

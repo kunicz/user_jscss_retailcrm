@@ -20,6 +20,8 @@
 
 #sebes{vertical-align:middle;margin-right:20px;cursor:pointer;line-height:1.42}
 
+.title .moysklad img{margin-top:10px;width:130px}
+
 /*скрыть*/
 .modern-order-table th:nth-child(1),.modern-order-table td:nth-child(1), /*нумерация товаров*/
 .modern-order-table td:last-child .dropdown_vat,/*без НДС*/

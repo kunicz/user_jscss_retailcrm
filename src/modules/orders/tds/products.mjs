@@ -6,9 +6,12 @@ import { inlineTooltip } from '@src/helpers';
 import OrdersTable from '@modules/orders/table';
 import OrderTd from '@modules/orders/td';
 import { SKU_TRANSPORT, SKU_DOPNIK } from '@root/config';
+import { moysklad } from '@src/mappings';
+import ProductsData from '@modules/order/products_data/builder';
 
 export default class ProductsTd extends OrderTd {
 	static columnName = 'products';
+	static propsColor = ['gamma', 'viebri-gammu', 'tsvet', 'viebri-tsvet', 'kakoy-tsvet'];
 	static colorClasses = new Map([
 		[/ярк/i, 'bright'],
 		[/нежн/i, 'soft'],
@@ -24,8 +27,6 @@ export default class ProductsTd extends OrderTd {
 		[/фиолет/i, 'purple'],
 		[/белы/i, 'white']
 	]);
-	static propsColor = ['gamma', 'viebri-gammu', 'tsvet', 'viebri-tsvet', 'kakoy-tsvet'];
-	static propsToExclude = ['artkul', 'viebri-kartochku', 'tsena', 'moyskladid', 'for-mat'];
 
 	constructor(row) {
 		super(row);
@@ -42,54 +43,89 @@ export default class ProductsTd extends OrderTd {
 		this.lovix();
 	}
 
-	// выводит товары в заказе
-	products() {
-		const items = this.productsCatalog
-			.map(p => this.product(p))
-			.sort((a, b) => {
-				if (a.isDopnik !== b.isDopnik) return a.isDopnik ? 1 : -1;
-				return a.name.localeCompare(b.name);
-			});
+	// выводит каталожные товары в заказе
+	async products() {
+		this.$native.html('');
 
-		this.$native.html(items.map(i => `
-			<div class="product">
-				${i.color.class ? `<div class="color ${i.color.class}"><span>${i.color.value}</span></div>` : ''}
-				<span class="name">${nbsp.numStr(i.name)} (${nbsp.strStr(i.quantity)})</span>
-			</div>
-		`).join(''));
+		const items = await Promise.all(
+			this.productsCatalog.map(async (p) => await this.product(p))
+		);
+
+		items.sort((a, b) => {
+			if (a.isDopnik !== b.isDopnik) return a.isDopnik ? 1 : -1;
+			return a.name.localeCompare(b.name);
+		});
+
+		items.forEach(item => {
+			const $div = $('<div class="product"></div>');
+			$div.appendTo(this.$native);
+
+			// если у товара есть цветовая разновидность, то добавляем ее в div
+			if (item.color?.class) {
+				$div.append(`<div class="color ${item.color.class}"><span>${item.color.value}</span></div>`);
+			}
+			const $span = $(`<span class="name"></span>`);
+			$span.append(name(item)).appendTo($div);
+		});
+
+		// возвращает имя товара:
+		// - в виде строки, если нет moyskladid
+		// - в виде ссылки на мойсклад, если есть
+		// если свойство есть, а самого заказа в моем складе еще нет (новый, ни разу не сохраненный), то уничтожаем ссылку
+		function name(item) {
+			const title = `${nbsp.numStr(item.name)} (${nbsp.strStr(item.quantity)})`;
+			if (!item.props.moyskladid) return title;
+
+			let loaded = false;
+			const $a = $('<a class="moysklad" href="#" target="_blank">');
+			$a.append(title);
+			$a.on('mouseenter', async () => {
+				if (loaded) return;
+				loaded = true;
+				const orderMs = await ProductsData.getProductMs(item.props.moyskladid);
+				const msId = orderMs?.id;
+				if (!msId) {
+					const text = $a.text();
+					$a.replaceWith(document.createTextNode(text));
+				} else {
+					$a.attr('href', `${moysklad.orderUrl}${msId}`);
+				}
+			});
+			return $a;
+		}
 	}
 
 	// возвращает объект с данными о товаре
-	product(p) {
+	async product(p) {
 		const item = {
 			name: p.offer.displayName,
 			quantity: p.quantity + ' шт',
 			isDopnik: p.properties.artikul?.value?.startsWith(SKU_DOPNIK),
 			props: {},
-			color: {}
+			color: {},
 		};
 
+		// перебираем свойства товара
 		Object.entries(p.properties || {}).map(([code, prop]) => {
-			if (ProductsTd.propsColor.includes(code)) item.color = prop;
-			else if (!ProductsTd.propsToExclude.includes(code)) item.props[code] = prop.value;
+			// цветовые свойства
+			if (self.propsColor.includes(code)) item.color = prop;
+			// остальные свойства
+			else item.props[code] = prop.value;
 		});
 
-		const coloredItem = this.color(item);
-		return coloredItem;
-	}
-
-	// добавляет класс к цвету товара
-	color(item) {
-		const propColor = ProductsTd.propsColor.find(p => p === item.color.code);
-		if (!propColor) return item;
-
-		item.color.class = 'default';
-		for (const [regex, className] of ProductsTd.colorClasses) {
-			if (regex.test(item.color.value)) {
-				item.color.class = className;
-				break;
+		// добавляем class к цвету
+		if (item.color.code) {
+			const propColor = self.propsColor.find(p => p === item.color.code);
+			if (propColor) {
+				for (const [regex, className] of self.colorClasses) {
+					if (regex.test(item.color.value)) {
+						item.color.class = className;
+						break;
+					}
+				}
 			}
 		}
+
 		return item;
 	}
 
@@ -131,3 +167,5 @@ export default class ProductsTd extends OrderTd {
 		this.$td.append(iconsSVG.lovixlube);
 	}
 }
+
+const self = ProductsTd;
