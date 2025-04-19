@@ -58,7 +58,7 @@ export default class Reply {
 
 	_products = () => {
 		const title = this.formalityLevel === 'Вы' ? 'Товары' : 'товары';
-		let output = `${b(title)}:\n`;
+		let output = `🌸 ${b(title)}:\n`;
 		output += this.products.join('\n');
 		return output;
 	}
@@ -67,7 +67,7 @@ export default class Reply {
 		if (!this.date) return '';
 
 		const title = this.formalityLevel === 'Вы' ? 'Доставка' : 'доставка';
-		let output = `${b(title)}:\n`;
+		let output = `📅 ${b(title)}:\n`;
 		output += `${this.date}`;
 		if (this.time) output += ` ${this.time}`;
 		return output + this._dateTimeComment();
@@ -89,7 +89,7 @@ export default class Reply {
 		if (!this.adres) return '';
 
 		const title = this.formalityLevel === 'Вы' ? 'По адресу' : 'по адресу';
-		let output = `${b(title)}:\n`;
+		let output = `🏠 ${b(title)}:\n`;
 		output += `${this.adres}`;
 		if (this.domofon) output += `\nкод домофона: ${this.domofon}`;
 		return output;
@@ -99,7 +99,7 @@ export default class Reply {
 		if (!this.name && !this.phone) return '';
 
 		const title = this.formalityLevel === 'Вы' ? 'Получатель' : 'получатель';
-		let output = `${b(title)}:\n`;
+		let output = `🙎 ${b(title)}:\n`;
 		if (this.name && this.phone) output += `${this.name} (${this.phone})`;
 		else if (this.name) output += `${this.name}`;
 		else if (this.phone) output += `(${this.phone})`;
