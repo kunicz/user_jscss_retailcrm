@@ -94,8 +94,9 @@ export default class OrderProductsPopup {
 	}
 
 	//обнуляем стоимость каталожных товаров (не допников)
-	stripPrice() {
-		ProductsRows.products().filter(p => p.isCatalog && !p.isDopnik).forEach(p => {
+	async stripPrice() {
+		const products = await ProductsRows.products();
+		products.filter(p => p.isCatalog && !p.isDopnik).forEach(p => {
 			p.$.find('.order-price__initial-price__input').val(0);
 			p.$.find('.order-price__button_submit').trigger('click');
 		});

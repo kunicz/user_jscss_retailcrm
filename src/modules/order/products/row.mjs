@@ -15,6 +15,7 @@ export default class ProductsRow {
 		this.product = new ProductsData(this.$);
 		await this.product.init();
 
+		this.preserveTr();
 		this.classes();
 		this.catalog();
 		this.ostatki();
@@ -26,6 +27,11 @@ export default class ProductsRow {
 		this.props?.destroy?.();
 		this.props = null;
 		this.$ = null;
+	}
+
+	// сохраняет tr для возможности удаления
+	preserveTr() {
+		this.product.$container.get(0).tr = this.$.get(0);
 	}
 
 	// логика для каталожных товаров

@@ -7,8 +7,8 @@ import observers from '@helpers/observers';
 export default class Transport {
 	async init() {
 		this.observer = observers.get('order', 'products-rows');
-		this.product = ProductsRows.products().find(p => p.isTransport) || null;
-
+		const products = await ProductsRows.products();
+		this.product = products.find(p => p.isTransport) || null;
 		!this.product ? this.add() : this.update();
 	}
 
@@ -19,13 +19,15 @@ export default class Transport {
 
 	// добавляет транспортировочное
 	async add() {
-		if (this.shouldSkip()) return;
+		const skip = await this.shouldSkip();
+		if (skip) return;
+
 		try {
 			this.observer.stop();
-			this.saveOrder();
 			this.toggleFreeze(true);
+			this.saveOrder();
+			await wait.sec();
 			await php2steblya('retailcrm/AddTransport').get({ id: Order.getId() });
-			console.log('Транспортировочное добавлено');
 			window.location.reload();
 		} catch (error) {
 			console.error('Ошибка добавления транспортировочного:', error);
@@ -47,15 +49,13 @@ export default class Transport {
 	}
 
 	// проверяет, нужно ли добавлять транспортировочное
-	shouldSkip() {
-		// проверяем наличие товаров с картинкой
-		if (!ProductsRows.products().some(p => p.isCatalog)) return true;
+	async shouldSkip() {
+		// проверяем наличие каталожных сборных товаров
+		const products = await ProductsRows.products();
+		if (!products.some(p => p.isCatalog)) return true;
 
 		// проверяем что есть не только допники/донаты
-		const catalogItems = ProductsRows.products().filter(p => p.isCatalog).length;
-		const dopnikItems = ProductsRows.products().filter(p => p.isDopnik).length;
-		const donatItems = ProductsRows.products().filter(p => p.isDonat).length;
-		if (catalogItems === dopnikItems + donatItems) return true;
+		if (!products.some(p => !p.isDopnik && !p.isDonat)) return true;
 
 		// проверяем назначен ли флорист
 		if (!$(`#${Order.intaro}_customFields_florist`).val()) return true;
@@ -64,9 +64,8 @@ export default class Transport {
 	}
 
 	// сохраняет заказ
-	async saveOrder() {
+	saveOrder() {
 		$('#main button[type="submit"]').trigger('click');
-		await wait.sec();
 	}
 
 	// замораживает/размораживает сайт

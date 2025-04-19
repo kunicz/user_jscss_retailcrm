@@ -31,7 +31,8 @@ export default class Finances {
 		self.observer
 			.setTarget('.order-table-footer')
 			.onMutation(async () => {
-				ProductsRows.products().forEach(product => product.update());
+				const products = await ProductsRows.products();
+				products.forEach(product => product.update());
 				self.rashod();
 				self.calculator();
 			})
@@ -44,7 +45,8 @@ export default class Finances {
 		self.money.flowers = 0;
 		self.money.noFlowers = 0;
 
-		ProductsRows.products().forEach(product => {
+		const products = await ProductsRows.products();
+		products.forEach(product => {
 			const sum = product.purchasePrice * product.quantity;
 			if (product.isFlower) {
 				self.money.flowers += sum;
@@ -101,11 +103,11 @@ export default class Finances {
 	}
 
 	// Рассчитывает общую сумму заказа
-	static calculator() {
+	static async calculator() {
 		self.setCurrentMoney();
 		self.setPayedMoney();
 		self.setDostavkaMoney();
-		self.setTotalMoney();
+		await self.setTotalMoney();
 		self.updateCalculatorDisplay();
 	}
 
@@ -156,13 +158,14 @@ export default class Finances {
 	}
 
 	// Устанавливает общую стоимость товаров
-	static setTotalMoney() {
+	static async setTotalMoney() {
 		self.money.total = 0;
 
-		const $catalogProducts = ProductsRows.products().find(product => product.isCatalog);
-		if ($catalogProducts?.length) {
-			$catalogProducts.forEach(product => {
-				self.money.total += normalize.int(product.price);
+		const products = await ProductsRows.products();
+		const catalogProducts = products.filter(product => product.isCatalog);
+		if (catalogProducts.length) {
+			catalogProducts.forEach(product => {
+				self.money.total += normalize.int(product.properties.items.find(item => item.name === 'цена').value);
 			});
 		} else {
 			self.money.total = self.money.paid;

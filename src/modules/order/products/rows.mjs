@@ -2,21 +2,18 @@ import Transport from '@modules/order/products/transport';
 import ProductsTable from '@modules/order/products/table';
 import ProductsRow from '@modules/order/products/row';
 import observers from '@helpers/observers';
+import wait from '@helpers/wait';
 
 export default class ProductsRows {
 	constructor() {
 		this.observer = observers.add('order', 'products-rows');
 		this.transport = new Transport();
-		this.rows = [];
+		this.rows = new Map();
 	}
 
 	async init() {
 		this.listen();
-		await Promise.all(self.$trs().toArray().map(tr => {
-			const row = new ProductsRow(tr);
-			this.rows.push(row);
-			return row.init();
-		}));
+		self.$trs().toArray().forEach(tr => this.row(tr));
 		this.transport.init();
 		this.sort();
 	}
@@ -24,8 +21,8 @@ export default class ProductsRows {
 	destroy() {
 		this.observer = null;
 		this.transport.destroy();
-		this.rows.forEach(row => row.destroy());
-		this.rows = [];
+		for (const row of this.rows.values()) row.destroy();
+		this.rows = null;
 	}
 
 	// слушает изменения в таблице (добавление/удаление товаров)
@@ -33,20 +30,30 @@ export default class ProductsRows {
 		this.observer
 			.setTarget(self.$table())
 			.setSelector('tbody')
-			.onAdded(async (tr) => {
+			.onAdded(tbody => {
+				this.row(tbody.querySelector('tr'));
 				this.transport.init();
-				await new ProductsRow(tr).init();
 				this.sort();
 			})
-			.onRemoved(() => {
+			.onRemoved(tbody => {
+				const tr = tbody.tr;
+				this.rows.get(tr).destroy();
+				this.rows.delete(tr);
 				this.transport.init();
 				this.sort();
 			})
 			.start();
 	}
 
+	// создаёт и инициализирует строку товара
+	row(tr) {
+		const row = new ProductsRow(tr);
+		this.rows.set(tr, row);
+		row.init();
+	}
+
 	// сортирует товары по алфавиту
-	sort() {
+	async sort() {
 		this.observer.stop();
 
 		// Создаём временные массивы для каждой группы товаров
@@ -55,7 +62,8 @@ export default class ProductsRows {
 		const otherProducts = [];
 
 		// Распределяем товары по группам
-		self.products().forEach(product => {
+		const products = await self.products();
+		products.forEach(product => {
 			const item = { title: product.title, $: product.$container.detach() };
 
 			if (product.isCatalog) {
@@ -89,8 +97,18 @@ export default class ProductsRows {
 	static $trs() { return self.$table().children('tbody').children('tr'); }
 
 	// возвращает массив данных товаров
-	static products() {
-		return self.$trs().toArray().map(tr => $(tr).data('product'));
+	// важно дождаться загрузки всех товаров перед вызовом
+	static async products() {
+		const $trs = self.$trs();
+		let products = [];
+
+		const waitData = await wait.check(() => {
+			products = $trs.toArray().map(tr => $(tr).data('product')).filter(Boolean);
+			return $trs.length === products.length;
+		});
+
+		if (!waitData) throw new Error('Не удалось получить данные всех товаров');
+		return products;
 	}
 }
 

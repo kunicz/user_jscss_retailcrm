@@ -12,7 +12,7 @@ import observers from '@helpers/observers';
 import intervals from '@helpers/intervals';
 import timeouts from '@helpers/timeouts';
 
-window.BUNDLE_VERSION = '2.7.1';
+window.BUNDLE_VERSION = '2.7.2';
 
 export default class App {
 	static user = null;
