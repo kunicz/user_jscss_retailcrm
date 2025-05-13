@@ -5,7 +5,7 @@ import nbsp from '@helpers/nbsp';
 import { inlineTooltip } from '@src/helpers';
 import OrdersTable from '@modules/orders/table';
 import OrderTd from '@modules/orders/td';
-import { SKU_TRANSPORT, SKU_DOPNIK } from '@root/config';
+import { ARTIKUL_TRANSPORT, ARTIKUL_DOPNIK } from '@root/config';
 import { moysklad } from '@src/mappings';
 import ProductsData from '@modules/order/products/data';
 
@@ -32,7 +32,7 @@ export default class ProductsTd extends OrderTd {
 		super(row);
 		this.productsAll = this.orderCrm?.items || [];
 		this.productsNoCatalog = this.productsAll.filter(p => !p.offer?.article);
-		this.productsCatalog = this.productsAll.filter(p => p.offer?.article && p.offer.article != SKU_TRANSPORT);
+		this.productsCatalog = this.productsAll.filter(p => p.offer?.article && p.offer.article != ARTIKUL_TRANSPORT);
 		this.productsNoFlowers = OrdersTable.noFlowers;
 		this.productsFlowers = this.getFlowers();
 	}
@@ -109,7 +109,7 @@ export default class ProductsTd extends OrderTd {
 		const item = {
 			name: p.offer.displayName,
 			quantity: p.quantity + ' шт',
-			isDopnik: p.properties.artikul?.value?.startsWith(SKU_DOPNIK),
+			isDopnik: p.properties.artikul?.value?.startsWith(ARTIKUL_DOPNIK),
 			props: {},
 			color: {},
 		};

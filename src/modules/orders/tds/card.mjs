@@ -2,7 +2,7 @@ import * as cols from '@modules/orders/cols';
 import copyBtn from '@helpers/clipboard';
 import { inlineTooltip } from '@src/helpers';
 import OrderTd from '@modules/orders/td';
-import { SKU_DONAT, SKU_TRANSPORT } from '@root/config';
+import { ARTIKUL_DONAT, ARTIKUL_TRANSPORT } from '@root/config';
 
 export default class CardTd extends OrderTd {
 	static columnName = 'card';
@@ -46,21 +46,21 @@ export default class CardTd extends OrderTd {
 		if (!this.text || this.text === 'без карточки') return;
 		if (this.text === 'без айдентики' && !this.customText) return;
 		if (this.skus.length !== 1) return;
-		if ([SKU_DONAT, SKU_TRANSPORT].includes(this.skus[0])) return;
-		$(`<a class="print_card" href="https://php.2steblya.ru/print_card?order_id=${this.orderCrm.id}&sku=${this.artikuls[0]}&shop_crm_id=${this.row.shopDb?.shop_crm_id}" target="_blank">⎙</a>`).appendTo(this.$td);
+		if ([ARTIKUL_DONAT, ARTIKUL_TRANSPORT].includes(this.artikuls[0])) return;
+		$(`<a class="print_card" href="https://php.2steblya.ru/print_card?order_id=${this.orderCrm.id}&sku=${this.skus[0]}&shop_crm_id=${this.row.shopDb?.shop_crm_id}" target="_blank">⎙</a>`).appendTo(this.$td);
 	}
 
-	// получает sku и артикулы всех реальных товаров в заказе
+	// получает sku и артикулы всех реальных
 	getSkusAndArtikuls() {
 		const skuSet = new Set();
 		const artikulSet = new Set();
 
 		this.products.forEach(p => {
-			const artikul = p.offer?.article;
-			if (!artikul) return;
+			const sku = p.offer?.article;
+			if (!sku) return;
 
-			const sku = artikul.split('-')[0];
-			if (sku === SKU_TRANSPORT) return;
+			const artikul = sku.split('-')[0];
+			if (artikul === ARTIKUL_TRANSPORT) return;
 
 			skuSet.add(sku);
 			artikulSet.add(artikul);
@@ -84,7 +84,7 @@ export default class CardTd extends OrderTd {
 		switch (this.types.length) {
 			case 0:
 				if (this.customText) return 'со своим текстом';
-				if (this.skus[0] == SKU_DONAT) return '';
+				if (this.artikuls[0] == ARTIKUL_DONAT) return '';
 				return 'без карточки';
 			case 1:
 				if (this.types[0] === 'без карточки' && this.customText) return 'со своим текстом';

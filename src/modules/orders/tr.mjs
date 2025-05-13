@@ -1,6 +1,6 @@
 import * as cols from '@modules/orders/cols';
 import OrdersTable from '@modules/orders/table';
-import { SKU_DONAT } from '@root/config';
+import { ARTIKUL_DONAT } from '@root/config';
 import AdresTd from '@modules/orders/tds/adres';
 import CardTd from '@modules/orders/tds/card';
 import CheckboxTd from '@modules/orders/tds/checkbox';
@@ -86,7 +86,7 @@ export default class OrdersRow {
 	// проверяет наличие доната в заказе
 	hasDonat() {
 		if (!this.orderCrm?.items) return false;
-		return this.orderCrm.items.some(item => item.offer?.article == SKU_DONAT);
+		return this.orderCrm.items.some(item => item.offer?.article == ARTIKUL_DONAT);
 	}
 
 	// проверяет, является ли клиент фейковым

@@ -1,5 +1,5 @@
 import Order from '@pages/order';
-import { SKU_PODPISKA, SKU_DOPNIK, SKU_DONAT } from '@root/config';
+import { ARTIKUL_PODPISKA, ARTIKUL_DOPNIK, ARTIKUL_DONAT } from '@root/config';
 import db from '@helpers/db';
 import retailcrm from '@helpers/retailcrm_direct';
 import normalize from '@helpers/normalize';
@@ -150,9 +150,9 @@ export default class ProductsData {
 			limit: 1
 		});
 
-		this.isPodpiska = response?.type == SKU_PODPISKA;
-		this.isDopnik = response?.type == SKU_DOPNIK;
-		this.isDonat = response?.type == SKU_DONAT;
+		this.isPodpiska = response?.type == ARTIKUL_PODPISKA;
+		this.isDopnik = response?.type == ARTIKUL_DOPNIK;
+		this.isDonat = response?.type == ARTIKUL_DONAT;
 
 		return response;
 	}

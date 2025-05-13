@@ -10,6 +10,7 @@ export default class Properties {
 		this.required = [
 			'for-mat',
 			'artikul',
+			'sku',
 			'tsena',
 			'moyskladid'
 		];
@@ -31,7 +32,7 @@ export default class Properties {
 	listen() {
 		this.observer
 			.setTarget(this.product.properties.$td)
-			.onMutation(() => this.product.update())
+			.onMutation(() => this.product?.update())
 			.once()
 			.start();
 	}
@@ -64,9 +65,14 @@ export default class Properties {
 				}
 			},
 			{
-				code: 'artikul',
-				name: 'артикул',
+				code: 'sku',
+				name: 'артикул вариации товара',
 				getValue: () => this.product.crm.offers.find(offer => offer.name === this.product.title)?.article
+			},
+			{
+				code: 'artikul',
+				name: 'артикул товара',
+				getValue: () => this.product.crm.offers.find(offer => offer.name === this.product.title)?.article.split('-')[0]
 			},
 			{
 				code: 'tsena',

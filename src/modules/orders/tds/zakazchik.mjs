@@ -53,7 +53,7 @@ export default class ZakazchikTd extends OrderTd {
 	// добавляет сообщение для заказчика
 	async telegramReply() {
 		if (this.row.isFakeCustomer || this.row.isDonat || this.row.isDone || !this.row) return;
-		await wait.check(() => this.row.$td(cols.products).find('.name').length);
+		await wait.check(() => this.row?.$td(cols.products).find('.name').length);
 
 		this.reply = new Reply(this.row);
 		const output = this.reply.init();

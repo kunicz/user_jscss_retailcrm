@@ -1,4 +1,4 @@
-import { RESERVED_SKUS, SKU_DONAT } from '@root/config';
+import { RESERVED_ARTIKULS, ARTIKUL_DONAT } from '@root/config';
 import Order from '@pages/order';
 import ProductsRows from '@modules/order/products/rows';
 
@@ -14,8 +14,8 @@ export default class PrintCard {
 
 		this.products.forEach(product => {
 			const card = product.properties.items.find(i => i.name === 'выебри карточку')?.value;
-			const artikul = product.properties.items.find(i => i.name === 'артикул')?.value;
-			const sku = this.getSku(artikul);
+			const sku = product.properties.items.find(i => i.name === 'артикул')?.value;
+			const artikul = this.getArtikul(sku);
 			if (!card || !sku) return;
 
 			this.printable.push({ product, card, sku });
@@ -43,17 +43,17 @@ export default class PrintCard {
 		});
 	}
 
-	// возвращает SKU
-	getSku(artikul) {
-		if (!artikul) return null;
-		const probableSku = parseInt(artikul.match(/^(\d+)/)?.[1]);
-		return RESERVED_SKUS.includes(probableSku) ? artikul : probableSku;
+	// возвращает артикула (110-10b -> 110)
+	getArtikul(sku) {
+		if (!sku) return null;
+		const artikul = parseInt(sku.match(/^(\d+)/)?.[1]);
+		return RESERVED_ARTIKULS.includes(probableSku) ? sku : artikul;
 	}
 
 	// проверяет, нужно ли печатать карточки
 	needPrint() {
 		if (!this.printable.length) return false;
-		if (this.printable.every(item => item.sku == SKU_DONAT)) return false;
+		if (this.printable.every(item => item.artikul == ARTIKUL_DONAT)) return false;
 		return true;
 	}
 }
