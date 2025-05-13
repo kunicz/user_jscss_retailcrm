@@ -11,7 +11,9 @@ export default class CardTd extends OrderTd {
 		super(row);
 		this.products = this.orderCrm?.items;
 		this.customText = this.row.get(cols.cardText);
-		this.skus = this.getSkus();
+		this.skus = [];
+		this.artikuls = [];
+		this.getSkusAndArtikuls();
 		this.types = this.getTypes();
 		this.text = this.getText();
 	}
@@ -45,18 +47,27 @@ export default class CardTd extends OrderTd {
 		if (this.text === 'без айдентики' && !this.customText) return;
 		if (this.skus.length !== 1) return;
 		if ([SKU_DONAT, SKU_TRANSPORT].includes(this.skus[0])) return;
-		$(`<a class="print_card" href="https://php.2steblya.ru/print_card?order_id=${this.orderCrm.id}&sku=${this.skus[0]}&shop_crm_id=${this.row.shopDb?.shop_crm_id}" target="_blank">⎙</a>`).appendTo(this.$td);
+		$(`<a class="print_card" href="https://php.2steblya.ru/print_card?order_id=${this.orderCrm.id}&sku=${this.artikuls[0]}&shop_crm_id=${this.row.shopDb?.shop_crm_id}" target="_blank">⎙</a>`).appendTo(this.$td);
 	}
 
-	// фильтруем до тех пор, пока не получим только sku каталожных товаров с карточкой
-	getSkus() {
-		const skus = [...new Set(
-			this.products
-				.filter(p => p.offer?.article)
-				.map(p => p.offer.article.split('-')[0])
-				.filter(sku => sku != SKU_TRANSPORT)
-		)];
-		return skus;
+	// получает sku и артикулы всех реальных товаров в заказе
+	getSkusAndArtikuls() {
+		const skuSet = new Set();
+		const artikulSet = new Set();
+
+		this.products.forEach(p => {
+			const artikul = p.offer?.article;
+			if (!artikul) return;
+
+			const sku = artikul.split('-')[0];
+			if (sku === SKU_TRANSPORT) return;
+
+			skuSet.add(sku);
+			artikulSet.add(artikul);
+		});
+
+		this.skus = [...skuSet];
+		this.artikuls = [...artikulSet];
 	}
 
 	// получаем типы карточек для всех товаров в заказе
