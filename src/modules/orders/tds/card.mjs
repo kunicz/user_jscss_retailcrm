@@ -2,7 +2,7 @@ import * as cols from '@modules/orders/cols';
 import copyBtn from '@helpers/clipboard';
 import { inlineTooltip } from '@src/helpers';
 import OrderTd from '@modules/orders/td';
-import { ARTIKUL_DONAT, ARTIKUL_TRANSPORT } from '@root/config';
+import { ARTIKUL_DONAT, ARTIKUL_TRANSPORT, RESERVED_ARTIKULS } from '@root/config';
 
 export default class CardTd extends OrderTd {
 	static columnName = 'card';
@@ -47,7 +47,8 @@ export default class CardTd extends OrderTd {
 		if (this.text === 'без айдентики' && !this.customText) return;
 		if (this.skus.length !== 1) return;
 		if ([ARTIKUL_DONAT, ARTIKUL_TRANSPORT].includes(this.artikuls[0])) return;
-		$(`<a class="print_card" href="https://php.2steblya.ru/print_card?order_id=${this.orderCrm.id}&sku=${this.skus[0]}&shop_crm_id=${this.row.shopDb?.shop_crm_id}" target="_blank">⎙</a>`).appendTo(this.$td);
+		const sku = RESERVED_ARTIKULS.includes(this.artikuls[0]) ? this.skus[0] : this.artikuls[0];
+		$(`<a class="print_card" href="https://php.2steblya.ru/print_card?order_id=${this.orderCrm.id}&sku=${sku}&shop_crm_id=${this.row.shopDb?.shop_crm_id}" target="_blank">⎙</a>`).appendTo(this.$td);
 	}
 
 	// получает sku и артикулы всех реальных

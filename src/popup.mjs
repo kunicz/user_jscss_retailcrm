@@ -1,7 +1,9 @@
+import RootClass from '@helpers/root_class';
 import '@css/popup.css';
 
-export default class Popup {
+export default class Popup extends RootClass {
 	constructor(meta) {
+		super();
 		this.$popup = null;
 		this.meta = meta;
 	}
@@ -39,7 +41,7 @@ export default class Popup {
 			</div>
 		`);
 		this.$popup.appendTo('body');
-		this.$popup.find('.omnica-modal-window__close').on('click', () => this.$popup.hide());
+		this.on($this.$popup.find('.omnica-modal-window__close')[0], 'click', () => this.$popup.hide());
 	}
 
 	// обновляет popup

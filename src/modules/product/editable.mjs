@@ -1,14 +1,15 @@
+import RootClass from '@helpers/root_class';
 import wait from '@helpers/wait';
-import observers from '@helpers/observers';
 import '@css/product_editable.css';
 
-export default class ProductEditable {
+export default class ProductEditable extends RootClass {
 	constructor() {
+		super();
 		this.blocks = [];
 		this.$cont = $('#omnica-tab-group-1-touchstone');
 		this.$tabBtns = this.$cont.find('[role="tab"]');
-		this.observerRows = observers.add('product', 'rows');
-		this.observerOffers = observers.add('product', 'offers');
+		this.observerRows = this.setObserver();
+		this.observerOffers = this.setObserver();
 	}
 
 	async init() {
@@ -22,13 +23,6 @@ export default class ProductEditable {
 		background();
 		toggleProperties();
 		toggleBukets();
-	}
-
-	destroy() {
-		this.observerRows = null;
-		this.observerOffers = null;
-		this.blocks = null;
-		$('.ostatki[amount] section button.omnica-button_primary').off();
 	}
 
 	// добавляем классы к основным блокам
@@ -82,9 +76,8 @@ export default class ProductEditable {
 			.setTarget('.ostatki[amount] tbody')
 			.setOptions({ subtree: false })
 			.onAdded(node => {
-				const $node = $(node);
-				$node.on('click', () => {
-					this.offerChangedPrice($(node.closest('tr')));
+				this.on(node, 'click', () => {
+					this.offerChangedPrice($(node).closest('tr'));
 					this.orderVariantsASC();
 				});
 			})
@@ -125,24 +118,28 @@ export default class ProductEditable {
 
 	// улучшаем таблицу "остатки"
 	ostatkiAmountEnhanced(row) {
-		const input = row.find('.table__warehouse-data input[type="text"]');
+		const $input = row.find('.table__warehouse-data input[type="text"]');
 		//показываем подсказку "сколько было" до изменения
-		input.parent().after($(`<span class="plusMinusChangedInfo">Было: <span class="oldVal">${parseInt(input.val())}</span></span>`));
+		$input.parent().after($(`<span class="plusMinusChangedInfo">Было: <span class="oldVal">${parseInt($input.val())}</span></span>`));
 		//очищаем инпут на фокусе
-		input.on('focus', () => input.val(''));
+		this.on({
+			target: $input[0],
+			event: 'focus',
+			handler: () => $input.val('')
+		});
 		/*
 		//добавляем кнопки плюс/минус
 		const btn = $('<div class="plusMinusBtn"></div>');
 		const plusBtn = btn.clone();
-		plusBtn.addClass('plus').text('+').insertAfter(input.parent()).on('click', () => {
-			input.val(parseFloat(input.val()) + 1).trigger('input');
+		plusBtn.addClass('plus').text('+').insertAfter($input.parent()).on('click', () => {
+			$input.val(parseFloat($input.val()) + 1).trigger('input');
 		});
 		const minusBtn = btn.clone();
-		minusBtn.addClass('minus').text('-').insertBefore(input.parent()).on('click', () => {
-			input.val(parseFloat(input.val()) - 1).trigger('input');
+		minusBtn.addClass('minus').text('-').insertBefore($input.parent()).on('click', () => {
+			$input.val(parseFloat($input.val()) - 1).trigger('input');
 		});
 		/*$('.ostatki[amount] .save-box button').on('click', () => {
-			inputs.each((_,e) => input.parent().next('.plusMinusChangedInfo').children('.oldVal').text(input.val()));
+			$inputs.each((_,e) => $input.parent().next('.plusMinusChangedInfo').children('.oldVal').text($input.val()));
 		});*/
 	}
 
@@ -157,11 +154,17 @@ export default class ProductEditable {
 	toggleProperties() {
 		let prices = false;
 		const toggle = () => prices ? 'скрыть цены' : 'включить цены';
-		$('<a id="toggleProperties"></a>').text(toggle()).on('click', e => {
-			prices = !prices;
-			$(e.target).text(toggle());
-			$('.ostatki[properties]').toggle();
-		}).insertAfter('.ostatki[variants] button.omnica-button_primary');
+		const $btn = $('<a id="toggleProperties"></a>');
+		$btn.text(toggle()).insertAfter('.ostatki[variants] button.omnica-button_primary');
+		this.on({
+			target: $btn[0],
+			event: 'click',
+			handler: () => {
+				prices = !prices;
+				$btn.text(toggle());
+				$('.ostatki[properties]').toggle();
+			}
+		});
 	}
 
 	// включить/отключить букеты с этим цветком на сайтах

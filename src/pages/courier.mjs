@@ -1,9 +1,11 @@
+import RootClass from '@helpers/root_class';
 import { bankNames } from '@src/mappings';
 
-export default class Courier {
+export default class Courier extends RootClass {
 	static name = 'courier';
 
 	constructor() {
+		super();
 		this.descr = {
 			bank: '',
 			comments: ''

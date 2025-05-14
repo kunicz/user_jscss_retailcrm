@@ -1,3 +1,4 @@
+import RootClass from '@helpers/root_class';
 import Common from '@modules/order/sections/common';
 import CustomFields from '@modules/order/sections/custom_fields';
 import Comments from '@modules/order/sections/comments';
@@ -11,13 +12,14 @@ import normalize from '@helpers/normalize';
 import retailcrm from '@helpers/retailcrm_direct';
 import '@css/order.css';
 
-export default class Order {
+export default class Order extends RootClass {
 	static name = 'order';
 	static intaro = 'intaro_crmbundle_ordertype';
 	static crm = null;
 	static flowersCrm = null;
 
 	constructor() {
+		super();
 		this.sections = [
 			new Common(),
 			new CustomFields(),
@@ -44,11 +46,6 @@ export default class Order {
 
 		// инициализируем финансы
 		Finances.init();
-	}
-
-	destroy() {
-		this.sections?.forEach(s => s.destroy?.());
-		this.sections = null;
 	}
 
 	// возвращает id заказа

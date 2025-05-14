@@ -43,15 +43,6 @@ export default class ProductsTd extends OrderTd {
 		this.lovix();
 	}
 
-	destroy() {
-		this.productsAll = null;
-		this.productsNoCatalog = null;
-		this.productsCatalog = null;
-		this.productsNoFlowers = null;
-		this.productsFlowers = null;
-		super.destroy();
-	}
-
 	// выводит каталожные товары в заказе
 	async products() {
 		this.$native.html('');

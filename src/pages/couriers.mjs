@@ -1,6 +1,7 @@
+import RootClass from '@helpers/root_class';
 import '@css/couriers.css';
 
-export default class Couriers {
+export default class Couriers extends RootClass {
 	static name = 'couriers';
 
 	init() {

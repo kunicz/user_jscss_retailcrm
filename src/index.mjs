@@ -1,4 +1,4 @@
-import retailcrm from '@helpers/retailcrm_direct';
+import RootClass from '@helpers/root_class';
 import Menu from '@src/menu';
 import Couriers from '@pages/couriers';
 import Courier from '@pages/courier';
@@ -7,18 +7,16 @@ import Orders from '@pages/orders';
 import Order from '@pages/order';
 import Products from '@pages/products';
 import Product from '@pages/product';
+import retailcrm from '@helpers/retailcrm_direct';
 
-import observers from '@helpers/observers';
-import intervals from '@helpers/intervals';
-import timeouts from '@helpers/timeouts';
+window.BUNDLE_VERSION = '2.8.1';
 
-window.BUNDLE_VERSION = '2.7.6';
-
-export default class App {
+export default class App extends RootClass {
 	static user = null;
 	static page = null;
 
 	constructor() {
+		super();
 		this.menu = new Menu();
 		this.lastPath = null; // последний путь, который был открыт
 	}
@@ -63,12 +61,7 @@ export default class App {
 			main.setAttribute('loaded', '');
 
 			// уничтожает предыдущий модуль
-			if (App.page) {
-				observers.clear(App.page.name);
-				intervals.clear(App.page.name);
-				timeouts.clear(App.page.name);
-				App.page.destroy();
-			}
+			if (App.page) App.page.destroy();
 
 			// создает новый модуль
 			App.page = new module();

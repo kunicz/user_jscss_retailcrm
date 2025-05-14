@@ -1,10 +1,11 @@
+import RootClass from '@helpers/root_class';
 import hash from '@helpers/hash';
 import Popup from '@modules/popup/popup_order_properties';
 import Order from '@pages/order';
-import observers from '@helpers/observers';
 
-export default class Properties {
+export default class Properties extends RootClass {
 	constructor(product) {
+		super();
 		this.product = product;
 		this.popup = new Popup();
 		this.required = [
@@ -14,19 +15,13 @@ export default class Properties {
 			'tsena',
 			'moyskladid'
 		];
-		this.observer = observers.add('order', 'properties');
+		this.observer = this.setObserver();
 	}
 
 	init() {
 		this.listen();
 		this.addMissingProperties();
 		this.popup.init();
-	}
-
-	destroy() {
-		this.observer = null;
-		this.product = null;
-		this.popup.destroy();
 	}
 
 	listen() {
@@ -41,9 +36,9 @@ export default class Properties {
 	// и если необходимо, то добавляет
 	async addMissingProperties() {
 		if (!this.product.isCatalog) return;
+		this.addProperties();
 		if (this.hasAllRequiredFields()) return;
 
-		this.addProperties();
 	}
 
 	// проверяет, есть ли уже все обязательные для каталожного товара свойства
@@ -66,12 +61,12 @@ export default class Properties {
 			},
 			{
 				code: 'sku',
-				name: 'артикул вариации товара',
+				name: 'sku',
 				getValue: () => this.product.crm.offers.find(offer => offer.name === this.product.title)?.article
 			},
 			{
 				code: 'artikul',
-				name: 'артикул товара',
+				name: 'артикул',
 				getValue: () => this.product.crm.offers.find(offer => offer.name === this.product.title)?.article.split('-')[0]
 			},
 			{
@@ -90,8 +85,14 @@ export default class Properties {
 			const selector = `#${Order.intaro}_orderProducts_${this.product.index}_properties_${config.code}_value`;
 
 			//пропускаем, если:
-			if (this.product.$.find(selector).length) continue; // свойство уже есть
-			if (this.product.isDonat || this.product.isDopnik) continue; // донат или допник
+			// свойство уже есть
+			if (this.product.$.find(selector).length) continue;
+			// донат
+			if (this.product.isDonat) continue;
+			// формат для тех, у кого не имеет офферов
+			if (this.product.crm.offers.length === 1 && config.code === 'for-mat') continue;
+			// не добавляем moyskldaid допникам
+			if (this.product.isDopnik && config.code === 'moyskladid') continue;
 
 			index++;
 			const value = config.getValue();

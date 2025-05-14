@@ -1,3 +1,4 @@
+import RootClass from '@helpers/root_class';
 import * as cols from '@modules/orders/cols';
 import OrdersTable from '@modules/orders/table';
 import { ARTIKUL_DONAT } from '@root/config';
@@ -11,8 +12,9 @@ import ShopTd from '@modules/orders/tds/shop';
 import SummTd from '@modules/orders/tds/summ';
 import ZakazchikTd from '@modules/orders/tds/zakazchik';
 
-export default class OrdersRow {
+export default class OrdersRow extends RootClass {
 	constructor($tr, orderCrm) {
+		super();
 		this.$tr = $tr;
 		this.orderCrm = orderCrm;
 		this.fakeCustomers = OrdersTable.fakeCustomers;
@@ -42,20 +44,6 @@ export default class OrdersRow {
 		this.tds.push(new CourierTd(this));
 
 		this.tds.forEach(td => td.init());
-	}
-
-	destroy() {
-		this.tds.forEach(td => td.destroy());
-		this.tds = null;
-		this.orderCrm = null;
-		this.$tr = null;
-		this.fakeCustomers = null;
-		this.indexes = null;
-		this.shops = null;
-		this.shopDb = null;
-		this.isFakeCustomer = null;
-		this.isDonat = null;
-		this.isDone = null;
 	}
 
 	// устанавлевает метку с названием колонки в каждой ячейке

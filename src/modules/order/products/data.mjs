@@ -1,3 +1,4 @@
+import RootClass from '@helpers/root_class';
 import Order from '@pages/order';
 import { ARTIKUL_PODPISKA, ARTIKUL_DOPNIK, ARTIKUL_DONAT } from '@root/config';
 import db from '@helpers/db';
@@ -5,8 +6,10 @@ import retailcrm from '@helpers/retailcrm_direct';
 import normalize from '@helpers/normalize';
 import { php2steblya } from '@helpers/api';
 
-export default class ProductsData {
+export default class ProductsData extends RootClass {
 	constructor($product) {
+		super();
+
 		this.$ = $product;
 		this.$container = $product.parent('tbody');
 		this.id = this._id();
@@ -31,44 +34,12 @@ export default class ProductsData {
 	// инициализирует данные по товару
 	async init() {
 		if (this.isCatalog) {
-			//crm
-			this.crm = await self.productCrm(this.id);
-
-			//db
-			if (this.crm?.externalId) {
-				this.db = await self.productDb(this.crm.externalId);
-			}
-
-			//ms
-			if (!this.isDopnik && !this.isDonat) {
-				const moyskladid = this.properties.items.find(p => p.code === 'moyskladid')?.value;
-				if (moyskladid) this.ms = await self.productMs(moyskladid);
-			}
+			await this._crm();
+			await this._db();
+			await this._ms();
+			console.log(this);
 		}
 		this.store();
-	}
-
-	destroy() {
-		this.$?.removeData('product');
-		this.$ = null;
-		this.$container = null;
-		this.id = null;
-		this.offerId = null;
-		this.title = null;
-		this.index = null;
-		this.price = null;
-		this.purchasePrice = null;
-		this.quantity = null;
-		this.properties = null;
-		this.isCatalog = null;
-		this.isFlower = null;
-		this.isTransport = null;
-		this.isPodpiska = null;
-		this.isDopnik = null;
-		this.isDonat = null;
-		this.crm = null;
-		this.db = null;
-		this.ms = null;
 	}
 
 	// обновляет данные по товару
@@ -132,35 +103,47 @@ export default class ProductsData {
 		return props;
 	}
 
+	async _crm() {
+		this.crm = await self.productCrm(this.id);
+	}
+
+	async _db() {
+		if (!this.crm.externalId) return;
+
+		this.db = await self.productDb(this.crm.externalId);
+		if (!this.db) return;
+
+		this.isPodpiska = this.db?.type == ARTIKUL_PODPISKA;
+		this.isDopnik = this.db?.type == ARTIKUL_DOPNIK;
+		this.isDonat = this.db?.type == ARTIKUL_DONAT;
+	}
+
+	async _ms() {
+		if (this.isDopnik || this.isDonat) return;
+
+		const moyskladid = this.properties.items.find(p => p.code === 'moyskladid')?.value;
+		if (moyskladid) this.ms = await self.productMs(moyskladid);
+
+	}
+
 	static async productCrm(id) {
-		const response = await retailcrm.get.products({
-			filter: { ids: [id] }
-		});
+		const response = await retailcrm.get.products({ filter: { ids: [id] } });
 		return response[0];
 	}
 
-	static async productDb(externalId) {
-		if (!externalId) return;
-
+	static async productDb(id) {
 		const response = await db.table('products').get({
 			where: {
-				id: externalId,
+				id: id,
 				shop_crm_id: Order.getShop().id
 			},
 			limit: 1
 		});
-
-		this.isPodpiska = response?.type == ARTIKUL_PODPISKA;
-		this.isDopnik = response?.type == ARTIKUL_DOPNIK;
-		this.isDonat = response?.type == ARTIKUL_DONAT;
-
 		return response;
 	}
 
-	static async productMs(moyskladid) {
-		if (this.isDonat || this.isDopnik) return;
-
-		const data = { filter: { externalCode: moyskladid } };
+	static async productMs(id) {
+		const data = { filter: { externalCode: id } };
 		const response = await php2steblya('Moysklad', 'orders/get').fetch(data);
 		return response?.rows[0];
 	}

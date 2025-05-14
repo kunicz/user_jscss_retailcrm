@@ -1,8 +1,11 @@
+import RootClass from '@helpers/root_class';
 import dates from '@helpers/dates';
 import * as cols from '@modules/orders/cols';
 
-export default class Reply {
+export default class Reply extends RootClass {
 	constructor(row) {
+		super();
+
 		this.id = row.orderCrm.id;
 		this.date = row.get(cols.date);
 		this.time = row.get(cols.time);
@@ -29,20 +32,6 @@ export default class Reply {
 		].filter(Boolean).join('\n\n');
 	}
 
-	destroy() {
-		this.id = null;
-		this.date = null;
-		this.time = null;
-		this.adres = null;
-		this.phone = null;
-		this.name = null;
-		this.domofon = null;
-		this.products = null;
-		this.deliveryDate = null;
-		this.isSpecialDate = null;
-		this.formalityLevel = null;
-	}
-
 	defineSpecialDate() {
 		return dates.special.some(date => date.d === this.deliveryDate?.d && date.m === this.deliveryDate?.m);
 	}
@@ -57,6 +46,8 @@ export default class Reply {
 	}
 
 	_products = () => {
+		if (!this.products?.length) return '';
+
 		const title = this.formalityLevel === 'Вы' ? 'Товары' : 'товары';
 		let output = `🌸 ${b(title)}:\n`;
 		output += this.products.join('\n');
@@ -64,7 +55,7 @@ export default class Reply {
 	}
 
 	_dostavka = () => {
-		if (!this.date) return '';
+		if (!this?.date) return '';
 
 		const title = this.formalityLevel === 'Вы' ? 'Доставка' : 'доставка';
 		let output = `📅 ${b(title)}:\n`;
@@ -86,7 +77,7 @@ export default class Reply {
 	}
 
 	_adres = () => {
-		if (!this.adres) return '';
+		if (!this?.adres) return '';
 
 		const title = this.formalityLevel === 'Вы' ? 'По адресу' : 'по адресу';
 		let output = `🏠 ${b(title)}:\n`;
@@ -96,7 +87,7 @@ export default class Reply {
 	}
 
 	_poluchatel = () => {
-		if (!this.name && !this.phone) return '';
+		if (!this?.name && !this?.phone) return '';
 
 		const title = this.formalityLevel === 'Вы' ? 'Получатель' : 'получатель';
 		let output = `🙎 ${b(title)}:\n`;

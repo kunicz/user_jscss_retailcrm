@@ -20,12 +20,6 @@ export default class ZakazchikTd extends OrderTd {
 		this.telegramReply();
 	}
 
-	destroy() {
-		this.reply?.destroy?.();
-		this.reply = null;
-		super.destroy();
-	}
-
 	// помечает ячейку, если клиент анонимный
 	onanim() {
 		if (!this.row.get(cols.onanim)) return;

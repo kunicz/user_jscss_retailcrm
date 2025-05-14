@@ -1,4 +1,3 @@
-import * as cols from '@modules/orders/cols';
 import { shopIcon } from '@src/mappings';
 import OrderTd from '@modules/orders/td';
 

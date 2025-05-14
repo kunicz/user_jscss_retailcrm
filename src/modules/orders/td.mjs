@@ -1,9 +1,11 @@
+import RootClass from '@helpers/root_class';
 import * as cols from '@modules/orders/cols';
 
-export default class OrderTd {
+export default class OrderTd extends RootClass {
 	static columnName = 'default';  // Базовое значение
 
 	constructor(row) {
+		super();
 		this.row = row;
 		this.orderCrm = row.orderCrm;
 		this.col = this.constructor.columnName;
@@ -19,13 +21,5 @@ export default class OrderTd {
 	// возвращает оригинальное содержимое ячейки
 	getNative() {
 		return this.row.getNative(cols[this.col]);
-	}
-
-	destroy() {
-		this.row = null;
-		this.orderCrm = null;
-		this.col = null;
-		this.$td = null;
-		this.$native = null;
 	}
 }

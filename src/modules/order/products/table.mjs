@@ -1,11 +1,13 @@
+import RootClass from '@helpers/root_class';
 import Popup from '@modules/popup/popup_order_products';
 import ProductsRows from '@modules/order/products/rows';
 import '@css/order_products.css';
 
-export default class ProductsTable {
+export default class ProductsTable extends RootClass {
 	static $ = null;
 
 	constructor() {
+		super();
 		this.popup = new Popup();
 		this.rows = new ProductsRows();
 	}
@@ -18,13 +20,6 @@ export default class ProductsTable {
 		this.title();
 	}
 
-	destroy() {
-		self.$ = null;
-		this.popup.destroy();
-		this.rows.destroy();
-		$('#sebes').off('click');
-	}
-
 	// исправляет название столбца "Товар или услуга" -> "Товар"
 	title() {
 		self.$thead().find('.title').text('Товар');
@@ -32,15 +27,21 @@ export default class ProductsTable {
 
 	// добавляет кнопку "Посчитать по себесу"
 	sebes() {
-		$('<a id="sebes">Посчитать по себесу</a>').on('click', e => {
-			e.preventDefault();
-			self.$rows().each((_, tr) => {
-				const $tr = $(tr);
-				const $wholesalePrice = $tr.find('.wholesale-price__input');
-				$tr.find('.order-price__initial-price__input').val($wholesalePrice.val()).change();
-				$tr.find('.order-price__apply').trigger('click');
-			});
-		}).prependTo($('#order-list .order-row__top:first-child'));
+		const $btn = $('<a id="sebes">Посчитать по себесу</a>');
+		$btn.prependTo($('#order-list .order-row__top:first-child'));
+		this.on({
+			target: $btn[0],
+			event: 'click',
+			handler: (e) => {
+				e.preventDefault();
+				self.$rows().each((_, tr) => {
+					const $tr = $(tr);
+					const $wholesalePrice = $tr.find('.wholesale-price__input');
+					$tr.find('.order-price__initial-price__input').val($wholesalePrice.val()).change();
+					$tr.find('.order-price__apply').trigger('click');
+				});
+			}
+		});
 	}
 
 	// возвращает таблицу товаров

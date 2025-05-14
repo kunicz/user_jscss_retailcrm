@@ -1,19 +1,17 @@
+import RootClass from '@helpers/root_class';
 import Allowness from '@modules/products/allowness';
 
-export default class Products {
+export default class Products extends RootClass {
 	static name = 'products';
 
 	constructor() {
+		super();
 		this.allowness = new Allowness();
 	}
 
 	init() {
 		this.links();
 		this.allowness.init();
-	}
-
-	destroy() {
-		this.allowness.destroy();
 	}
 
 	//укорачиваем ссылку на товар

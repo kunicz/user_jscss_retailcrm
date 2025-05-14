@@ -1,15 +1,18 @@
+import RootClass from '@helpers/root_class';
 import Popup from '@src/popup';
 import App from '@src';
 import { bankNames } from '@src/mappings';
 import retailcrm from '@helpers/retailcrm_direct';
 
-export default class CouriersPopup {
+export default class CouriersPopup extends RootClass {
 	constructor() {
+		super();
 		this.couriers = [];
+		this.init = this.init.bind(this);
 		this.meta = {
 			id: 'couriers',
 			title: 'Курьеры',
-			callback: () => this.init()
+			callback: this.init
 		};
 		this.p = 'custom_popup';
 		this.$cont = $(`#${this.p}__content`);

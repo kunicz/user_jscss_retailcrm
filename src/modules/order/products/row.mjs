@@ -1,11 +1,13 @@
+import RootClass from '@helpers/root_class';
 import Properties from '@modules/order/products/properties';
 import ProductsData from '@modules/order/products/data';
 import Order from '@pages/order';
 import { vehicleFormats, moysklad } from '@src/mappings';
 import normalize from '@helpers/normalize';
 
-export default class ProductsRow {
+export default class ProductsRow extends RootClass {
 	constructor(tr) {
+		super();
 		this.$ = $(tr);
 		this.product = null;
 		this.props = null;
@@ -19,14 +21,6 @@ export default class ProductsRow {
 		this.classes();
 		this.catalog();
 		this.ostatki();
-	}
-
-	destroy() {
-		this.product.destroy();
-		this.product = null;
-		this.props?.destroy?.();
-		this.props = null;
-		this.$ = null;
 	}
 
 	// сохраняет tr для возможности удаления

@@ -1,7 +1,9 @@
+import RootClass from '@helpers/root_class';
 import { php2steblya as api } from '@helpers/api';
 
-export default class Allowness {
+export default class Allowness extends RootClass {
 	constructor() {
+		super();
 		this.$ths = $('.modern-table th');
 		this.$trs = $('.modern-table tr[data-url]');
 		this.indexes = {};
@@ -17,12 +19,6 @@ export default class Allowness {
 
 		const availabilityData = await this.fetchAvailabilityData(productData);
 		this.addAvailabilitySelects(availabilityData);
-	}
-
-	destroy() {
-		this.$ths = null;
-		this.$trs = null;
-		this.indexes = null;
 	}
 
 	// определяет по индексам нужные столбцы

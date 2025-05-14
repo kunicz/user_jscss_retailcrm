@@ -1,10 +1,12 @@
+import RootClass from '@helpers/root_class';
 import OrdersTable from '@modules/orders/table';
 import OrdersFilters from '@modules/orders/filters';
 
-export default class Orders {
+export default class Orders extends RootClass {
 	static name = 'orders';
 
 	constructor() {
+		super();
 		this.filters = new OrdersFilters();
 		this.table = new OrdersTable();
 	}
@@ -12,10 +14,5 @@ export default class Orders {
 	init() {
 		this.filters.init();
 		this.table.init();
-	}
-
-	destroy() {
-		this.filters?.destroy?.();
-		this.table?.destroy?.();
 	}
 }

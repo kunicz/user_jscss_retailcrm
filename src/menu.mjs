@@ -1,5 +1,4 @@
 import { iconsSVG } from '@src/mappings';
-import BundleLoader from '@bundle_loader';
 import wait from '@helpers/wait';
 import CouriersPopup from '@modules/popup/popup_couriers';
 import '@css/menu.css';

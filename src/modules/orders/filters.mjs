@@ -1,7 +1,8 @@
+import RootClass from '@helpers/root_class';
 import dates from '@helpers/dates';
 import '@css/orders_filters.css';
 
-export default class OrdersFilters {
+export default class OrdersFilters extends RootClass {
 	init() {
 		this.dostavkaDate();
 		this.orderDate();

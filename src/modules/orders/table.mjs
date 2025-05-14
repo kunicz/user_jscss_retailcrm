@@ -1,14 +1,14 @@
+import RootClass from '@helpers/root_class';
 import OrdersRow from '@modules/orders/tr';
 import Finances from '@modules/orders/table/finances';
 import CouriersSvodka from '@modules/orders/table/couriers_svodka';
 import { hiddenColumns } from '@modules/orders/cols';
 import retailcrm from '@helpers/retailcrm_direct';
 import db from '@helpers/db';
-import observers from '@helpers/observers';
 import normalize from '@helpers/normalize';
 import '@css/orders_table.css';
 
-export default class OrdersTable {
+export default class OrdersTable extends RootClass {
 	static indexes = {};
 	static shops = [];
 	static noFlowers = [];
@@ -17,6 +17,7 @@ export default class OrdersTable {
 	static $ths = [];
 
 	constructor() {
+		super();
 		this.finances = new Finances();
 		this.couriersSvodka = new CouriersSvodka();
 		this.trs = new Map();
@@ -39,21 +40,9 @@ export default class OrdersTable {
 		self.$table.addClass('loaded');
 	}
 
-	destroy() {
-		self.$table = null;
-		self.$ths = null;
-		this.finances?.destroy?.();
-		this.finances = null;
-		this.couriersSvodka?.destroy?.();
-		this.couriersSvodka = null;
-		for (const tr of this.trs.keys()) this.trs.get(tr).destroy();
-		this.trs.clear();
-		this.trs = null;
-	}
-
 	// слушает изменения в таблице
 	listen() {
-		observers.add('orders', 'trs')
+		this.setObserver()
 			.setSelector('tbody')
 			.setTarget(self.$table)
 			.onMutation((node) => this.orders(self.$trs($(node))))

@@ -1,12 +1,13 @@
+import RootClass from '@helpers/root_class';
 import Transport from '@modules/order/products/transport';
 import ProductsTable from '@modules/order/products/table';
 import ProductsRow from '@modules/order/products/row';
-import observers from '@helpers/observers';
 import wait from '@helpers/wait';
 
-export default class ProductsRows {
+export default class ProductsRows extends RootClass {
 	constructor() {
-		this.observer = observers.add('order', 'products-rows');
+		super();
+		this.observer = this.setObserver();
 		this.transport = new Transport();
 		this.rows = new Map();
 	}
@@ -16,13 +17,6 @@ export default class ProductsRows {
 		self.$trs().toArray().forEach(tr => this.row(tr));
 		this.transport.init();
 		this.sort();
-	}
-
-	destroy() {
-		this.observer = null;
-		this.transport.destroy();
-		for (const row of this.rows.values()) row.destroy();
-		this.rows = null;
 	}
 
 	// слушает изменения в таблице (добавление/удаление товаров)
@@ -37,8 +31,9 @@ export default class ProductsRows {
 			})
 			.onRemoved(tbody => {
 				const tr = tbody.tr;
-				this.rows.get(tr).destroy();
+				const row = this.rows.get(tr);
 				this.rows.delete(tr);
+				row.destroy();
 				this.transport.init();
 				this.sort();
 			})

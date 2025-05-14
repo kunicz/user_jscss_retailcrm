@@ -16,7 +16,7 @@ export default class Finances {
 	// обнуляет все финансовые данные
 	static moneyDrop() {
 		self.money.flowers = 0; // закупочная стоимость цветов в заказе
-		self.money.noFlowers = 0; // закупочная стоимость нецветов и допников в заказе
+		self.money.noflowers = 0; // закупочная стоимость нецветов и допников в заказе
 		self.money.zakup = 0; // реализационная стоимость цветов и нецветов в заказе
 		self.money.dostavka = 0; // стоимость доставки
 		self.money.total = 0; // стоимость каталожных товаров в заказе
@@ -43,7 +43,7 @@ export default class Finances {
 	// рассчитывает расходы на цветы и нецветы
 	static async rashod() {
 		self.money.flowers = 0;
-		self.money.noFlowers = 0;
+		self.money.noflowers = 0;
 
 		const products = await ProductsRows.products();
 		products.forEach(product => {
@@ -51,7 +51,7 @@ export default class Finances {
 			if (product.isFlower) {
 				self.money.flowers += sum;
 			} else if (!product.isCatalog || product.isDopnik) {
-				self.money.noFlowers += sum;
+				self.money.noflowers += sum;
 			}
 		});
 
@@ -74,7 +74,7 @@ export default class Finances {
 			</p>
                 <p class="order-table-footer__text order-table-footer__text_price">
 				<span id="flowersRashodValue">${self.money.flowers}</span>&nbsp;<span class="currency-symbol rub">₽</span> / 
-				<span id="noflowersRashodValue">${self.money.noFlowers}</span>&nbsp;<span class="currency-symbol rub">₽</span>
+				<span id="noflowersRashodValue">${self.money.noflowers}</span>&nbsp;<span class="currency-symbol rub">₽</span>
                 </p>
 				</li>
 				`).prependTo('#order-list .order-table-footer__list');
@@ -84,22 +84,24 @@ export default class Finances {
 
 	// Обновляет скрытые поля с расходами
 	static updateRashodInputs() {
-		const $inputFlowers = $(`#${Order.intaro}_customFields_flower_rashod`);
-		const $inputNoFlowers = $(`#${Order.intaro}_customFields_noflower_rashod`);
+		const data = ['', 'no'].map(prefix => {
+			const $input = $(`#${Order.intaro}_customFields_${prefix}flower_rashod`);
+			$input.parent().hide();
+			return {
+				$input,
+				prefix,
+				old: normalize.int($input.val()),
+				new: self.money[`${prefix}flowers`]
+			};
+		});
 
-		$inputFlowers.parent().hide();
-		$inputNoFlowers.parent().hide();
+		if (data.some(d => !d.$input.length)) return;
 
-		if (!isNaN(self.money.flowers) && normalize.int($inputFlowers.val()) != self.money.flowers) {
-			const value = normalize.int($inputFlowers.val());
-			$inputFlowers.val(self.money.flowers);
-			console.log('Расход на цветы установлен', value, '->', self.money.flowers);
-		}
-		if (!isNaN(self.money.noFlowers) && normalize.int($inputNoFlowers.val()) != self.money.noFlowers) {
-			const value = normalize.int($inputNoFlowers.val());
-			$inputNoFlowers.val(self.money.noFlowers);
-			console.log('Расход на нецветы установлен', value, '->', self.money.noFlowers);
-		}
+		data.forEach(d => {
+			if (isNaN(d.new) || d.old === d.new) return;
+			d.$input.val(d.new);
+			console.log(`Расход на ${d.prefix}flowers установлен`, d.old, '→', d.new);
+		});
 	}
 
 	// Рассчитывает общую сумму заказа

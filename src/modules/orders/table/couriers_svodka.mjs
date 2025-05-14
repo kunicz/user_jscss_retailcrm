@@ -1,9 +1,11 @@
+import RootClass from '@helpers/root_class';
 import { copy } from '@helpers/clipboard';
 import normalize from '@helpers/normalize';
 import { default as table } from '@modules/orders/table';
 
-export default class CouriersSvodka {
+export default class CouriersSvodka extends RootClass {
 	constructor() {
+		super();
 		this.block = $('<span><a id="couriersSvodka">Сводка по оплате курьерам</a></span>');
 		this.separator = '\n-------\n';
 	}

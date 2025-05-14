@@ -1,24 +1,20 @@
-import observers from '@helpers/observers';
+import RootClass from '@helpers/root_class';
 import wait from '@helpers/wait';
 import ProductsRows from '@modules/order/products/rows';
 import Order from '@pages/order';
 import Finances from '@modules/order/finances';
-import intervals from '@helpers/intervals';
 import '@css/order_products_popup.css';
 
-export default class OrderProductsPopup {
+export default class OrderProductsPopup extends RootClass {
 	constructor() {
+		super();
 		this.p = 'product-popup';
 		this.calсulatorSelector = 'popupCalculator';
-		this.observer = observers.add('order', 'products-popup');
+		this.observer = this.setObserver();
 	}
 
 	init() {
 		this.listen();
-	}
-
-	destroy() {
-		this.observer = null;
 	}
 
 	listen() {
@@ -27,9 +23,13 @@ export default class OrderProductsPopup {
 			.onAdded(async () => {
 				this.stripPrice();
 				this.defualtShop();
-				intervals.add('order', 'createCalculator', () => this.createCalculator(), 1000);
+				this.setInterval({
+					key: 'createCalculator',
+					handler: () => this.createCalculator(),
+					delay: 1000
+				});
 			})
-			.onRemoved(() => intervals.clear('order', 'createCalculator'))
+			.onRemoved(() => this.clearInterval('createCalculator'))
 			.start();
 	}
 
@@ -105,13 +105,17 @@ export default class OrderProductsPopup {
 	// логика работы кнопки "Добавить товар"
 	async popupOpenButton() {
 		//скрываем кнопку, если нет магазина и менеджера
-		intervals.add('order', 'popupOpenButton', () => {
-			const conditions = [
-				$(`#${Order.intaro}_manager`).val(),
-				$(`#${Order.intaro}_site`).val(),
-				//$(`#${Order.intaro}_firstName`).val()
-			];
-			$('#add-order-product-btn').parent().toggle(!conditions.some(c => !c));
-		}, 500);
+		this.setInterval({
+			key: 'popupOpenButton',
+			handler: () => {
+				const conditions = [
+					$(`#${Order.intaro}_manager`).val(),
+					$(`#${Order.intaro}_site`).val(),
+					//$(`#${Order.intaro}_firstName`).val()
+				];
+				$('#add-order-product-btn').parent().toggle(!conditions.some(c => !c));
+			},
+			delay: 500
+		});
 	}
 }
