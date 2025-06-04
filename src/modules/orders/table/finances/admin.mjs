@@ -1,8 +1,18 @@
 export default class AdminFinances {
 	init() {
+		// берем текущий урл и выгразыем из него фильтры
 		const filtersFromUrl = this.getFiltersFromUrl();
+		//console.log(filtersFromUrl);
+
+		// из этих фильтров собираем массив для передачи в retailcrm api
 		const filtersForApi = this.transformFiltersForApi(filtersFromUrl);
-		//console.log(filtersFromUrl, filtersForApi);
+		//console.log(filtersForApi);
+
+		// надо написать, обращение к api и обработку ответа
+		// насколько я помню, идея глобальная была такая, чтоб получать все записи по фильтрам,
+		// и считать разные суммы (расходы, оплаты курьерам, платежи и пр.) для всех заказов, соответствующих фильтрам
+		// так как интерфейс куефдскь показывает инфу только по показанным заказам (20,50 или 100)
+		// а надо по ВСЕМ
 	}
 
 	// Парсит URL-параметры и преобразует их в структурированный объект фильтров

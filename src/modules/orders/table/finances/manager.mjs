@@ -1,3 +1,5 @@
+import dom from '@helpers/dom';
+
 export default class FinancesManager {
 	init() {
 		this.hideData();
@@ -5,6 +7,6 @@ export default class FinancesManager {
 
 	// скрывает данные в таблице
 	hideData() {
-		$('#list-total-margin,#list-total-summ').hide();
+		dom('#list-total-margin,#list-total-summ').hide();
 	}
 }

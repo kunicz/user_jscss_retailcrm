@@ -1,10 +1,11 @@
-import normalize from '@helpers/normalize';
-import observers from '@helpers/observers';
 import ProductsRows from '@modules/order/products/rows';
+import normalize from '@helpers/normalize';
+import wait from '@helpers/wait';
+import Observer from '@helpers/observers/Builder.mjs';
 import Order from '@pages/order';
 
 export default class Finances {
-	static observer = observers.add('order', 'finances');
+	static observer = new Observer();
 	static money = {};
 
 	static init() {
@@ -29,7 +30,7 @@ export default class Finances {
 	// поэтому достаточно просто подписаться на его изменения
 	static listen() {
 		self.observer
-			.setTarget('.order-table-footer')
+			.setTarget('#order-list div[class*="footer__section_summary"] div[class^="total"]')
 			.onMutation(async () => {
 				const products = await ProductsRows.products();
 				products.forEach(product => product.update());
@@ -167,7 +168,7 @@ export default class Finances {
 		const catalogProducts = products.filter(product => product.isCatalog);
 		if (catalogProducts.length) {
 			catalogProducts.forEach(product => {
-				self.money.total += normalize.int(product.properties.items.find(item => item.name === 'цена').value);
+				self.money.total += normalize.int(product.properties.items.find(item => item.name === 'цена')?.value);
 			});
 		} else {
 			self.money.total = self.money.paid;

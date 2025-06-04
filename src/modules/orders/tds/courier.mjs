@@ -6,6 +6,7 @@ import copyBtn from '@helpers/clipboard';
 import { inlineTooltip } from '@src/helpers';
 import retailcrm from '@helpers/retailcrm_direct';
 import normalize from '@helpers/normalize';
+import dom from '@helpers/dom';
 
 export default class CourierTd extends OrderTd {
 	static columnName = 'courier';
@@ -46,11 +47,10 @@ export default class CourierTd extends OrderTd {
 
 	orderInfo() {
 		if (this.row.get(cols.adres)) {
-			copyBtn(this.getData(false)).appendTo(this.$td);
+			copyBtn(this.getData(false), '').lastTo(this.$td);
 			if (this.getNative()) {
-				const $a = $(`<a href="">${this.getNative()}</a>`);
-				copyBtn(this.getData(true), $a);
-				this.$td.find('.native').html($a);
+				const a = copyBtn(this.getData(true), this.getNative());
+				this.$td.find('.native').html(a);
 			}
 		}
 	}
@@ -149,10 +149,10 @@ export default class CourierTd extends OrderTd {
 		}
 		if (!warningCases.length) return;
 
-		const $warnIcon = $(iconsSVG.warning);
-		this.$warn = $('<div class="warn"></div>');
+		const $warnIcon = dom(iconsSVG.warning);
+		this.$warn = dom('<div class="warn"></div>');
 		this.$td.append(this.$warn);
-		this.$warn.prepend($warnIcon);
+		this.$warn.toPrev($warnIcon);
 		inlineTooltip($warnIcon, warningCases.join('<br>'));
 	}
 

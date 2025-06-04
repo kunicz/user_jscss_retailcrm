@@ -1,19 +1,20 @@
 import RootClass from '@helpers/root_class';
 import { copy } from '@helpers/clipboard';
 import normalize from '@helpers/normalize';
+import dom from '@helpers/dom';
 import { default as table } from '@modules/orders/table';
 
 export default class CouriersSvodka extends RootClass {
 	constructor() {
 		super();
-		this.block = $('<span><a id="couriersSvodka">Сводка по оплате курьерам</a></span>');
+		this.el = dom('<span><a id="couriersSvodka">Сводка по оплате курьерам</a></span>');
 		this.separator = '\n-------\n';
 	}
 
 	init() {
-		this.block
-			.appendTo($('#list-total-wrapper'))
-			.on('click', () => copy(this.generate(this.aggregate())));
+		this.el
+			.lastTo('#list-total-wrapper')
+			.listen('click', () => copy(this.generate(this.aggregate())));
 	}
 
 	aggregate() {

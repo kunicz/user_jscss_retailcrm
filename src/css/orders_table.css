@@ -44,7 +44,8 @@ svg.lovixlube{width:14px;height:14px;margin-left:4px;}
 .js-order-list td[col="букеты в заказе"] .color.green{background-color:rgb(12, 170, 97);color:#fff}
 .js-order-list td[col="букеты в заказе"] .color.white{background-color:white;border:1px solid rgba(0,0,0,.2);}
 .js-order-list td[col="покупатель"] .telegram svg.telegram{display:inline-block;width:14px;height:14px;margin-right:5px;cursor:pointer;vertical-align:baseline;}
-.js-order-list td[col="покупатель"] .phoneZakazchika{display:block;font-size:.8em;opacity:.5;cursor:pointer;margin-top:5px}
+.js-order-list td[col="покупатель"] .phoneZakazchika{display:block;font-size:.8em;opacity:.5;cursor:pointer;margin-top:5px;position:static}
+.js-order-list td[col="покупатель"] .phoneZakazchika:after{display:none;}
 .js-order-list td[col="сумма"] .paid{font-size:.9em;opacity:.5}
 .js-order-list td[col="сумма"] .discount{position:absolute;top:0;right:0;font-size:10px;background:#ff7a93;color:#fff;line-height:15px;padding:0 4px}
 .js-order-list td[col="магазин"] .logo{width:30px;height:30px}
@@ -57,6 +58,8 @@ svg.lovixlube{width:14px;height:14px;margin-left:4px;}
 .js-order-list td[col="курьер"][data-notified="false"] .warn .notify{cursor:pointer;}
 .js-order-list td[col="курьер"][data-notified="false"] .warn .notify::after{content:'🔕';}
 .js-order-list td[col="курьер"][data-notified="true"] .warn .notify{display:none;}
+.js-order-list td[col="курьер"] .native .copyBtn{position:static}
+.js-order-list td[col="курьер"] .native .copyBtn:after{display:none}
 .js-order-list td[col="оплата"] .pay-status.wait{background:#FF4500!important; border-radius: 50%; text-align:center}
 .js-order-list td[col="оплата"] .pay-status.wait:before{content:'!$'; color:#fff; vertical-align:middle}
 

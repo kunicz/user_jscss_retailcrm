@@ -41,7 +41,7 @@ export default class ZakazchikTd extends OrderTd {
 		const tel = this.row.get(cols.zakazchikPhone);
 		if (!tel) return;
 
-		copyBtn($(`<span>${tel}</span>`)).addClass('phoneZakazchika').appendTo(this.$td);
+		copyBtn(tel).addClass('phoneZakazchika').lastTo(this.$td);
 	}
 
 	// добавляет сообщение для заказчика
@@ -51,7 +51,7 @@ export default class ZakazchikTd extends OrderTd {
 
 		this.reply = new Reply(this.row);
 		const output = this.reply.init();
-		copyBtn(output).appendTo(this.$td);
+		copyBtn(output, '').lastTo(this.$td);
 	}
 }
 

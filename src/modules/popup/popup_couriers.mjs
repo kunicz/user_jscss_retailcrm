@@ -1,31 +1,35 @@
 import RootClass from '@helpers/root_class';
-import Popup from '@src/popup';
+import Popup from '@modules/popup/popup';
 import App from '@src';
 import { bankNames } from '@src/mappings';
 import retailcrm from '@helpers/retailcrm_direct';
+import dom from '@helpers/dom';
 
 export default class CouriersPopup extends RootClass {
 	constructor() {
 		super();
-		this.couriers = [];
-		this.init = this.init.bind(this);
-		this.meta = {
-			id: 'couriers',
-			title: 'Курьеры',
-			callback: this.init
-		};
-		this.p = 'custom_popup';
-		this.$cont = $(`#${this.p}__content`);
-		this.popup = new Popup(this.meta);
+		this.el = null;
+		this.id = 'couriers';
+		this.title = 'Курьеры';
+		this.callback = this.init.bind(this);
 	}
 
 	async init() {
-		this.popup.init();
-		const cities = await this.getCities();
-		if (!this.couriers.length) this.couriers = await this.getCouriers(cities);
-		this.renderSearchForm();
-		this.renderList();
-		this.renderEditbox(cities);
+		this.el = dom('#custom_popup');
+		if (this.el.data('page') !== this.id) {
+			const cities = await this.getCities();
+			const couriers = await this.getCouriers(cities);
+
+			// напоняем popup контентом
+			this.el.data('page', this.id);
+			this.el.node(`#omnica-modal-window-title`).html(this.title);
+			this.el.node('#custom_popup__content').empty();
+			this.el.node('#custom_popup__search_form')?.destroy();
+			this.renderSearchForm();
+			this.renderList();
+			this.renderEditbox(cities);
+		}
+		this.el.show();
 	}
 
 	// получает всех курьеров
@@ -43,29 +47,19 @@ export default class CouriersPopup extends RootClass {
 
 	// рендерит форму поиска
 	renderSearchForm() {
-		if ($('#couriers_popup_search_form').length) return;
-		const $searchForm = $(Popup.searchForm('couriers', 'имя курьера'));
-		$searchForm.appendTo($(`#${this.p} #omnica-modal-window-title`));
+		dom(Popup.searchForm('имя курьера')).lastTo(this.el.node(`#omnica-modal-window-title`));
 	}
 
 	// рендерит список курьеров
 	renderList() {
-		const block = $(`<div id="couriers_list"></div>`);
-		block.appendTo($(`#${this.p}__content`));
+		dom('<div id="couriers_list" />').lastTo(this.el.node('#custom_popup__content'));
 	}
 
 	// рендерит форму для добавления курьера
 	renderEditbox(cities) {
-		const block = $(`<div id="couriers_editbox"></div>`);
-		block.append(this.createForm(cities));
-		block.appendTo($(`#${this.p}__content`));
-	}
-
-	// создает форму для добавления курьера
-	createForm(cities) {
 		const city = cities.length > 1 ? 'мск' : cities[0];
 		const banks = bankNames.map(bank => `<option value="${bank}">${bank}</option>`).join('');
-		return $(`
+		const form = dom(`
 		<form id="couriers_editbox_form" data-mode="create">
 			<div class="input-group cleared">
 				<label class="label-common" for="couriers_editbox_form_name">Имя</label>
@@ -89,5 +83,6 @@ export default class CouriersPopup extends RootClass {
 			</button>
 		</form>	
 		`);
+		dom(`<div id="couriers_editbox" />`).toLast(form).lastTo(this.el.node('#custom_popup__content'));
 	}
 }

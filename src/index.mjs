@@ -1,5 +1,6 @@
 import RootClass from '@helpers/root_class';
 import Menu from '@src/menu';
+import Popup from '@modules/popup/popup';
 import Couriers from '@pages/couriers';
 import Courier from '@pages/courier';
 import Customer from '@pages/customer';
@@ -8,22 +9,25 @@ import Order from '@pages/order';
 import Products from '@pages/products';
 import Product from '@pages/product';
 import retailcrm from '@helpers/retailcrm_direct';
+import dom from '@helpers/dom';
 
-window.BUNDLE_VERSION = '2.8.1';
+window.BUNDLE_VERSION = '2.9.0';
 
 export default class App extends RootClass {
 	static user = null;
 	static page = null;
+	static menu = new Menu();
+	static popup = new Popup();
 
 	constructor() {
 		super();
-		this.menu = new Menu();
 		this.lastPath = null; // последний путь, который был открыт
 	}
 
 	async init() {
-		self.user = await self.getUser();
-		this.menu.init();
+		App.user = await App.getUser();
+		App.menu.init();
+		App.popup.init();
 		this.listen();
 	}
 
@@ -39,8 +43,8 @@ export default class App extends RootClass {
 
 	// накатывает мои скрипты на страницу
 	async update() {
-		const main = document.querySelector('#main');
-		if (!main || main.hasAttribute('loaded')) return;
+		const main = dom('#main');
+		if (!main || main.is('.loaded')) return;
 
 		const pages = new Map([
 			[/admin\/couriers(?:[^\/]|$)/, Couriers],
@@ -51,40 +55,23 @@ export default class App extends RootClass {
 			[/products\/($|\?)/, Products],
 			[/products\/\d+/, Product],
 		]);
-		for (const [pattern, module] of pages) {
+		for (const [pattern, page] of pages) {
 			if (!pattern.test(window.location.href)) continue;
-
-			// выводит в консоль имя модуля
-			console.log(`user_jscss : retailcrm/${module.name}`);
-
-			// отмечает страницу как загруженную
-			main.setAttribute('loaded', '');
-
-			// уничтожает предыдущий модуль
-			if (App.page) App.page.destroy();
-
-			// создает новый модуль
-			App.page = new module();
-
-			// инициализирует модуль
-			await Promise.resolve(App.page.init());
+			console.log(`user_jscss : retailcrm/${page.name}`); // выводит в консоль имя модуля			
+			main.addClass('loaded'); // отмечает страницу как загруженную			
+			if (App.page) App.page?.destroy(); // уничтожает предыдущий модуль			
+			App.page = new page();
+			await Promise.resolve(App.page.init()); // инициализирует модуль
 		}
-
 	}
 
 	// получает текущего пользователя
 	static async getUser() {
-		if (self.user) return self.user;
-		const userId = document.querySelector('head').getAttribute('data-user-id');
+		if (App.user) return App.user;
+		const userId = dom('head').data('user-id');
 		const user = await retailcrm.get.user.byId(userId);
 		return user;
 	}
 }
 
-const self = App;
-const app = new App();
-try {
-	app.init();
-} catch (error) {
-	console.error(error);
-}
+try { new App().init(); } catch (error) { console.error(error); }

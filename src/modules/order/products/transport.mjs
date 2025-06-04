@@ -3,11 +3,10 @@ import Order from '@pages/order';
 import ProductsRows from '@modules/order/products/rows';
 import wait from '@helpers/wait';
 import { php2steblya } from '@helpers/api';
-import observers from '@helpers/observers';
 
 export default class Transport extends RootClass {
 	async init() {
-		this.observer = observers.get('order', 'products-rows');
+		this.observer = this.setObserver();
 		const products = await ProductsRows.products();
 		this.product = products.find(p => p.isTransport) || null;
 		!this.product ? this.add() : this.update();

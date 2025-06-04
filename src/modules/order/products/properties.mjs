@@ -8,13 +8,6 @@ export default class Properties extends RootClass {
 		super();
 		this.product = product;
 		this.popup = new Popup();
-		this.required = [
-			'for-mat',
-			'artikul',
-			'sku',
-			'tsena',
-			'moyskladid'
-		];
 		this.observer = this.setObserver();
 	}
 
@@ -37,13 +30,7 @@ export default class Properties extends RootClass {
 	async addMissingProperties() {
 		if (!this.product.isCatalog) return;
 		this.addProperties();
-		if (this.hasAllRequiredFields()) return;
-
-	}
-
-	// проверяет, есть ли уже все обязательные для каталожного товара свойства
-	hasAllRequiredFields() {
-		return this.required.every(field => this.product.$.find(`#${Order.intaro}_orderProducts_${this.product.index}_properties_${field}_value`).length);
+		this.product.properties = this.product._properties();
 	}
 
 	// добавляет обязательныесвойства в каталожный товар

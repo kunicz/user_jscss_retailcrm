@@ -36,8 +36,8 @@ export default class CardTd extends OrderTd {
 		if (!this.customText) return;
 
 		if (this.text !== 'со своим текстом') this.$td.addClass('addComment customCardText');
-		const $copyBtn = copyBtn(this.customText);
-		$copyBtn.appendTo(this.$td);
+		const $copyBtn = copyBtn(this.customText, '');
+		$copyBtn.lastTo(this.$td);
 		inlineTooltip($copyBtn, this.customText);
 	}
 

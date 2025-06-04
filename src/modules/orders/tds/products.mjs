@@ -1,7 +1,7 @@
 import * as cols from '@modules/orders/cols';
 import { iconsSVG } from '@src/mappings';
 import copyBtn from '@helpers/clipboard';
-import nbsp from '@helpers/nbsp';
+import { space } from '@helpers/text';
 import { inlineTooltip } from '@src/helpers';
 import OrdersTable from '@modules/orders/table';
 import OrderTd from '@modules/orders/td';
@@ -73,7 +73,7 @@ export default class ProductsTd extends OrderTd {
 		// - в виде ссылки на мойсклад, если есть
 		// если свойство есть, а самого заказа в моем складе еще нет (новый, ни разу не сохраненный), то уничтожаем ссылку
 		function name(item) {
-			const title = `${nbsp.numStr(item.name)} (${nbsp.strStr(item.quantity)})`;
+			const title = `${space.numNbspStr(item.name)} (${space.strNbspStr(item.quantity)})`;
 			if (!item.props.moyskladid) return title;
 
 			let loaded = false;
@@ -145,8 +145,8 @@ export default class ProductsTd extends OrderTd {
 		if (!flowers.length) return;
 
 		const flowersString = flowers.sort().join(', ');
-		const $copyBtn = copyBtn(flowersString);
-		$copyBtn.appendTo(this.$td);
+		const $copyBtn = copyBtn(flowersString, '');
+		$copyBtn.lastTo(this.$td);
 		inlineTooltip($copyBtn, flowersString);
 	}
 

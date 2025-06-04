@@ -1,5 +1,6 @@
 import RootClass from '@helpers/root_class';
 import dates from '@helpers/dates';
+import dom from '@helpers/dom';
 import '@css/orders_filters.css';
 
 export default class OrdersFilters extends RootClass {
@@ -14,8 +15,8 @@ export default class OrdersFilters extends RootClass {
 	//фильтр: дата доставки
 	//фильтр: дата доставки
 	dostavkaDate() {
-		const $group = this.getFilterGroup('дата доставки');
-		if (!$group) return;
+		const group = this.getFilterGroup('дата доставки');
+		if (!group) return;
 
 		//формирует заголовок для ссылки фильтра
 		const getTitle = (date1, date2) => {
@@ -31,26 +32,26 @@ export default class OrdersFilters extends RootClass {
 		//формирует ссылку для фильтра по дате
 		const makeLink = (date1, date2 = date1) => {
 			const title = getTitle(date1, date2);
-			return $(`<a class="filterDate" href="${this.buildUrl({ from: date1.str, to: date2.str })}">${title}</a>`);
+			return dom(`<a class="filterDate" href="${this.buildUrl({ from: date1.str, to: date2.str })}">${title}</a>`);
 		}
 
-		const $cont = $('<div class="additonalFilters"></div>');
+		const cont = dom('<div class="additonalFilters"></div>');
 
-		$cont.append(makeLink(dates.yesterday));
-		$cont.append(makeLink(dates.today));
-		$cont.append(makeLink(dates.today, dates.tomorrow));
-		$cont.append(makeLink(dates.tomorrow));
-		$cont.append(makeLink(dates.tomtomorrow));
-
-		$group.append($cont);
+		cont
+			.toLast(makeLink(dates.yesterday))
+			.toLast(makeLink(dates.today))
+			.toLast(makeLink(dates.today, dates.tomorrow))
+			.toLast(makeLink(dates.tomorrow))
+			.toLast(makeLink(dates.tomtomorrow))
+			.lastTo(group);
 	}
 
 	//фильтр: дата заказа
 	orderDate() {
-		const $group = this.getFilterGroup('Дата оформления заказа');
-		if (!$group) return;
+		const group = this.getFilterGroup('Дата оформления заказа');
+		if (!group) return;
 
-		$group.append(`<div class="additonalFilters">
+		group.toLast(`<div class="additonalFilters">
 		<a class="filterDate" href="${this.buildUrl({ from: dates.today.str })}">${dates.today.title}</a>
 		<a class="filterDate" href="${this.buildUrl({ from: dates.yesterday.str })}">${dates.yesterday.title}</a>
 		</div>`);
@@ -58,8 +59,8 @@ export default class OrdersFilters extends RootClass {
 
 	//фильтр: списание
 	spisanie() {
-		const $group = this.getFilterGroup('покупатель');
-		if (!$group) return;
+		const group = this.getFilterGroup('покупатель');
+		if (!group) return;
 
 		//формирует дату для фильтра списания с учетом смещения месяцев
 		const getMonthDate = (offset) => {
@@ -68,7 +69,7 @@ export default class OrdersFilters extends RootClass {
 			return dates.create(date);
 		}
 
-		const $cont = $('<div class="additonalFilters"></div>');
+		const cont = dom('<div class="additonalFilters"></div>');
 		const thisMonth = getMonthDate(0);
 		const prevMonth = getMonthDate(-1);
 		const nextMonth = getMonthDate(1);
@@ -86,34 +87,33 @@ export default class OrdersFilters extends RootClass {
 		];
 
 		const links = data.map(date =>
-			`<a class="filterDate" href="${this.buildUrl({
+			dom(`<a class="filterDate" href="${this.buildUrl({
 				from: date.from,
 				to: date.to,
 				customer: 'Списание',
 				sort: 'created_at',
 				direction: 'desc'
 			})}">${date.title}</a>`
-		).join('');
-
-		$cont.append(links);
-		$group.append($cont);
+			));
+		links.forEach(link => cont.toLast(link));
+		group.toLast(cont);
 	}
 
 	//показывать/скрывать сервисные заказы
 	batchHide() {
-		this.createToggleButton('Технические заказы', () => $('tr.batchHide').toggle());
+		this.createToggleButton('Технические заказы', () => dom('tr.batchHide').forEach(d => d.toggle()));
 	}
 
 	//показывать/скрывать откуда узнал
 	otkudaUznal() {
-		this.createToggleButton('Откуда узнал', () => $('[col*="узнал о нас"]').toggle());
+		this.createToggleButton('Откуда узнал', () => dom('[col*="узнал о нас"]').forEach(d => d.toggle()));
 	}
 
 	//создает кнопку-переключатель в футере фильтров
 	createToggleButton(text, callback) {
-		return $(`<div class="additonalFilters inFooter"><a>${text}</a></div>`)
-			.insertAfter($('.m-filter .parameters'))
-			.on('click', e => {
+		return dom(`<div class="additonalFilters inFooter"><a>${text}</a></div>`)
+			.nextTo('.m-filter .parameters')
+			.listen('click', e => {
 				e.preventDefault();
 				callback();
 			});
@@ -121,10 +121,9 @@ export default class OrdersFilters extends RootClass {
 
 	//находит группу фильтров по названию
 	getFilterGroup(name) {
-		const $filterGroups = $('.default-form-filter .filter-group').filter((_, group) =>
-			$(group).find('.control-label span').text().trim().toLowerCase() === name.trim().toLowerCase()
-		);
-		return $filterGroups.length ? $filterGroups.eq(0) : null;
+		const groups = dom('.default-form-filter .filter-group');
+		const filterGroups = groups.filter(g => dom(g).node('.control-label span')?.txt().toLowerCase() === name.toLowerCase());
+		return filterGroups?.[0];
 	}
 
 	//формирует URL с параметрами фильтрации

@@ -1,11 +1,12 @@
 import RootClass from '@helpers/root_class';
+import dom from '@helpers/dom';
 import { php2steblya as api } from '@helpers/api';
 
 export default class Allowness extends RootClass {
 	constructor() {
 		super();
-		this.$ths = $('.modern-table th');
-		this.$trs = $('.modern-table tr[data-url]');
+		this.ths = dom('.modern-table th');
+		this.trs = dom('.modern-table tr[data-url]');
 		this.indexes = {};
 	}
 
@@ -15,7 +16,6 @@ export default class Allowness extends RootClass {
 
 		this.renameAndHideColumns();
 		const productData = this.collectProductData();
-		if (!productData.length) return;
 
 		const availabilityData = await this.fetchAvailabilityData(productData);
 		this.addAvailabilitySelects(availabilityData);
@@ -23,75 +23,72 @@ export default class Allowness extends RootClass {
 
 	// определяет по индексам нужные столбцы
 	defineIndexes() {
-		this.$ths.each((index, th) => {
-			const text = $(th).text().trim();
-			if (text === 'Производитель') {
-				this.indexes.allowness = index;
-			} else if (text === 'Внешний ID') {
-				this.indexes.id = index;
-			} else if (text === 'Название') {
-				this.indexes.title = index;
-			} else if (text === 'Магазин') {
-				this.indexes.shop = index;
+		this.ths.forEach((th, index) => {
+			switch (th.txt()) {
+				case 'Производитель':
+					this.indexes.allowness = index;
+					break;
+				case 'Внешний ID':
+					this.indexes.id = index;
+					break;
+				case 'Название':
+					this.indexes.title = index;
+					break;
+				case 'Магазин':
+					this.indexes.shop = index;
+					break;
 			}
 		});
 	}
 
 	// переименовывает и скрывает столбцы
 	renameAndHideColumns() {
-		this.$ths.eq(this.indexes.allowness).find('a').text('Доступность');
-		this.$ths.eq(this.indexes.id).hide();
-		this.$trs.each((_, e) => $(e).find('td').eq(this.indexes.id).hide());
+		this.ths[this.indexes.allowness].node('a').txt('Доступность');
+		this.ths[this.indexes.id].hide();
+		this.trs.forEach(el => el.nodes('td')[this.indexes.id].hide());
 	}
 
 	// собирает данные о товарах, для которых надо получить доступность из БД
 	collectProductData() {
-		let data = [];
-		this.$trs.each((_, e) => {
-			if (!$(e).find('td:first-child').children().length) return;
-			data.push({
-				id: $(e).find('td').eq(this.indexes.id).text().trim(),
-				title: $(e).find('td').eq(this.indexes.title).text().trim(),
-				shop: $(e).find('td').eq(this.indexes.shop).text().trim()
-			});
+		let data = { ids: [], shops: [] };
+		this.trs.forEach(el => {
+			if (!el.node('td:first-child').child()) return;
+			const tds = el.nodes('td');
+			if (!tds[this.indexes.id]?.txt() || !tds[this.indexes.shop]?.txt()) return;
+			data.ids.push(tds[this.indexes.id].txt());
+			data.shops.push(tds[this.indexes.shop].txt());
 		});
 		return data;
 	}
 
 	// получает доступность из БД
 	async fetchAvailabilityData(data) {
-		const apiResponse = await api('FromDB&request=allowness_by_products_ids').post(data);
-		const availabilityData = apiResponse.reduce((acc, item) => {
-			acc[item.id] = item.allowed_today;
-			return acc;
-		}, {});
-		return availabilityData;
+		const apiResponse = await api('db', 'products/getAllownessByIds').post(data);
+		return apiResponse || {};
 	}
 
 	// добавляет выпадающий список доступности для каждого товара
 	addAvailabilitySelects(data) {
-		this.$trs.each((_, tr) => {
-			const $tr = $(tr);
-			const id = parseInt($tr.find('td').eq(this.indexes.id).text().trim());
-			if (!data.hasOwnProperty(id)) return;
+		this.trs.forEach(tr => {
+			const tds = tr.nodes('td');
+			const d = data.filter(d => d.id == tds[this.indexes.id].txt())[0];
+			if (!d) return;
 
-			const allowedToday = data[id];
-			const $select = $(`<select data-shop="${$tr.find('td').eq(this.indexes.shop).text().trim()}" data-id="${id}">`);
-			$select
-				.append(`<option value="1" ${allowedToday == 1 ? 'selected' : ''}>сегодня</option>`)
-				.append(`<option value="0" ${allowedToday == 0 ? 'selected' : ''}>завтра</option>`)
-				.append(`<option value="-1" ${allowedToday == -1 ? 'selected' : ''}>никогда</option>`)
-				.on('click', e => e.stopPropagation())
-				.off('change')
-				.on('change', async (select) => {
-					const $this = $(select.target);
-					const apiResponse = await api('ToDB&request=allowness_by_product_id').post({
-						id: $this.data('id'),
-						shop: $this.data('shop'),
-						allowed_today: $this.val()
-					});
+			const allowedToday = d.allowed_today;
+			const select = dom(`<select data-shop="${tds[this.indexes.shop].txt()}" data-id="${d.id}">`);
+			select
+				.toLast(`<option value="1" ${allowedToday == 1 ? 'selected' : ''}>сегодня</option>`)
+				.toLast(`<option value="0" ${allowedToday == 0 ? 'selected' : ''}>завтра</option>`)
+				.toLast(`<option value="-1" ${allowedToday == -1 ? 'selected' : ''}>никогда</option>`);
+			select.listen('click', (e) => e.stopPropagation());
+			select.listen('change', async () => {
+				const apiResponse = await api('db', 'products/setAllownessById', true).post({
+					id: select.data('id'),
+					shop: select.data('shop'),
+					allowed_today: select.val()
 				});
-			$tr.find('td').eq(this.indexes.allowness).html($select);
+			});
+			tds[this.indexes.allowness].empty().toLast(select);
 		});
 	}
 } 

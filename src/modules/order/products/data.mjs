@@ -37,9 +37,7 @@ export default class ProductsData extends RootClass {
 			await this._crm();
 			await this._db();
 			await this._ms();
-			console.log(this);
 		}
-		this.store();
 	}
 
 	// обновляет данные по товару
@@ -104,10 +102,12 @@ export default class ProductsData extends RootClass {
 	}
 
 	async _crm() {
+		if (this.crm) return;
 		this.crm = await self.productCrm(this.id);
 	}
 
 	async _db() {
+		if (this.db) return;
 		if (!this.crm.externalId) return;
 
 		this.db = await self.productDb(this.crm.externalId);
@@ -119,6 +119,7 @@ export default class ProductsData extends RootClass {
 	}
 
 	async _ms() {
+		if (this.ms) return;
 		if (this.isDopnik || this.isDonat) return;
 
 		const moyskladid = this.properties.items.find(p => p.code === 'moyskladid')?.value;

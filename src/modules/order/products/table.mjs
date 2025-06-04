@@ -13,7 +13,7 @@ export default class ProductsTable extends RootClass {
 	}
 
 	async init() {
-		self.$ = $('#order-products-table');
+		self.$ = $('table[id^=order-product-section]');
 		this.popup.init();
 		await this.rows.init();
 		this.sebes();

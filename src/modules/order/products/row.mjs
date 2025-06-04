@@ -21,6 +21,8 @@ export default class ProductsRow extends RootClass {
 		this.classes();
 		this.catalog();
 		this.ostatki();
+
+		this.product.store();
 	}
 
 	// сохраняет tr для возможности удаления

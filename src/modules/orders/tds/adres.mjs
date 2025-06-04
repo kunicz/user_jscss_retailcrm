@@ -22,8 +22,8 @@ export default class AdresTd extends OrderTd {
 		if (!phone) return;
 
 		const name = this.row.get(cols.poluchatelName);
-		const $copyBtn = copyBtn(phone);
-		$copyBtn.appendTo(this.$td);
+		const $copyBtn = copyBtn(phone, '');
+		$copyBtn.lastTo(this.$td);
 		inlineTooltip($copyBtn, phone + (name ? ` / ${name}` : ''));
 	}
 
@@ -35,9 +35,10 @@ export default class AdresTd extends OrderTd {
 		const formattedAddress = this.formatAddress(rawAddress);
 		const clickableAddress = this.makeAddressClickable(formattedAddress);
 		const finalAddress = this.formatMetro(clickableAddress);
-
 		this.$native.html(finalAddress);
-		copyBtn(this.$td.find('.yadres'));
+
+		const $yadres = this.$td.find('.yadres');
+		if ($yadres.length) copyBtn($yadres);
 	}
 
 	// форматирует адрес
