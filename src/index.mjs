@@ -12,7 +12,7 @@ import retailcrm from '@helpers/retailcrm_direct';
 import { shops, getShops, fakeCustomers, getFakeCustomers, noFlowers, getNoFlowers } from '@src/mappings';
 import dom from '@helpers/dom';
 
-window.BUNDLE_VERSION = '2.10.1';
+window.BUNDLE_VERSION = '2.10.2';
 
 export default class App extends RootClass {
 	static user = null;
@@ -59,10 +59,10 @@ export default class App extends RootClass {
 		for (const [pattern, page] of pages) {
 			if (!pattern.test(window.location.href)) continue;
 			console.log(`user_jscss : retailcrm/${page.name}`); // выводит в консоль имя модуля			
-			main.addClass('loaded'); // отмечает страницу как загруженную			
 			if (this.page) this.page?.destroy(); // уничтожает предыдущий модуль			
 			this.page = new page();
 			await Promise.resolve(this.page.init()); // инициализирует модуль
+			main.addClass('loaded'); // отмечает страницу как загруженную			
 		}
 	}
 

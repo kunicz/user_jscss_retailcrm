@@ -1,6 +1,7 @@
 import OrdersTd from '@modules/orders/td';
 import { iconsSVG } from '@src/mappings';
 import dates from '@helpers/dates';
+import { space } from '@helpers/text';
 import copyBtn from '@helpers/clipboard';
 import { inlineTooltip } from '@src/helpers';
 import retailcrm from '@helpers/retailcrm_direct';
@@ -69,9 +70,9 @@ export default class CourierTd extends OrdersTd {
 	price() {
 		this.td.toLast(`<div class="price">${this.netCost} руб.</div>`);
 		if (this.netCost === this.cost) return;
-		const text = (this.cost > this.netCost ? 'экономия' : 'расход') + `: ${Math.abs(this.cost - this.netCost)} руб.`;
-		const smallText = `<div class="smallText">${text}</div>`;
-		this.td.toLast(smallText);
+		const text = (this.cost > this.netCost ? 'экономия' : 'расход') + ': ' + space.strNbspStr(`${Math.abs(this.cost - this.netCost)} руб.`);
+		const smallText = dom(`<div class="smallText"></div>`);
+		smallText.html(text).lastTo(this.td);
 	}
 
 	// курьер на авто
@@ -168,7 +169,7 @@ export default class CourierTd extends OrdersTd {
 	notifyIndicator() {
 		if (!this.needNotify()) return;
 
-		const btn = dom(`<div class="notify ${this.isNotified ? 'complete' : 'cancel'}"></div>`);
+		const btn = dom(`<div class="notify ${this.isNotified ? 'complete' : 'cancel'}" title="курьер оповещен"></div>`);
 		const warn = this.td.child('.warn');
 
 		btn.lastTo(warn);

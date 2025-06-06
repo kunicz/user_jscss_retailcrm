@@ -56,9 +56,9 @@ svg.lovixlube{width:14px;height:14px;margin-left:4px;}
 #orders-table td[col="courier"] .warn .inline-tooltip.user_jscss_tooltip{max-width:200px;width:200px;left:-4px;transform:translateX(-100%)}
 #orders-table td[col="courier"] .price{margin-top:4px}
 #orders-table td[col="courier"] .auto{width:18px;height:18px}
-#orders-table td[col="courier"] .warn .notify{vertical-align:top;display:inline-block;width:14px;height:14px;padding:0;margin:0;}
-#orders-table td[col="courier"][data-notified="false"] .warn .notify{cursor:pointer;}
-#orders-table td[col="courier"][data-notified="false"] .warn .notify::after{content:'🔕';}
+#orders-table td[col="courier"] .warn .notify{vertical-align:top;display:inline-block;width:17px;height:17px;padding:0;margin:0;}
+#orders-table td[col="courier"][data-notified="false"] .warn .notify{cursor:pointer;background-image:url('https://static.tildacdn.com/tild3065-3731-4665-b364-653330336661/courierNotify.svg');background-size:contain;}
+/*#orders-table td[col="courier"][data-notified="false"] .warn .notify::after{content:'🔕';}*/
 #orders-table td[col="courier"][data-notified="true"] .warn .notify{display:none;}
 #orders-table td[col="courier"] .native .copyBtn{position:static}
 #orders-table td[col="courier"] .native .copyBtn:after{display:none}
