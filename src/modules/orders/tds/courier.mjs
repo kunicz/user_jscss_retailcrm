@@ -86,6 +86,7 @@ export default class CourierTd extends OrdersTd {
 		if (!this.adres) return;
 		copyBtn(this.getData(false), '').lastTo(this.td); // для поиска курьера
 		if (!this.courierId) return;
+		if (!this.td.child('.native a')) this.td.child('.native').html(`<a>${this.td.child('.native').txt()}</a>`)
 		copyBtn(this.getData(true), this.td.child('.native')); // для найденного курьера
 	}
 

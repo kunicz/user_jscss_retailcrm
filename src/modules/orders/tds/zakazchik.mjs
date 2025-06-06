@@ -2,10 +2,9 @@ import { iconsSVG } from '@src/mappings';
 import copyBtn from '@helpers/clipboard';
 import Reply from '@modules/orders/reply';
 import OrdersTd from '@modules/orders/td';
-import wait from '@helpers/wait';
 
 export default class ZakazchikTd extends OrdersTd {
-	static columnName = 'zakazchikName';
+	static columnName = 'zakazchik';
 
 	init() {
 		this.onanim();

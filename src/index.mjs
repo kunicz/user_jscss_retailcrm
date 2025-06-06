@@ -12,7 +12,7 @@ import retailcrm from '@helpers/retailcrm_direct';
 import { shops, getShops, fakeCustomers, getFakeCustomers, noFlowers, getNoFlowers } from '@src/mappings';
 import dom from '@helpers/dom';
 
-window.BUNDLE_VERSION = '2.10.0';
+window.BUNDLE_VERSION = '2.10.1';
 
 export default class App extends RootClass {
 	static user = null;
@@ -20,13 +20,13 @@ export default class App extends RootClass {
 	constructor() {
 		super();
 		this.page = null;
-		this.menu = new Menu(); s
+		this.menu = new Menu();
 		this.popup = new Popup();
 		this.lastPath = null; // последний путь, который был открыт
 	}
 
 	async init() {
-		await App.initConstants();
+		await this.initConstants();
 		this.menu.init();
 		this.popup.init();
 		this.listen();
@@ -66,16 +66,23 @@ export default class App extends RootClass {
 		}
 	}
 
-	static async initConstants() {
-		App.user = await App.getUser(); // user		
-		shops = await getShops(); // shops (в mappings)
-		fakeCustomers = await getFakeCustomers(); // fakeCustomers (в mappings)
-		noFlowers = await getNoFlowers(); // fakeCustomers (в mappings)
+	// инициализация всего асинхронного контента
+	async initConstants() {
+		const [userResult, shopsResult, fakeCustomersResult, noFlowersResult] = await Promise.all([
+			this.getUser(),
+			getShops(),
+			getFakeCustomers(),
+			getNoFlowers()
+		]);
+
+		App.user = userResult;
+		shops = shopsResult;
+		fakeCustomers = fakeCustomersResult;
+		noFlowers = noFlowersResult;
 	}
 
 	// получает текущего пользователя
-	static async getUser() {
-		if (App.user) return App.user;
+	async getUser() {
 		const userId = dom('head').data('user-id');
 		const user = await retailcrm.get.user.byId(userId);
 		return user;
