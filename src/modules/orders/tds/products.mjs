@@ -1,15 +1,14 @@
-import * as cols from '@modules/orders/cols';
+import OrdersTd from '@modules/orders/td';
 import { iconsSVG } from '@src/mappings';
 import copyBtn from '@helpers/clipboard';
 import { space } from '@helpers/text';
 import { inlineTooltip } from '@src/helpers';
-import OrdersTable from '@modules/orders/table';
-import OrderTd from '@modules/orders/td';
 import { ARTIKUL_TRANSPORT, ARTIKUL_DOPNIK } from '@root/config';
-import { moysklad } from '@src/mappings';
-import ProductsData from '@modules/order/products/data';
+import { moysklad, noFlowers } from '@src/mappings';
+import { php2steblya as api } from '@helpers/api';
+import dom from '@helpers/dom';
 
-export default class ProductsTd extends OrderTd {
+export default class ProductsTd extends OrdersTd {
 	static columnName = 'products';
 	static propsColor = ['gamma', 'viebri-gammu', 'tsvet', 'viebri-tsvet', 'kakoy-tsvet'];
 	static colorClasses = new Map([
@@ -25,19 +24,18 @@ export default class ProductsTd extends OrderTd {
 		[/зелен/i, 'green'],
 		[/сини/i, 'blue'],
 		[/фиолет/i, 'purple'],
-		[/белы/i, 'white']
+		[/оранж/i, 'orange'],
+		[/персик/i, 'peach'],
 	]);
 
-	constructor(row) {
-		super(row);
-		this.productsAll = this.orderCrm?.items || [];
-		this.productsNoCatalog = this.productsAll.filter(p => !p.offer?.article);
-		this.productsCatalog = this.productsAll.filter(p => p.offer?.article && p.offer.article != ARTIKUL_TRANSPORT);
-		this.productsNoFlowers = OrdersTable.noFlowers;
-		this.productsFlowers = this.getFlowers();
+	constructor(td) {
+		super(td);
+		this.productsNoCatalog = this.crm.items?.filter(p => !p.offer?.article);
+		this.productsCatalog = this.crm.items?.filter(p => p.offer?.article && p.offer.article != ARTIKUL_TRANSPORT);
 	}
 
 	init() {
+		this.td.empty();
 		this.products();
 		this.sostav();
 		this.lovix();
@@ -45,27 +43,16 @@ export default class ProductsTd extends OrderTd {
 
 	// выводит каталожные товары в заказе
 	async products() {
-		this.$native.html('');
-
-		const items = await Promise.all(
-			this.productsCatalog.map(async (p) => await this.product(p))
-		);
-
+		const items = await Promise.all(this.productsCatalog.map(async (p) => await this.product(p)));
 		items.sort((a, b) => {
 			if (a.isDopnik !== b.isDopnik) return a.isDopnik ? 1 : -1;
 			return a.name.localeCompare(b.name);
 		});
-
 		items.forEach(item => {
-			const $div = $('<div class="product"></div>');
-			$div.appendTo(this.$native);
-
+			const productCont = dom('<div class="product"></div>');
 			// если у товара есть цветовая разновидность, то добавляем ее в div
-			if (item.color?.class) {
-				$div.append(`<div class="color ${item.color.class}"><span>${item.color.value}</span></div>`);
-			}
-			const $span = $(`<span class="name"></span>`);
-			$span.append(name(item)).appendTo($div);
+			if (item.color?.class) productCont.toLast(`<div class="color ${item.color.class}"><span>${item.color.value}</span></div>`);
+			productCont.toLast(name(item)).lastTo(this.td);
 		});
 
 		// возвращает имя товара:
@@ -74,24 +61,26 @@ export default class ProductsTd extends OrderTd {
 		// если свойство есть, а самого заказа в моем складе еще нет (новый, ни разу не сохраненный), то уничтожаем ссылку
 		function name(item) {
 			const title = `${space.numNbspStr(item.name)} (${space.strNbspStr(item.quantity)})`;
-			if (!item.props.moyskladid) return title;
+			const span = dom('<span/>');
+			span.html(title);
+			if (!item.props.moyskladid) return span;
 
 			let loaded = false;
-			const $a = $('<a class="moysklad" href="#" target="_blank">');
-			$a.append(title);
-			$a.on('mouseenter', async () => {
+			const a = dom('<a class="moysklad" href="" target="_blank">');
+			a.html(title);
+			a.listen('mouseenter', async () => {
 				if (loaded) return;
 				loaded = true;
-				const orderMs = await ProductsData.productMs(item.props.moyskladid);
-				const msId = orderMs?.id;
+				const ms = await self.getMs(item.props.moyskladid);
+				const msId = ms?.id;
 				if (!msId) {
-					const text = $a.text();
-					$a.replaceWith(document.createTextNode(text));
+					const text = a.txt();
+					a.parent().html(text);
 				} else {
-					$a.attr('href', `${moysklad.orderUrl}${msId}`);
+					a.attr('href', `${moysklad.orderUrl}${msId}`);
 				}
 			});
-			return $a;
+			return a;
 		}
 	}
 
@@ -126,18 +115,26 @@ export default class ProductsTd extends OrderTd {
 			}
 		}
 
+		// ручное добавлеие класса
+		// МА ЛЮ ТЯ
+		if (item.color.value === 'курица-помада') item.color.class = 'pink';
+		if (item.color.value === 'молочный суп') item.color.class = 'white';
+		if (item.color.value === 'андамания') item.color.class = 'purple';
+		if (item.color.value === 'гудрон') item.color.class = 'dark';
+		if (item.color.value === 'гудрон') item.color.class = 'dark';
+		if (item.color.value === 'сосательный петушок') item.color.class = 'sunny';
+
 		return item;
 	}
 
 	// выводит состав цветов в кликабельную кнопку
 	sostav() {
-		const flowers = [...new Set(this.productsFlowers.map(p => {
+		const flowers = [...new Set(this.getFlowers().map(p => {
 			let flower = p.offer.displayName;
 			flower = flower.replace(/\s*—.*$/, '');
 			flower = flower.replace(/\sодн|\sкуст/, '');
 			flower = flower.replace(/\s-\s.*$/, '');
-			flower = flower.replace(/\s\d*$/, '');
-			flower = flower.replace(/(?:стабилизированный|стаб)/, 'стаб.');
+			flower = flower.replace(/\s\d*.*$/, '');
 			flower = flower.replace(/Роза(.*)/, 'Роза');
 			flower = flower.trim();
 			return flower;
@@ -145,27 +142,32 @@ export default class ProductsTd extends OrderTd {
 		if (!flowers.length) return;
 
 		const flowersString = flowers.sort().join(', ');
-		const $copyBtn = copyBtn(flowersString, '');
-		$copyBtn.lastTo(this.$td);
-		inlineTooltip($copyBtn, flowersString);
+		const btn = copyBtn(flowersString, '');
+		btn.lastTo(this.td);
+		inlineTooltip(btn, flowersString);
 	}
 
 	// фильтрует некаталожные товары, возвращает только цветы
 	getFlowers() {
 		if (!this.productsNoCatalog?.length) return [];
-
 		return this.productsNoCatalog.filter(product =>
-			!this.productsNoFlowers.some(noFlower =>
-				noFlower.offers.some(offer => offer.id === product.offer.id)
-			)
+			!noFlowers.some(nf => nf.offers.some(offer => offer.id === product.offer.id))
 		);
 	}
 
 	// добавляет метку о необходимости добавить смазку
 	lovix() {
-		if (!this.row.get(cols.lovix)) return;
-		this.$td.append(iconsSVG.lovixlube);
+		if (!this.crm.customFields?.lovix) return;
+		this.td.toLast(iconsSVG.lovixlube);
+	}
+
+	// получает объект заказа из моего склада
+	static async getMs(id) {
+		const data = { filter: { externalCode: id } };
+		const response = await api('Moysklad', 'orders/get').fetch(data);
+		return response?.rows[0];
 	}
 }
 
 const self = ProductsTd;
+OrdersTd.registerClass(ProductsTd);

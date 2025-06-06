@@ -1,38 +1,27 @@
-import * as cols from '@modules/orders/cols';
 import { iconsSVG } from '@src/mappings';
-import OrderTd from '@modules/orders/td';
+import OrdersTd from '@modules/orders/td';
+import dom from '@helpers/dom';
 
-export default class CommentsTd extends OrderTd {
+export default class CommentsTd extends OrdersTd {
 	static columnName = 'comments';
-
-	constructor(row) {
-		super(row);
-	}
 
 	init() {
 		this.comments();
 		this.warning();
 	}
 
-	/**
-	 * парсит комментарии и формирует их в единый текст
-	 */
+	// парсит комментарии и формирует их в единый текст
 	comments() {
 		const texts = [];
-		const courier = this.row.get(cols.commentsCourier)?.replace(/\n/g, '<br>') || '';
-		const florist = this.row.get(cols.commentsFlorist)?.replace(/\n/g, '<br>') || '';
-		if (florist) { texts.push(`<b>Флористу</b>: <br>${florist}`); }
-		if (courier) { texts.push(`<b>Курьеру</b>:<br>${courier}`); }
-		this.$td.html(texts.join('<br><br>'));
+		if (this.crm.managerComment) { texts.push(`<b>Флористу</b>: <br>${this.crm.managerComment}`); }
+		if (this.crm.customerComment) { texts.push(`<b>Курьеру</b>:<br>${this.crm.customerComment}`); }
+		this.td.html(texts.join('<br><br>'));
 	}
 
 	// индикатор warning, если не указана важная для флориста информация
 	warning() {
-		if (!this.row.get(cols.floristWarn)) return;
-
-		const $warnIcon = $(iconsSVG.warning);
-		const $warnCont = $('<div class="warn"></div>');
-		this.$td.append($warnCont);
-		$warnCont.prepend($warnIcon);
+		if (!this.crm.customFields.warning) return;
+		dom('<div class="warn"></div>').toFirst(iconsSVG.warning).lastTo(this.td);
 	}
 }
+OrdersTd.registerClass(CommentsTd);

@@ -9,25 +9,26 @@ import Order from '@pages/order';
 import Products from '@pages/products';
 import Product from '@pages/product';
 import retailcrm from '@helpers/retailcrm_direct';
+import { shops, getShops, fakeCustomers, getFakeCustomers, noFlowers, getNoFlowers } from '@src/mappings';
 import dom from '@helpers/dom';
 
-window.BUNDLE_VERSION = '2.9.0';
+window.BUNDLE_VERSION = '2.10.0';
 
 export default class App extends RootClass {
 	static user = null;
-	static page = null;
-	static menu = new Menu();
-	static popup = new Popup();
 
 	constructor() {
 		super();
+		this.page = null;
+		this.menu = new Menu(); s
+		this.popup = new Popup();
 		this.lastPath = null; // последний путь, который был открыт
 	}
 
 	async init() {
-		App.user = await App.getUser();
-		App.menu.init();
-		App.popup.init();
+		await App.initConstants();
+		this.menu.init();
+		this.popup.init();
 		this.listen();
 	}
 
@@ -59,10 +60,17 @@ export default class App extends RootClass {
 			if (!pattern.test(window.location.href)) continue;
 			console.log(`user_jscss : retailcrm/${page.name}`); // выводит в консоль имя модуля			
 			main.addClass('loaded'); // отмечает страницу как загруженную			
-			if (App.page) App.page?.destroy(); // уничтожает предыдущий модуль			
-			App.page = new page();
-			await Promise.resolve(App.page.init()); // инициализирует модуль
+			if (this.page) this.page?.destroy(); // уничтожает предыдущий модуль			
+			this.page = new page();
+			await Promise.resolve(this.page.init()); // инициализирует модуль
 		}
+	}
+
+	static async initConstants() {
+		App.user = await App.getUser(); // user		
+		shops = await getShops(); // shops (в mappings)
+		fakeCustomers = await getFakeCustomers(); // fakeCustomers (в mappings)
+		noFlowers = await getNoFlowers(); // fakeCustomers (в mappings)
 	}
 
 	// получает текущего пользователя

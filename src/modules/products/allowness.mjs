@@ -82,13 +82,13 @@ export default class Allowness extends RootClass {
 				.toLast(`<option value="-1" ${allowedToday == -1 ? 'selected' : ''}>никогда</option>`);
 			select.listen('click', (e) => e.stopPropagation());
 			select.listen('change', async () => {
-				const apiResponse = await api('db', 'products/setAllownessById', true).post({
+				const apiResponse = await api('db', 'products/setAllownessById').post({
 					id: select.data('id'),
 					shop: select.data('shop'),
 					allowed_today: select.val()
 				});
 			});
-			tds[this.indexes.allowness].empty().toLast(select);
+			tds[this.indexes.allowness].dressOf(select);
 		});
 	}
 } 

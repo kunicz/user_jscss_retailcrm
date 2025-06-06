@@ -1,25 +1,26 @@
-import * as cols from '@modules/orders/cols';
+import OrdersTd from '@modules/orders/td';
 import copyBtn from '@helpers/clipboard';
 import { inlineTooltip } from '@src/helpers';
-import OrderTd from '@modules/orders/td';
 import { ARTIKUL_DONAT, ARTIKUL_TRANSPORT, RESERVED_ARTIKULS } from '@root/config';
+import { shops } from '@src/mappings';
+import dom from '@helpers/dom';
 
-export default class CardTd extends OrderTd {
+export default class CardTd extends OrdersTd {
 	static columnName = 'card';
 
-	constructor(row) {
-		super(row);
-		this.products = this.orderCrm?.items;
-		this.customText = this.row.get(cols.cardText);
+	constructor(td) {
+		super(td);
+		this.products = this.crm.items;
+		this.customText = this.crm.customFields.text_v_kartochku;
 		this.skus = [];
 		this.artikuls = [];
-		this.getSkusAndArtikuls();
-		this.types = this.getTypes();
-		this.text = this.getText();
+		this.defineSkusAndArtikuls();
+		this.productsCardTypes = this.getProductsCardTypes();
+		this.cardType = this.getCardType();
 	}
 
 	init() {
-		this.$native.text(this.text);
+		this.td.child('.native').txt(this.cardType);
 		this.textCustom();
 		this.noIdentic();
 		this.printCard();
@@ -27,32 +28,34 @@ export default class CardTd extends OrderTd {
 
 	// помечает заказ без айдентики
 	noIdentic() {
-		if (this.text != 'без айдентики') return;
-		this.$td.addClass('noIdentic');
+		if (this.cardType != 'без айдентики') return;
+		this.td.addClass('noIdentic');
 	}
 
 	// + свой текст
 	textCustom() {
 		if (!this.customText) return;
 
-		if (this.text !== 'со своим текстом') this.$td.addClass('addComment customCardText');
-		const $copyBtn = copyBtn(this.customText, '');
-		$copyBtn.lastTo(this.$td);
-		inlineTooltip($copyBtn, this.customText);
+		if (this.cardType !== 'со своим текстом') this.td.addClass('addComment customCardText');
+		const btn = copyBtn(this.customText, '');
+		btn.lastTo(this.td);
+		inlineTooltip(btn, this.customText);
 	}
 
 	// ссылка на печать карточки
 	printCard() {
-		if (!this.text || this.text === 'без карточки') return;
-		if (this.text === 'без айдентики' && !this.customText) return;
+		if (!this.cardType || this.cardType === 'без карточки') return;
+		if (this.cardType === 'без айдентики' && !this.customText) return;
 		if (this.skus.length !== 1) return;
 		if ([ARTIKUL_DONAT, ARTIKUL_TRANSPORT].includes(this.artikuls[0])) return;
 		const sku = RESERVED_ARTIKULS.includes(this.artikuls[0]) ? this.skus[0] : this.artikuls[0];
-		$(`<a class="print_card" href="https://php.2steblya.ru/print_card?order_id=${this.orderCrm.id}&sku=${sku}&shop_crm_id=${this.row.shopDb?.shop_crm_id}" target="_blank">⎙</a>`).appendTo(this.$td);
+		const shop_crm_id = shops.find(s => s.shop_crm_code === this.crm.site).shop_crm_id;
+		const href = `https://php.2steblya.ru/print_card?order_id=${this.crm.id}&sku=${sku}&shop_crm_id=${shop_crm_id}`;
+		dom(`<a class="print_card" href="${href}" target="_blank">⎙</a>`).lastTo(this.td);
 	}
 
-	// получает sku и артикулы всех реальных
-	getSkusAndArtikuls() {
+	// получает sku и артикулы всех реальных каталожных товаров в заказе
+	defineSkusAndArtikuls() {
 		const skuSet = new Set();
 		const artikulSet = new Set();
 
@@ -72,7 +75,7 @@ export default class CardTd extends OrderTd {
 	}
 
 	// получаем типы карточек для всех товаров в заказе
-	getTypes() {
+	getProductsCardTypes() {
 		return [...new Set(
 			this.products
 				.map(p => p.properties?.['viebri-kartochku']?.value)
@@ -81,17 +84,18 @@ export default class CardTd extends OrderTd {
 	}
 
 	// получаем текст в ячейку
-	getText() {
-		switch (this.types.length) {
+	getCardType() {
+		switch (this.productsCardTypes.length) {
 			case 0:
 				if (this.customText) return 'со своим текстом';
 				if (this.artikuls[0] == ARTIKUL_DONAT) return '';
 				return 'без карточки';
 			case 1:
-				if (this.types[0] === 'без карточки' && this.customText) return 'со своим текстом';
-				return this.types[0];
+				if (this.productsCardTypes[0] === 'без карточки' && this.customText) return 'со своим текстом';
+				return this.productsCardTypes[0];
 			default:
 				return 'разные';
 		}
 	}
 }
+OrdersTd.registerClass(CardTd);

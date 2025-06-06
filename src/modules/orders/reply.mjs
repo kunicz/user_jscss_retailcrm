@@ -1,23 +1,25 @@
 import RootClass from '@helpers/root_class';
 import dates from '@helpers/dates';
-import * as cols from '@modules/orders/cols';
+import { shops } from '@src/mappings';
+import { ARTIKUL_TRANSPORT } from '@root/config';
 
 export default class Reply extends RootClass {
-	constructor(row) {
+	constructor(crm) {
 		super();
 
-		this.id = row.orderCrm.id;
-		this.date = row.get(cols.date);
-		this.time = row.get(cols.time);
-		this.adres = row.getNative(cols.adres);
-		this.phone = row.get(cols.poluchatelPhone);
-		this.name = row.get(cols.poluchatelName);
-		this.domofon = row.get(cols.domofon);
-		this.products = $.map(row.$td(cols.products).find('.name'), el => $(el).text());
-
-		this.deliveryDate = dates.create(row.orderCrm.delivery.date);
+		this.id = crm.id;
+		this.deliveryDate = dates.create(crm.delivery.date);
 		this.isSpecialDate = this.defineSpecialDate();
-		this.formalityLevel = row?.shopDb?.formality_level || 'вы';
+		this.date = this.deliveryDate?.strRu;
+		this.timeFrom = crm.delivery.time?.from;
+		this.timeTo = crm.delivery.time?.to;
+		this.time = this.timeFrom === this.timeTo ? this.timeFrom : `с ${this.timeFrom} до ${this.timeTo}`;
+		this.adres = crm.delivery.address?.text;
+		this.phoneP = crm.customFields?.phone_poluchatelya;
+		this.nameP = crm.customFields?.name_poluchatelya;
+		this.domofon = crm.customFields?.domofon;
+		this.products = crm.items?.filter(p => p.offer?.article && p.offer.article != ARTIKUL_TRANSPORT);
+		this.formalityLevel = shops.find(s => s.shop_crm_code === crm.site)?.formality_level || 'вы';
 	}
 
 	init() {
@@ -50,7 +52,7 @@ export default class Reply extends RootClass {
 
 		const title = this.formalityLevel === 'Вы' ? 'Товары' : 'товары';
 		let output = `🌸 ${b(title)}:\n`;
-		output += this.products.join('\n');
+		output += this.products.map(p => p.offer.displayName).join('\n');
 		return output;
 	}
 

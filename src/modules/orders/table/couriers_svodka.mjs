@@ -2,30 +2,29 @@ import RootClass from '@helpers/root_class';
 import { copy } from '@helpers/clipboard';
 import normalize from '@helpers/normalize';
 import dom from '@helpers/dom';
-import { default as table } from '@modules/orders/table';
 
 export default class CouriersSvodka extends RootClass {
 	constructor() {
 		super();
-		this.el = dom('<span><a id="couriersSvodka">Сводка по оплате курьерам</a></span>');
 		this.separator = '\n-------\n';
 	}
 
 	init() {
-		this.el
+		dom('<span><a id="couriersSvodka">Сводка по оплате курьерам</a></span>')
 			.lastTo('#list-total-wrapper')
 			.listen('click', () => copy(this.generate(this.aggregate())));
 	}
 
 	aggregate() {
-		const $tds = table.$trs().find('td[col="курьер"]');
-		let data = $tds.map((_, e) => $(e).data('svodka')).get().reduce((acc, curr) => {
+		const tds = dom('#orders-table').nodes('td[col="courier"]');
+		let data = tds.map(td => td.data('svodka')).reduce((acc, curr) => {
+			if (!curr) return acc;
 			if (curr.name === 'Другой курьер') {
 				acc.push({ ...curr });
 			} else {
 				const existing = acc.find(item => item.name === curr.name);
 				if (existing) {
-					existing.price = normalize.int(existing.price) + normalize.int(curr.price);
+					existing.price = normalize.number(existing.price) + normalize.number(curr.price);
 				} else {
 					acc.push({ ...curr });
 				}
@@ -50,8 +49,8 @@ export default class CouriersSvodka extends RootClass {
 	}
 
 	fromTo() {
-		const from = this.formatDate($('#filter_deliveryDate_gte_abs').val());
-		const to = this.formatDate($('#filter_deliveryDate_lte_abs').val());
+		const from = this.formatDate(dom('#filter_deliveryDate_gte_abs').val());
+		const to = this.formatDate(dom('#filter_deliveryDate_lte_abs').val());
 		let output = '';
 		if (from && to && from === to) output = `за ${from}`;
 		if (from && to && from !== to) output = `с ${from} по ${to}`;

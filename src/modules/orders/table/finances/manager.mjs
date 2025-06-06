@@ -7,6 +7,7 @@ export default class FinancesManager {
 
 	// скрывает данные в таблице
 	hideData() {
-		dom('#list-total-margin,#list-total-summ').hide();
+		dom('#list-total-summ').hide();
+		dom('#list-total-margin').hide();
 	}
 }

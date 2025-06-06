@@ -1,13 +1,8 @@
-import * as cols from '@modules/orders/cols';
 import copyBtn from '@helpers/clipboard';
-import OrderTd from '@modules/orders/td';
+import OrdersTd from '@modules/orders/td';
 
-export default class CheckboxTd extends OrderTd {
+export default class CheckboxTd extends OrdersTd {
 	static columnName = 'checkbox';
-
-	constructor(row) {
-		super(row);
-	}
 
 	init() {
 		this.orderId();
@@ -15,7 +10,7 @@ export default class CheckboxTd extends OrderTd {
 
 	// кликабельный номер заказа под чекбокс
 	orderId() {
-		const $id = this.row.$td(cols.number).find('a');
-		this.$td.append('<br>').append(copyBtn($id));
+		this.td.toLast('<br>').toLast(copyBtn(this.crm.number));
 	}
 }
+OrdersTd.registerClass(CheckboxTd);

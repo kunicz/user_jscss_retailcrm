@@ -101,12 +101,12 @@ export default class OrdersFilters extends RootClass {
 
 	//показывать/скрывать сервисные заказы
 	batchHide() {
-		this.createToggleButton('Технические заказы', () => dom('tr.batchHide').forEach(d => d.toggle()));
+		this.createToggleButton('Технические заказы', () => dom('#orders-table tr').filter(tr => tr.isBatchHide).forEach(d => d.toggle()));
 	}
 
 	//показывать/скрывать откуда узнал
 	otkudaUznal() {
-		this.createToggleButton('Откуда узнал', () => dom('[col*="узнал о нас"]').forEach(d => d.toggle()));
+		this.createToggleButton('Откуда узнал', () => dom('[col="uznal"]').forEach(d => d.toggle()));
 	}
 
 	//создает кнопку-переключатель в футере фильтров

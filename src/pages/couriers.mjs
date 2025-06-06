@@ -1,27 +1,46 @@
 import RootClass from '@helpers/root_class';
+import dom from '@helpers/dom';
 import '@css/couriers.css';
 
 export default class Couriers extends RootClass {
 	static name = 'couriers';
 
-	init() {
-		this.description();
+	constructor() {
+		super();
+		this.table = dom('#main').node('.modern-table');
+		this.ths = this.table.nodes('thead th');
+		this.trs = this.table.nodes('tbody tr');
 	}
 
-	// добавляет описание курьера в виде HTML в блок .courier-text
-	description() {
-		const rows = $('#main .tab-section table tbody tr');
-		rows.each(i => {
-			const descrBlock = rows.eq(i).children('.courier-text');
-			if (!descrBlock.text()) return;
-			const descr = JSON.parse(descrBlock.text());
-			let html = '';
+	init() {
+		this.bankCol();
+		this.parseDescription();
+	}
+
+	// добавляет столбец "банк"
+	bankCol() {
+		dom('<th>Банк</th>').nextTo(this.ths[3]);
+		this.trs.forEach(tr => dom('<td class="bank" />').nextTo(tr.childs('td')[3]));
+	}
+
+	// парсит JSON описания курьера и выводит корректно
+	parseDescription() {
+		this.trs.forEach(tr => {
+			const descrTd = tr.child('.courier-text');
+			const desctData = descrTd.txt();
+			if (!desctData) return;
+			const descr = JSON.parse(desctData);
+			tr.data('descr', descr);
 			for (let key in descr) {
-				if (descr.hasOwnProperty(key) && descr[key] !== '') {
-					html += `<p>${descr[key]}</p>`;
+				switch (key) {
+					case 'bank':
+						tr.child('.bank').txt(descr[key]);
+						break;
+					case 'comments':
+						descrTd.txt(descr[key]);
+						break;
 				}
 			}
-			descrBlock.html(html);
 		});
 	}
 }

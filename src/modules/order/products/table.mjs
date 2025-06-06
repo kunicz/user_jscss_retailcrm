@@ -29,7 +29,7 @@ export default class ProductsTable extends RootClass {
 	sebes() {
 		const $btn = $('<a id="sebes">Посчитать по себесу</a>');
 		$btn.prependTo($('#order-list .order-row__top:first-child'));
-		this.on({
+		$('body').on({
 			target: $btn[0],
 			event: 'click',
 			handler: (e) => {

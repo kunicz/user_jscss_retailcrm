@@ -1,20 +1,18 @@
-import { shopIcon } from '@src/mappings';
-import OrderTd from '@modules/orders/td';
+import { getShopIcon } from '@src/mappings';
+import OrdersTd from '@modules/orders/td';
 
-export default class ShopTd extends OrderTd {
+export default class ShopTd extends OrdersTd {
 	static columnName = 'shop';
-
-	constructor(row) {
-		super(row);
-	}
 
 	init() {
 		this.logo();
 	}
 
-	// лого вместо названия магазина для клмпактности
+	// лого вместо названия магазина для компактности
 	logo() {
-		this.$td.prepend(`<img src="${shopIcon(this.get())}" class="logo" />`);
-		this.$native.hide();
+		const shop = this.td.txt();
+		const icon = getShopIcon(shop);
+		this.td.html(`<img src="${icon}" title="${shop}" class="logo" />`);
 	}
 }
+OrdersTd.registerClass(ShopTd);

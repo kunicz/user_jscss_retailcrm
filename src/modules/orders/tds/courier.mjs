@@ -1,169 +1,194 @@
-import * as cols from '@modules/orders/cols';
-import OrderTd from '@modules/orders/td';
+import OrdersTd from '@modules/orders/td';
 import { iconsSVG } from '@src/mappings';
 import dates from '@helpers/dates';
 import copyBtn from '@helpers/clipboard';
 import { inlineTooltip } from '@src/helpers';
 import retailcrm from '@helpers/retailcrm_direct';
-import normalize from '@helpers/normalize';
 import dom from '@helpers/dom';
 
-export default class CourierTd extends OrderTd {
+export default class CourierTd extends OrdersTd {
 	static columnName = 'courier';
 
-	constructor(row) {
-		super(row);
-		this.$warn = null;
+	constructor(td) {
+		super(td);
+		const d = this.crm.delivery;
+		const cd = d.data;
+		const cf = this.crm.customFields;
+		const c = this.crm.customer;
+		this.code = d.code;
+		this.date = dates.create(new Date(d.date));
+		this.isAuto = !!cf?.auto_courier;
+		this.metro = d.address?.metro;
+		this.adres = d.address?.text;
+		this.yadres = this.adres ? (this.metro ? `м. ${this.metro}\n` : '') + this.tr.node('.yadres').txt() : null;
+		this.domofon = cf?.domofon;
+		this.timeFrom = d.time?.from;
+		this.timeTo = d.time?.to;
+		this.time = this.timeFrom === this.timeTo ? this.timeFrom : `с ${this.timeFrom} до ${this.timeTo}`;
+		this.cost = d.cost;
+		this.netCost = d.netCost;
+		this.comment = this.crm?.customerComment?.replace(/(\r?\n|\r){2,}/g, '\n');
+		this.phoneP = cf?.phone_poluchatelya;
+		this.nameP = cf?.name_poluchatelya;
+		this.phoneZ = this.crm?.phone;
+		this.nameZ = [c.firstName, c.patronymic, c.lastName].filter(Boolean).join(' ');
+		this.courierId = cd?.id;
+		this.courierName = [cd?.firstName, cd?.lastName].filter(Boolean).join(' ');
+		this.courierPhone = cd?.phone?.number;
+		this.courierDescription = cf?.courier_description ? JSON.parse(cf.courier_description) : null;
+		this.courierBank = this.courierDescription?.bank;
+		this.courierComments = this.courierDescription?.comments;
+		this.isNotified = cf?.courier_notified;
 	}
 
 	init() {
 		this.auto();
+
 		if (this.isSamovyvoz()) return;
-		if (this.row.isDone) return;
 
 		this.price();
-		this.orderInfo();
 		this.svodka();
+		this.orderInfo();
+
+		if (this.tr.isDone) return;
+
 		this.warning();
 		this.notifyIndicator();
 	}
 
+	// если самовывоз
 	isSamovyvoz() {
-		if (this.row.get(cols.deliveryType) == 'Самовывоз') {
-			this.$native.text('Самовывоз');
+		if (this.code == 'self-delivery') {
+			this.td.child('.native').txt('Самовывоз');
 			return true;
 		}
 		return false;
 	}
 
+	// стоимость доставки
 	price() {
-		this.$td.append(`<div class="price">${this.row.get(cols.deliverySelfPrice) || ''}</div>`);
+		this.td.toLast(`<div class="price">${this.netCost} руб.</div>`);
+		if (this.netCost === this.cost) return;
+		const text = (this.cost > this.netCost ? 'экономия' : 'расход') + `: ${Math.abs(this.cost - this.netCost)} руб.`;
+		const smallText = `<div class="smallText">${text}</div>`;
+		this.td.toLast(smallText);
 	}
 
+	// курьер на авто
 	auto() {
-		if (!this.row.get(cols.courierAuto)) return;
-		this.$td.prepend(`${iconsSVG.auto_courier}<br>`);
+		if (!this.isAuto) return;
+		const icon = dom(iconsSVG.auto_courier);
+		icon.firstTo(this.td).toNext('<br>');
 	}
 
+	// кнопки с данными для поиска курьера и для найденного курьера
 	orderInfo() {
-		if (this.row.get(cols.adres)) {
-			copyBtn(this.getData(false), '').lastTo(this.$td);
-			if (this.getNative()) {
-				const a = copyBtn(this.getData(true), this.getNative());
-				this.$td.find('.native').html(a);
+		if (!this.adres) return;
+		copyBtn(this.getData(false), '').lastTo(this.td); // для поиска курьера
+		if (!this.courierId) return;
+		copyBtn(this.getData(true), this.td.child('.native')); // для найденного курьера
+	}
+
+	// собирает текст для кнопок
+	getData(full = false) {
+		let output = '';
+		//дата
+		output += this.date?.isToday || this.date?.daysTo <= 2 ? `${this.date?.title} (${this.date?.strRu})` : this.date?.strRu;
+		//время
+		output += ` ${this.time}`;
+		//авто
+		if (this.isAuto) output += `\nДоставка на своем автомобиле или на такси!`;
+		//адрес
+		if (this.adres) output += `\n${full ? this.adres : this.yadres}`;
+		//домофон
+		if (this.domofon && full) output += `, код домофона: ${this.domofon}`;
+		//для курьера
+		if (full) {
+			if (this.comment) output += `\n${this.comment}`; // комментарий к заказу
+			if (this.phoneP && this.phoneP !== this.phoneZ) output += `\nПолучатель:`;
+			if (this.phoneP) output += `\n${this.phoneP}`; // телефон получателя
+			if (this.phoneP && this.nameP) output += ` / ${this.nameP}`; // имя получателя
+			if (this.phoneP && this.phoneP !== this.phoneZ) output += ' (сначала пробуем дозвониться сюда)';
+			if (this.phoneZ !== this.phoneP) {
+				if (this.phoneZ && this.phoneP) output += `\nЕсли получатель не отвечает:`;
+				if (this.phoneZ) output += `\n${this.phoneZ}`; // телефон заказчика
+				if (this.phoneZ && this.nameZ) output += ` / ${this.nameZ}`; // имя заказчика
+				if (this.phoneZ) output += ' (заказчик)';
 			}
 		}
-	}
-
-	getData(full = false) {
-		const m = this.row.get(cols.date)?.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
-		const deliveryDate = m ? dates.create(new Date(m[3], m[2] - 1, m[1])) : null;
-		const auto = this.row.get(cols.courierAuto);
-		const adres = this.row.getNative(cols.adres);
-		const time = this.row.get(cols.time);
-		const price = this.row.get(cols.deliverySelfPrice);
-		const comment = this.row.get(cols.commentsCourier);
-		const phone = this.row.get(cols.poluchatelPhone);
-		const name = this.row.get(cols.poluchatelName);
-		const domofon = this.row.get(cols.domofon);
-
-		let output = '';
-		if (deliveryDate?.isToday || deliveryDate?.daysTo <= 2) {
-			output += `${deliveryDate?.title} (${deliveryDate?.strRu})`;
-		} else {
-			output += deliveryDate?.strRu;
-		}
-		output += ` ${time}`;
-		if (auto) output += `\nДоставка на своем автомобиле или на такси!`;
-		if (adres) output += '\n' + (!full ? adres.replace(/(,\s(?:кв|эт|под)\..+$)/, '') : adres);
-		if (domofon && full) output += `, код домофона: ${domofon}`;
-		if (full) {
-			if (comment) output += ` ${comment}`;
-			if (phone) output += `\n${phone}`;
-			if (phone && name) output += ` / ${name}`;
-		}
-		if (price) output += `\n${price}`;
+		//цена
+		if (this.netCost) output += `\n${this.netCost} руб.`;
 
 		return output;
 	}
 
+	// собирает информацию о доставке
+	// и кладет ее в data-атрибут td
+	// там ее подберет модуль couriersSvodka.mjs
 	svodka() {
-		const name = this.getNative();
-		const price = normalize.int(this.row.get(cols.deliverySelfPrice));
-		const phone = normalize.phone(this.row.getNative(cols.courierPhone));
-		if (!name || !price) return;
-
-		let data = { name, price, phone };
-		if (name == 'Другой курьер') {
-			data.comments = this.row.get(cols.commentsCourier);
-		}
-		const description = this.row.getNative(cols.courierInfo);
-		if (description) {
-			try {
-				data = { ...data, ...JSON.parse(description) }
-			} catch (e) { }
-		}
-		this.$td.data('svodka', data);
-	}
-
-	notifyIndicator() {
-		if (!this.needNotify()) return;
-
-		const status = this.orderCrm.customFields.courier_notified;
-		const $btn = $(`<div class="notify ${status ? 'complete' : 'cancel'}"></div>`);
-
-		$btn.appendTo(this.$warn);
-		this.$td.attr('data-notified', String(status));
-		if (this.$td.data('notified')) return;
-
-		$btn.on('click', async (e) => {
-			e.preventDefault();
-			e.stopPropagation();
-			this.orderCrm.customFields.courier_notified = true;
-			await retailcrm.edit.order(this.orderCrm.id, this.row.shopDb?.shop_crm_code, { customFields: { courier_notified: true } });
-			this.$td.attr('data-notified', 'true');
-			if (this.$warn.find('.inline-tooltip').text().trim() === 'курьер не уведомлен') this.$warn.hide();
+		if (!this.courierName || !this.netCost) return;
+		this.td.data('svodka', {
+			name: this.courierName,
+			price: this.netCost,
+			phone: this.courierPhone,
+			bank: this.courierBank,
+			comments: this.courierName === 'Другой курьер' ? this.crm?.managerComment : this.courierComments
 		});
 	}
 
+	// создает предупреждение о доставке
 	warning() {
 		if (
-			this.row.isFakeCustomer ||
-			this.row.isDonat ||
-			this.row.$tr.is('.batchHide') ||
-			this.row.get(cols.deliveryType) != 'Доставка курьером'
+			this.tr.isBatchHide || // заказ не "неинтересный"
+			this.code != 'courier' // заказ не на курьера
 		) return;
 
 		const data = {
-			'дата доставки': this.row.get(cols.date),
-			'время доставки': this.row.get(cols.time),
-			'имя получателя': this.row.get(cols.poluchatelName),
-			'телефон получателя': this.row.get(cols.poluchatelPhone),
-			'адрес доставки': this.row.getNative(cols.adres),
-			'стоимость доставки': this.row.get(cols.deliverySelfPrice),
+			'дата доставки': this.date,
+			'время доставки': this.time,
+			'имя получателя': this.nameP,
+			'телефон получателя': this.phoneP,
+			'адрес доставки': this.adres,
+			'стоимость доставки': this.netCost,
 			'курьер не уведомлен': this.needNotify() ? null : 'dont-need'
 		}
 		const warningCases = [];
-		for (const [key, value] of Object.entries(data)) {
-			if (!value) warningCases.push(key);
-		}
+		for (const [key, value] of Object.entries(data)) if (!value) warningCases.push(key);
 		if (!warningCases.length) return;
 
-		const $warnIcon = dom(iconsSVG.warning);
-		this.$warn = dom('<div class="warn"></div>');
-		this.$td.append(this.$warn);
-		this.$warn.toPrev($warnIcon);
-		inlineTooltip($warnIcon, warningCases.join('<br>'));
+		const warnIcon = dom(iconsSVG.warning);
+		const warnCont = dom('<div class="warn"></div>');
+		warnCont.toLast(warnIcon).lastTo(this.td);
+		inlineTooltip(warnIcon, warningCases.join('<br>'));
 	}
 
+	// показывает колокольчик
+	// для уведомления курьера о доставке
+	notifyIndicator() {
+		if (!this.needNotify()) return;
+
+		const btn = dom(`<div class="notify ${this.isNotified ? 'complete' : 'cancel'}"></div>`);
+		const warn = this.td.child('.warn');
+
+		btn.lastTo(warn);
+		this.td.attr('data-notified', String(this.isNotified));
+		if (this.td.data('notified')) return;
+
+		btn.listen('click', async (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			this.crm.customFields.courier_notified = true;
+			await retailcrm.edit.order(this.crm.id, this.crm.site, { customFields: { courier_notified: true } });
+			this.td.attr('data-notified', 'true');
+			if (warn.node('.inline-tooltip').txt() === 'курьер не уведомлен') warn.hide();
+		});
+	}
+
+	// условия, при которых нужно показывать колокольчик
 	needNotify() {
-		if (
-			['Выполнен', 'Разобран'].includes(this.row.get(cols.status)) ||
-			this.row.isFakeCustomer ||
-			this.row.isDonat ||
-			!this.orderCrm.delivery.data.id ||
-			this.orderCrm.customFields.courier_notified
-		) return false;
-		return true;
+		return !this.tr.isBatchHide && // заказ не "неинтересный"
+			this.code === 'courier' && // заказ на курьера
+			!this.isNotified; // курьер еще не уведомлен
 	}
 }
+OrdersTd.registerClass(CourierTd);

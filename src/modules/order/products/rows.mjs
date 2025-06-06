@@ -13,7 +13,7 @@ export default class ProductsRows extends RootClass {
 	}
 
 	async init() {
-		this.listen();
+		//this.listen();
 		self.$trs().toArray().forEach(tr => this.row(tr));
 		this.transport.init();
 		this.sort();
