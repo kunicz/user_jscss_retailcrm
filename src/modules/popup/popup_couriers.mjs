@@ -1,6 +1,6 @@
 import RootClass from '@helpers/root_class';
 import Popup from '@modules/popup/popup';
-import App from '@src';
+import { user } from '@src';
 import { bankNames } from '@src/mappings';
 import retailcrm from '@helpers/retailcrm_direct';
 import dom from '@helpers/dom';
@@ -40,7 +40,7 @@ export default class CouriersPopup extends RootClass {
 
 	// получает все города
 	async getCities() {
-		return App.user?.groups
+		return user?.groups
 			.filter(role => role.code.startsWith('manager-'))
 			.map(role => role.code.split('-')[1]);
 	}

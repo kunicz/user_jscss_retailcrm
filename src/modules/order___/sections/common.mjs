@@ -1,8 +1,6 @@
-import dom from '@helpers/dom';
-
 export default class Common {
 	constructor() {
-		this.section = dom('#order-common');
+		this.$container = $('#order-common');
 	}
 
 	init() {
@@ -11,6 +9,6 @@ export default class Common {
 
 	// скрывает блок "Тип заказа"
 	hideOrderType() {
-		this.section.nodes('[data-order-section="common"] > .input-group').at(0).hide();
+		this.$container.find('[data-order-section="common"] > .input-group').eq(0).hide();
 	}
 }

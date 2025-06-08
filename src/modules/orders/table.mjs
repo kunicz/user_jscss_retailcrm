@@ -4,15 +4,15 @@ import OrdersTr from '@modules/orders/tr';
 import '@modules/orders/td';
 import '@modules/orders/tds';
 import { buildIndexes } from '@modules/orders/indexes';
-import Finances from '@modules/orders/table/finances';
-import CouriersSvodka from '@modules/orders/table/couriers_svodka';
+import Finances from '@modules/orders/finances';
+import CouriersSvodka from '@modules/orders/couriers_svodka';
 import dom from '@helpers/dom';
 import '@css/orders_table.css';
 
 export default class OrdersTable extends RootClass {
 	constructor() {
 		super();
-		this.table = dom('.js-order-list');
+		this.table = dom.one('.js-order-list');
 		this.ths = this.table.nodes('th');
 		this.trs = this.table.nodes('tr[data-url]');
 		this.finances = new Finances();
@@ -20,12 +20,13 @@ export default class OrdersTable extends RootClass {
 	}
 
 	init() {
+		this.table.attr('id', 'orders-table');
 		buildIndexes(this.ths);
 		this.ths.forEach(th => new OrdersTh(th).init());
 		this.trs.forEach(tr => new OrdersTr(tr).init());
-		this.table.attr('id', 'orders-table').addClass('loaded');
 		this.finances.init();
 		this.couriersSvodka.init();
+		this.table.addClass('loaded');
 		this.watch();
 	}
 

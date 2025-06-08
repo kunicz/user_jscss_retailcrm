@@ -3,7 +3,7 @@ import dates from '@helpers/dates';
 import { shops } from '@src/mappings';
 import { ARTIKUL_TRANSPORT } from '@root/config';
 
-export default class Reply extends RootClass {
+export default class TelegramReply extends RootClass {
 	constructor(crm) {
 		super();
 

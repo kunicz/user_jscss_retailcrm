@@ -1,4 +1,5 @@
 import RootClass from '@helpers/root_class';
+import dom from '@helpers/dom';
 import '@css/customer.css';
 
 export default class Customer extends RootClass {
@@ -10,15 +11,15 @@ export default class Customer extends RootClass {
 
 	// добавляет кнопку для использования ФИО в качестве предпочитаемого имени
 	preferedName() {
-		$(`<a class="getFromFio">использовать ФИО</a>`)
-			.on('click', e => {
+		dom('<a class="getFromFio">использовать ФИО</a>')
+			.nextTo('#crm_customer_edit_customFields_prefered_name')
+			.listen('click', e => {
 				const fio = [
-					$('#crm_customer_edit_lastName').val(),
-					$('#crm_customer_edit_firstName').val(),
-					$('#crm_customer_edit_patronymic').val()
-				];
-				$('#crm_customer_edit_customFields_prefered_name').val(fio.join(' ').trim());
-			})
-			.insertAfter($('#crm_customer_edit_customFields_prefered_name'));
+					dom('#crm_customer_edit_lastName').val(),
+					dom('#crm_customer_edit_firstName').val(),
+					dom('#crm_customer_edit_patronymic').val()
+				].filter(Boolean).join(' ');
+				dom('#crm_customer_edit_customFields_prefered_name').val(fio);
+			});
 	}
 }

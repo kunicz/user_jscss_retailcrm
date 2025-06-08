@@ -1,12 +1,14 @@
 import RootClass from '@helpers/root_class';
 import OrdersTd from '@modules/orders/td';
 import normalize from '@helpers/normalize';
-import retailcrm from '@helpers/retailcrm_direct';
 import { fakeCustomers, orderIsDoneStatuses } from '@src/mappings';
 import { ARTIKUL_DONAT } from '@root/config';
+import { getCrmOrder } from '@src/requests';
+import dom from '@helpers/dom';
 
 export default class OrdersRow extends RootClass {
 	constructor(tr) {
+		if (dom.isOrphan(tr)) return;
 		super();
 		this.tr = tr;
 		this.tds = tr.nodes('td');
@@ -14,7 +16,7 @@ export default class OrdersRow extends RootClass {
 	}
 
 	async init() {
-		this.crm = await this.getCrm();
+		this.crm = await getCrmOrder(normalize.number(this.tr.data('url')));
 		this.tr.data('crm', this.crm); // получаем и консервиуем данные заказа из CRM
 		this.hasDonat();
 		this.isDone();
@@ -22,13 +24,6 @@ export default class OrdersRow extends RootClass {
 		this.isBatchHide();
 		this.tds.forEach(td => new OrdersTd(td).init());
 		this.tr.addClass('loaded');
-	}
-
-	// получает данные заказа из CRM по id заказа
-	async getCrm() {
-		const id = normalize.number(this.tr.data('url'));
-		const orderCrm = await retailcrm.get.order.byId(id);
-		return orderCrm;
 	}
 
 	// проверяет наличие доната в заказе

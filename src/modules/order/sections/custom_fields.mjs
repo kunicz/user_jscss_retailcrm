@@ -1,61 +1,46 @@
 import { iconsSVG } from '@src/mappings';
-import Order from '@pages/order';
+import { intaro } from '@modules/order/sections';
+import dom from '@helpers/dom';
 
 export default class CustomFields {
 	constructor() {
-		this.intaro = `${Order.intaro}_customFields`;
-		this.$container = $('#order-custom-fields');
+		this.intaro = intaro + '_customFields';
+		this.block = dom('#order-custom-fields');
 	}
 
 	init() {
 		this.florist();
 		this.moveToRight();
 		this.labels();
-		this.ignoreDiscountTrigger();
 		this.lovix();
 		this.warning();
 	}
 
 	//переносим блок в правую колонку
 	moveToRight() {
-		this.$container.appendTo(this.$container.parents('.order-main-box').find('.m-box__right-side'));
+		this.block.lastTo(this.block.ancestor('.order-main-box').node('.m-box__right-side'));
 	}
 
 	//лейблы над текстовыми полями
 	labels() {
-		this.$container.find('.input-group').each((_, e) => {
-			if ($(e).find('input:not([type=checkbox]), textarea, select').length) $(e).addClass('text');
+		this.block.nodes('.input-group').forEach(el => {
+			if (el.nodes('input:not([type=checkbox]), textarea, select').length) el.addClass('text');
 		});
-	}
-
-	//игнорировать триггер скидки
-	ignoreDiscountTrigger() {
-		const inputMain = $(`#${this.intaro}_discount_trigger_ignore`);
-		inputMain.parent().hide();
-		$('<input type="checkbox" class="input-field" />')
-			.prop('checked', inputMain.prop('checked'))
-			.on('change', e => inputMain.prop('checked', $(e.target).prop('checked')))
-			.wrap('<div class="tooltip"></div>')
-			.parent()
-			.prepend('<span>Игнорировать триггер скидки</span>')
-			.append(`<div class="tooltip__content"><div class="tooltip__inner">Для STAY TRUE Flowers автоматически ставится скидка в зависитмости от суммы всех заказов клиента<br><br>Наличие и Списаие всегда 100%</div></div>`)
-			.wrap('<div id="ignoreDiscountTrigger" class="order-row__top"></div>')
-			.parent()
-			.insertBefore('#patch-order-discount-errors');
 	}
 
 	//lovix
 	lovix() {
-		$(`[for="${this.intaro}_lovixlube"]`).prepend(iconsSVG.lovixlube);
+		dom(`[for="${this.intaro}_lovixlube"]`).toFirst(iconsSVG.lovixlube);
 	}
 
 	//warning
 	warning() {
-		$(`[for="${this.intaro}_warning"]`).prepend(iconsSVG.warning);
+		dom(`[for="${this.intaro}_warning"]`).toFirst(iconsSVG.warning);
 	}
 
 	//переносим флориста в основной блок
 	florist() {
-		$(`#${this.intaro}_florist`).parent().insertBefore($(`#${Order.intaro}_site`).parent());
+		const site = dom(`#${intaro}_site_chosen`);
+		if (site) dom(`#${this.intaro}_florist`).parent().prevTo(site.parent());
 	}
 }

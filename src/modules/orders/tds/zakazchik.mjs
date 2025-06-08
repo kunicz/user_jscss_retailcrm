@@ -1,6 +1,6 @@
 import { iconsSVG } from '@src/mappings';
 import copyBtn from '@helpers/clipboard';
-import Reply from '@modules/orders/reply';
+import TelegramReply from '@modules/orders/telegram_reply';
 import OrdersTd from '@modules/orders/td';
 
 export default class ZakazchikTd extends OrdersTd {
@@ -41,7 +41,7 @@ export default class ZakazchikTd extends OrdersTd {
 	// добавляет сообщение для заказчика
 	async telegramReply() {
 		if (this.tr.isBatchHide) return;
-		const output = new Reply(this.crm).init();
+		const output = new TelegramReply(this.crm).init();
 		copyBtn(output, '').lastTo(this.td);
 	}
 }

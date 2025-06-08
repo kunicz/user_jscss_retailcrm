@@ -1,13 +1,15 @@
 import RootClass from '@helpers/root_class';
 import { indexes } from '@modules/orders/indexes';
+import dom from '@helpers/dom';
 
 export default class OrdersTd extends RootClass {
 	static classesTd = new Map();
 	static registerClass(cls) {
 		if (!cls.columnName) return;
-		self.classesTd.set(cls.columnName, cls);
+		OrdersTd.classesTd.set(cls.columnName, cls);
 	}
 	constructor(td) {
+		if (dom.isOrphan(td)) return;
 		super();
 		this.td = td;
 		this.tr = this.td.parent('tr');
@@ -23,7 +25,7 @@ export default class OrdersTd extends RootClass {
 	init() {
 		this.td.attr('col', this.slug); // добавляем атрибут col для простого обращения к ячейке
 		this.wrapNative(); // оборачиваем оригинальное содержимое ячейки в span с классом native
-		const cls = self.classesTd.get(this.slug);
+		const cls = OrdersTd.classesTd.get(this.slug);
 		if (cls) new cls(this.td).init();
 	}
 
@@ -32,5 +34,3 @@ export default class OrdersTd extends RootClass {
 		this.td.html(`<span class="native">${this.td.html()}</span>`);
 	}
 }
-
-self = OrdersTd;

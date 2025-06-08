@@ -1,7 +1,7 @@
 import RootClass from '@helpers/root_class';
-import App from '@src';
-import Admin from './finances/admin.mjs';
-import Manager from './finances/manager.mjs';
+import { user } from '@src';
+import Admin from './admin.mjs';
+import Manager from './manager.mjs';
 
 export default class Finances extends RootClass {
 	constructor() {
@@ -10,7 +10,7 @@ export default class Finances extends RootClass {
 	}
 
 	init() {
-		const module = App.user?.isAdmin ? Admin : Manager;
+		const module = user?.isAdmin ? Admin : Manager;
 		this.module = new module();
 		this.module.init();
 	}

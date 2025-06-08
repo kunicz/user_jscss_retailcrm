@@ -56,14 +56,17 @@ export default class ProductsTd extends OrdersTd {
 		});
 
 		// возвращает имя товара:
-		// - в виде строки, если нет moyskladid
+		// - в виде строки, если нет moysklad-id
 		// - в виде ссылки на мойсклад, если есть
-		// если свойство есть, а самого заказа в моем складе еще нет (новый, ни разу не сохраненный), то уничтожаем ссылку
+		// если свойство есть, а самого заказа в моем складе еще нет, то уничтожаем ссылку
+		// почему может не быть сущности в моем складе:
+		// - заказ в срм новый, не обновленный ни разу (триггер не запускался)
+		// - не оплачен платный тариф в моем складе (поэтому сущности не создаются, даже при выполненном триггере)
 		function name(item) {
 			const title = `${space.numNbspStr(item.name)} (${space.strNbspStr(item.quantity)})`;
 			const span = dom('<span/>');
 			span.html(title);
-			if (!item.props.moyskladid) return span;
+			if (!item.props['moysklad-id']) return span;
 
 			let loaded = false;
 			const a = dom('<a class="moysklad" href="" target="_blank">');
@@ -71,7 +74,7 @@ export default class ProductsTd extends OrdersTd {
 			a.listen('mouseenter', async () => {
 				if (loaded) return;
 				loaded = true;
-				const ms = await self.getMs(item.props.moyskladid);
+				const ms = await self.getMs(item.props['moysklad-id']);
 				const msId = ms?.id;
 				if (!msId) {
 					const text = a.txt();

@@ -1,0 +1,13 @@
+.loading{position:relative}
+.loading:after{
+	content:'';
+	display:block;
+	width:100%;height:100%;
+	position:absolute;top:0;left:0;z-index:100;
+	background-color:rgba(255,255,255,.9);
+	background-image:url('https://static.tildacdn.com/tild3566-3032-4362-a339-636432336634/retailcrmPreloader.gif');
+	background-position: center;
+	background-repeat:no-repeat;
+	background-size: 35px;
+}
+.omnica-modal.loading{position:fixed;background:none}

@@ -48,6 +48,19 @@ export const vehicleFormats = [
 	'букет-гигант'
 ];
 
+// маппинг для частей адреса
+export const adresParts = [
+	['ул', 'улица'],
+	['наб', 'набережная'],
+	['бул', 'бульвар'],
+	['ш', 'шоссе'],
+	['пр-кт', 'проспект'],
+	['пр-д', 'проезд'],
+	['пер', 'переулок'],
+	['пл', 'площадь'],
+	['алл', 'аллея']
+];
+
 // статусы зафиналенного заказа
 //export const orderIsDoneStatuses = ['vitrina-sobran', 'razobran', 'cancel-other'];
 export const orderIsDoneStatuses = ['complete', 'vitrina-sobran', 'razobran', 'cancel-other'];

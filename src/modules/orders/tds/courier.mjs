@@ -68,6 +68,7 @@ export default class CourierTd extends OrdersTd {
 
 	// стоимость доставки
 	price() {
+		if (!this.netCost) return;
 		this.td.toLast(`<div class="price">${this.netCost} руб.</div>`);
 		if (this.netCost === this.cost) return;
 		const text = (this.cost > this.netCost ? 'экономия' : 'расход') + ': ' + space.strNbspStr(`${Math.abs(this.cost - this.netCost)} руб.`);
