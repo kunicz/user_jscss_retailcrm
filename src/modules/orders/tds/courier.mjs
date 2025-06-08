@@ -156,7 +156,6 @@ export default class CourierTd extends OrdersTd {
 			'стоимость доставки': this.netCost,
 			'курьер не уведомлен': this.needNotify() ? null : 'notified'
 		}
-		console.log(data);
 		const warningCases = [];
 		for (const [key, value] of Object.entries(data)) if (!value) warningCases.push(key);
 		if (!warningCases.length) return;

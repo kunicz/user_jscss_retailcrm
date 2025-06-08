@@ -9,7 +9,8 @@ import Order from '@pages/order';
 import Products from '@pages/products';
 import Product from '@pages/product';
 import { getCrmUser } from '@src/requests';
-import { shops, getShops, fakeCustomers, getFakeCustomers, noFlowers, getNoFlowers } from '@src/mappings';
+import { shops, fakeCustomers, noFlowers } from '@src/mappings';
+import { getShops, getFakeCustomers, getNoFlowers } from '@src/requests';
 import dom from '@helpers/dom';
 import '@css/all.css';
 

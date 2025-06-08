@@ -89,29 +89,16 @@ export const colorsMap = new Map([
 ]);
 
 // статусы зафиналенного заказа
-//export const orderIsDoneStatuses = ['vitrina-sobran', 'razobran', 'cancel-other'];
 export const orderIsDoneStatuses = ['complete', 'vitrina-sobran', 'razobran', 'cancel-other'];
 
 // ненастоящие клиенты
 // инициализируется в index.mjs
 export let fakeCustomers = null;
-export async function getFakeCustomers() {
-	const customers = await retailcrm.get.customers.fake();
-	return customers;
-}
 
 // магазины из бд
 // инициализируется в index.mjs
 export let shops = null;
-export async function getShops() {
-	const shops = await db.table('shops').get();
-	return shops;
-}
 
 // все некаталожные товары нецветы из CRM
 // инициализируется в index.mjs
 export let noFlowers = null;
-export async function getNoFlowers() {
-	const noFlowers = await retailcrm.get.products.noFlowers();
-	return noFlowers;
-}

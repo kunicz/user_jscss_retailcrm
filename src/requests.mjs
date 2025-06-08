@@ -16,19 +16,32 @@ export async function getCrmOrder(id) {
 
 // получает данные товара из crm по id товара
 export async function getCrmProduct(id) {
-	const response = await retailcrm.get.products({
-		filter: { ids: [id] }
-	});
+	const response = await retailcrm.get.products({ filter: { ids: [id] } });
 	return response?.[0];
+}
+
+// ненастоящие клиенты
+export async function getFakeCustomers() {
+	const response = await retailcrm.get.customers.fake();
+	return response;
+}
+
+// магазины из бд
+export async function getShops() {
+	const response = await db.table('shops').get();
+	return response;
+}
+
+// все некаталожные товары нецветы из CRM
+export async function getNoFlowers() {
+	const response = await retailcrm.get.products.noFlowers();
+	return response;
 }
 
 // получает данные товара из db по id товара
 // id - это externalId из Тильдя (можно взять в api retailcrm)
 export async function getDbProduct(id, shop_crm_id) {
-	const response = await db.table('products').get({
-		where: { id, shop_crm_id },
-		limit: 1
-	});
+	const response = await db.table('products').get({ where: { id, shop_crm_id }, limit: 1 });
 	return response;
 }
 
