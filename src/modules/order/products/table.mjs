@@ -126,7 +126,7 @@ export default class ProductsTable extends RootClass {
 		const btn = dom('#order-list [class*="section__head"] button');
 		btn.setInterval(() => {
 			const conditions = [
-				$(`#${intaro}_manager`).val(),
+				//$(`#${intaro}_manager`).val(), // у менеджеров нет выбора и селекта нет 
 				$(`#${intaro}_site`).val(),
 			];
 			btn.toggle(!conditions.some(c => !c));

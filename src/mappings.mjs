@@ -61,6 +61,33 @@ export const adresParts = [
 	['алл', 'аллея']
 ];
 
+// классы, указывающие на цвет товара
+export const propsColor = [
+	'gamma',
+	'viebri-gammu',
+	'tsvet',
+	'viebri-tsvet',
+	'kakoy-tsvet'];
+
+// маппинг для цветов
+export const colorsMap = new Map([
+	[/ч\/б/i, 'dark'],
+	[/ярк/i, 'bright'],
+	[/нежн/i, 'soft'],
+	[/т[её]мн/i, 'dark'],
+	[/солнечн/i, 'sunny'],
+	[/светл/i, 'light'],
+	[/красн/i, 'red'],
+	[/бел/i, 'white'],
+	[/розов/i, 'pink'],
+	[/ж[её]лт/i, 'yellow'],
+	[/зелен/i, 'green'],
+	[/сини/i, 'blue'],
+	[/фиолет/i, 'purple'],
+	[/оранж/i, 'orange'],
+	[/персик/i, 'peach'],
+]);
+
 // статусы зафиналенного заказа
 //export const orderIsDoneStatuses = ['vitrina-sobran', 'razobran', 'cancel-other'];
 export const orderIsDoneStatuses = ['complete', 'vitrina-sobran', 'razobran', 'cancel-other'];

@@ -13,6 +13,7 @@ tr[id^="order-product-section"] td[data-type="item-cost"] div[class^="controls"]
 /*скрыть*/
 tr[id^="order-product-section"] td[data-type="item-ordering"] > div,/*порядковый номер товара в таблице*/
 tr[id^="order-product-section"] td[data-type="item-cost"] .mt-3,/*без НДС*/
+tr[id^="order-product-section"] td[data-type="item-cost"] span[aria-label*="Товар по акционной цене"],
 tr[id^="order-product-section"] [data-type="inventory-summary"],/*без НДС*/
 tr[id^="order-product-section"] td[data-type="item-preview"] button[class*="recommendation-button"]/*сопутствующие товары*/
 {display:none}

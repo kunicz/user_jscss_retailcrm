@@ -17,8 +17,6 @@ export default class Finances extends RootClass {
 		this.watch();
 		this.moneyDrop();
 		this.fnfDom();
-		if (!this.trs.length) return;
-
 		this.fnf();
 		dom('#main').data('finances', this);
 		return this;
@@ -75,8 +73,8 @@ export default class Finances extends RootClass {
 		});
 	}
 	fnfDisplay() {
-		dom('#rashodFlowers')?.next().txt(this.money.flowers.toFixed(2) + ' ₽');
-		dom('#rashodNoFlowers')?.next().txt(this.money.noflowers.toFixed(2) + ' ₽');
+		dom('#rashodFlowers')?.next().txt(parseFloat(this.money.flowers.toFixed(2)) + ' ₽');
+		dom('#rashodNoFlowers')?.next().txt(parseFloat(this.money.noflowers.toFixed(2)) + ' ₽');
 	}
 
 

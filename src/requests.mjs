@@ -17,21 +17,16 @@ export async function getCrmOrder(id) {
 // получает данные товара из crm по id товара
 export async function getCrmProduct(id) {
 	const response = await retailcrm.get.products({
-		filter: {
-			ids: [id]
-		}
+		filter: { ids: [id] }
 	});
 	return response?.[0];
 }
 
 // получает данные товара из db по id товара
 // id - это externalId из Тильдя (можно взять в api retailcrm)
-export async function getDbProduct(id, shopCrmId) {
+export async function getDbProduct(id, shop_crm_id) {
 	const response = await db.table('products').get({
-		where: {
-			id: id,
-			shop_crm_id: shopCrmId
-		},
+		where: { id, shop_crm_id },
 		limit: 1
 	});
 	return response;

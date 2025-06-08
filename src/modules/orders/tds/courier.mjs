@@ -17,7 +17,7 @@ export default class CourierTd extends OrdersTd {
 		const cf = this.crm.customFields;
 		const c = this.crm.customer;
 		this.code = d.code;
-		this.date = dates.create(new Date(d.date));
+		this.date = d.date ? dates.create(new Date(d.date)) : null;
 		this.isAuto = !!cf?.auto_courier;
 		this.metro = d.address?.metro;
 		this.adres = d.address?.text;
@@ -25,7 +25,8 @@ export default class CourierTd extends OrdersTd {
 		this.domofon = cf?.domofon;
 		this.timeFrom = d.time?.from;
 		this.timeTo = d.time?.to;
-		this.time = this.timeFrom === this.timeTo ? this.timeFrom : `с ${this.timeFrom} до ${this.timeTo}`;
+		this.timeCustom = d.time?.custom;
+		this.time = this.timeCustom ? this.timeCustom : this.timeFrom === this.timeTo ? this.timeFrom : `с ${this.timeFrom} до ${this.timeTo}`;
 		this.cost = d.cost;
 		this.netCost = d.netCost;
 		this.comment = this.crm?.customerComment?.replace(/(\r?\n|\r){2,}/g, '\n');
@@ -96,7 +97,7 @@ export default class CourierTd extends OrdersTd {
 	getData(full = false) {
 		let output = '';
 		//дата
-		output += this.date?.isToday || this.date?.daysTo <= 2 ? `${this.date?.title} (${this.date?.strRu})` : this.date?.strRu;
+		if (this.date) output += this.date.isToday || this.date.daysTo <= 2 ? `${this.date.title} (${this.date.strRu})` : this.date.strRu;
 		//время
 		output += ` ${this.time}`;
 		//авто
@@ -147,14 +148,15 @@ export default class CourierTd extends OrdersTd {
 		) return;
 
 		const data = {
-			'дата доставки': this.date,
+			'дата доставки': this.date?.strRu,
 			'время доставки': this.time,
 			'имя получателя': this.nameP,
 			'телефон получателя': this.phoneP,
 			'адрес доставки': this.adres,
 			'стоимость доставки': this.netCost,
-			'курьер не уведомлен': this.needNotify() ? null : 'dont-need'
+			'курьер не уведомлен': this.needNotify() ? null : 'notified'
 		}
+		console.log(data);
 		const warningCases = [];
 		for (const [key, value] of Object.entries(data)) if (!value) warningCases.push(key);
 		if (!warningCases.length) return;
