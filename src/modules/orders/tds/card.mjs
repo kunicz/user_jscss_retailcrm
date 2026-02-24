@@ -44,6 +44,7 @@ export default class CardTd extends OrdersTd {
 
 	// ссылка на печать карточки
 	printCard() {
+		if (this.crm.site === 'ostatki-msk') return;
 		if (!this.cardType || this.cardType === 'без карточки') return;
 		if (this.cardType === 'без айдентики' && !this.customText) return;
 		if (this.skus.length !== 1) return;

@@ -18,6 +18,8 @@ tr[id^="order-product-section"] [data-type="inventory-summary"],/*без НДС*
 tr[id^="order-product-section"] td[data-type="item-preview"] button[class*="recommendation-button"]/*сопутствующие товары*/
 {display:none}
 
+/*dom-insert*/
 #sebes{vertical-align:middle;margin-right:20px;cursor:pointer;line-height:1.42}
 #popupCalculator{font-weight:500}
 #popupCalculator small{opacity:0.6}
+tr[id^="order-product-section"] td[data-type="item-preview"] a.moysklad{margin-top:20px; display:block}

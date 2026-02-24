@@ -4,28 +4,26 @@ import dom from '@helpers/dom';
 import CouriersPopup from '@modules/popup/popup_couriers';
 import '@css/menu.css';
 
+// в феврале 2026 ЧТО-ТО ПОМЕНЯЛИ В ВЕРСТКЕ МЕНЮ, ИЗ-ЗА ЧЕГО ОНО НЕ ПРОГРУЖАЕТСЯ как надо
+// и нормально не отрабатывает wait
+// удалил все, что завязано на DOM
+
 export default class Menu {
 	constructor() {
 		this.menu = dom('#nav-bar');
-		this.navBar = this.menu.child('.bar__inner');
-		const navBarSections = this.navBar.childs();
-		this.navBarTop = navBarSections[0];
-		this.navBarBottom = navBarSections[1];
 		this.CouriersPopup = new CouriersPopup();
 	}
 
-	init() {
+	async init() {
 		// кнопка: курьеры
-		this.addButton(this.CouriersPopup.id, this.CouriersPopup.title, this.CouriersPopup.callback, this.navBarTop);
+		//this.addButton(this.CouriersPopup.id, this.CouriersPopup.title, this.CouriersPopup.callback, this.navBarTop);
 		// версия бандла
 		this.addBundleVersion();
-		// присваивае id="menu"
-		this.menu.attr('id', 'menu').data('class', this);
 	}
 
 	// добавляет кнопку в меню
 	async addButton(id, title, callback, navBarSection, before = '') {
-		const iconSelector = '.nav-btn__icon';
+		const iconSelector = '.nav-btn';
 		if (!await wait.element(iconSelector)) return;
 
 		const dataVAttr = navBarSection.node(iconSelector).attributes;
@@ -50,6 +48,5 @@ export default class Menu {
 
 	// добавляет версию в меню
 	addBundleVersion() {
-		dom(`<div id="bundleVersion">v${window.BUNDLE_VERSION}</div>`).nextTo(this.navBar.node('[data-menu-btn="profile"]'));
 	}
 }

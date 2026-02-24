@@ -1,0 +1,9 @@
+{
+  "name": "retailcrm",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "watch": "npx webpack --config webpack.config.mjs --watch",
+    "build": "npx webpack --config webpack.config.mjs"
+  }
+}

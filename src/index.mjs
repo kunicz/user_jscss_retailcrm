@@ -8,13 +8,12 @@ import Orders from '@pages/orders';
 import Order from '@pages/order';
 import Products from '@pages/products';
 import Product from '@pages/product';
-import { getCrmUser } from '@src/requests';
+import { getCrmUser, getShops, getFakeCustomers, getNoFlowers } from '@src/requests';
 import { shops, fakeCustomers, noFlowers } from '@src/mappings';
-import { getShops, getFakeCustomers, getNoFlowers } from '@src/requests';
 import dom from '@helpers/dom';
 import '@css/all.css';
 
-window.BUNDLE_VERSION = '3.0.0';
+window.BUNDLE_VERSION = '3.1.1';
 
 export let user = {};
 
@@ -79,6 +78,8 @@ export default class App extends RootClass {
 			getFakeCustomers(),
 			getNoFlowers()
 		]);
+
+		//console.log(userResult, shopsResult, fakeCustomersResult, noFlowersResult);
 
 		user = userResult;
 		shops = shopsResult;

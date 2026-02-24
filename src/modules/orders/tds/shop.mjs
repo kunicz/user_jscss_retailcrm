@@ -10,9 +10,9 @@ export default class ShopTd extends OrdersTd {
 
 	// лого вместо названия магазина для компактности
 	logo() {
-		const shop = this.td.txt();
-		const icon = getShopIcon(shop);
-		this.td.html(`<img src="${icon}" title="${shop}" class="logo" />`);
+		const shopTitle = this.td.txt();
+		const icon = getShopIcon(this.crm.site);
+		this.td.html(`<img src="${icon}" title="${shopTitle}" class="logo" />`);
 	}
 }
 OrdersTd.registerClass(ShopTd);

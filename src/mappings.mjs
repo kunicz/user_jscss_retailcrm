@@ -6,10 +6,10 @@ export function getShopIcon(shop) {
 	return shopIcons[shop] || shopIcons.default;
 }
 export const shopIcons = {
-	'STAY TRUE Flowers': 'https://static.tildacdn.com/tild3932-6161-4664-b130-613137393138/white.png',
-	'2STEBLYA': 'https://static.tildacdn.com/tild3334-3237-4466-b631-373430336533/_2steblya__.png',
-	'2STEBLYA. White': 'https://static.tildacdn.com/tild6362-3431-4234-a137-663832633539/_2steblya__.png',
-	'GVOZDISCO': 'https://static.tildacdn.com/tild6165-3638-4264-b634-353537383861/logo.png',
+	'staytrueflowers': 'https://static.tildacdn.com/tild3932-6161-4664-b130-613137393138/white.png',
+	'2steblya': 'https://static.tildacdn.com/tild3334-3237-4466-b631-373430336533/_2steblya__.png',
+	'gvozdisco': 'https://static.tildacdn.com/tild6165-3638-4264-b634-353537383861/logo.png',
+	'lublutiki': 'https://static.tildacdn.com/tild6235-3764-4739-a532-666164353833/flowwow.jpg',
 	'default': 'https://static.tildacdn.com/tild6532-3034-4631-b533-626430643963/flower.png'
 }
 
@@ -32,7 +32,7 @@ export const moysklad = {
 }
 
 // названия банков
-export const bankNames = ['', 'Сбер', 'Тинькофф', 'Альфа', 'Райффайзен', 'ВТБ', 'СГБ', 'Газпром', 'Россельхоз'];
+export const bankNames = ['', 'Сбер', 'Тинькофф', 'Альфа', 'Райффайзен', 'ВТБ', 'СГБ', 'Газпром', 'Россельхоз', 'Ozon', 'Wildberries', 'Youmoney'];
 
 // форматы товаров для автокурьеров
 export const vehicleFormats = [

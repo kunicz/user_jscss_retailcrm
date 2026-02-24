@@ -23,12 +23,13 @@ export default class ProductsTr extends RootClass {
 		this.setters(); // устанавливаем сеттеры
 		const propertiesPromise = new Properties(this.tr).init(); // добавляем недостающие properties
 		this.auto();
-		this.dopnikPurchasePrice();
 		this.moysklad();
+		this.dopnikPurchasePrice(); // желательно держать ее пониже, так как она на самом деле асинхронная тоже
 		await propertiesPromise; // обязательно надо дождаться, чтоб несколько инстансов Properties в разных tr не накладывались друг на друга
 		this.tr.addClass('loaded');
 	}
 
+	// получаем данные о товаре из других сервисов
 	async data() {
 		this.tr.crm = await getCrmProduct(this.tr.data('product-id'));
 		const shop_crm_id = dom(`#${intaro}_site`).val();
@@ -125,7 +126,7 @@ export default class ProductsTr extends RootClass {
 	}
 
 	// устанавливает закупочную цену допника
-	async dopnikPurchasePrice() {
+	dopnikPurchasePrice() {
 		if (!this.tr.isDopnik()) return;
 		if (this.tr.getPurchasePrice() > 0) return;
 		if (this.tr.getPurchasePrice() == this.tr.db.purchase_price) return;

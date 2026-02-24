@@ -89,13 +89,13 @@ export default class TelegramReply extends RootClass {
 	}
 
 	_poluchatel = () => {
-		if (!this?.name && !this?.phone) return '';
+		if (!this?.nameP && !this?.phoneP) return '';
 
 		const title = this.formalityLevel === 'Вы' ? 'Получатель' : 'получатель';
 		let output = `🙎 ${b(title)}:\n`;
-		if (this.name && this.phone) output += `${this.name} (${this.phone})`;
-		else if (this.name) output += `${this.name}`;
-		else if (this.phone) output += `(${this.phone})`;
+		if (this.nameP && this.phoneP) output += `${this.nameP} (${this.phoneP})`;
+		else if (this.nameP) output += `${this.nameP}`;
+		else if (this.phoneP) output += `(${this.phoneP})`;
 		return output;
 	};
 
